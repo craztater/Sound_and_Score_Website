@@ -1,0 +1,2773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TAB Sound & Score — Mixing · Mastering · Composition</title>
+
+<link rel="icon" type="image/png" href="images/Circle_TAB_Black.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --black: #141414;
+    --surface: rgba(28,28,28,0.85);
+    --surface2: rgba(36,36,36,0.90);
+    --border: #363636;
+    --gold: #b53535;
+    --gold-dim: #7a2626;
+    --gold-glow: rgba(181,53,53,0.10);
+    --text: #eeeeee;
+    --text-muted: #888888;
+    --text-dim: #555555;
+    --white: #f5f5f5;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: #141414;
+    background-image:
+      radial-gradient(ellipse 90% 40% at 60% 0%, rgba(181,53,53,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 10% 30%, rgba(181,53,53,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 60% at 80% 70%, rgba(181,53,53,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 30% 100%, rgba(181,53,53,0.05) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+
+  /* Hero stats bar */
+  .hero-stats {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 56px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+    max-width: 680px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.8s forwards;
+  }
+  .hero-stat {
+    display: flex; flex-direction: column; gap: 7px;
+    flex: 1;
+  }
+  .hero-stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1;
+  }
+  .hero-stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .hero-stat-div {
+    width: 1px;
+    height: 48px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: 0 32px;
+  }
+
+  /* Custom cursor — spinning reticle */
+  .cursor {
+    position: fixed;
+    width: 7px; height: 7px;
+    background: var(--gold);
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%) rotate(45deg);
+    transition: width 0.18s, height 0.18s, background 0.18s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.18s ease, height 0.18s ease;
+  }
+  .cursor-ring::before {
+    content: '';
+    position: absolute; inset: 0;
+    border: 1px solid rgba(181,53,53,0.40);
+    animation: cursorSpin 6s linear infinite;
+  }
+  @keyframes cursorSpin { to { transform: rotate(360deg); } }
+  body:has(a:hover) .cursor, body:has(button:hover) .cursor { width: 11px; height: 11px; }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 46px; height: 46px; }
+  body:has(a:hover) .cursor-ring::before, body:has(button:hover) .cursor-ring::before {
+    border-color: var(--gold);
+    animation-duration: 2s;
+  }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 48px;
+    background: #141414;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-logo img { display:block; }
+  .nav-links { display: flex; gap: 36px; align-items: center; }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: none;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--black) !important;
+    background: var(--gold);
+    padding: 10px 22px;
+    text-decoration: none;
+    transition: opacity 0.2s !important;
+    cursor: none;
+  }
+  .nav-cta:hover { opacity: 0.85; color: var(--black) !important; }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 48px 80px;
+    padding-top: 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 70% 40%, rgba(181,53,53,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(181,53,53,0.04) 0%, transparent 50%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(181,53,53,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(181,53,53,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse 80% 60% at 60% 50%, black 0%, transparent 70%);
+  }
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+  .hero-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(64px, 9vw, 130px);
+    font-weight: 300;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    max-width: 900px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.35s forwards;
+  }
+  .hero-headline em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  .hero-sub {
+    margin-top: 32px;
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 480px;
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.5s forwards;
+  }
+  .hero-actions {
+    margin-top: 48px;
+    display: flex; gap: 20px; align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.65s forwards;
+  }
+  .btn-primary {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--gold);
+    color: var(--black);
+    padding: 16px 36px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    cursor: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-ghost {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .btn-ghost:hover { color: var(--gold); }
+  .btn-ghost::after {
+    content: '↓';
+    font-size: 14px;
+  }
+
+  .hero-scroll-line {
+    position: absolute; right: 48px; bottom: 80px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    opacity: 0;
+    animation: fadeIn 1s ease 1.2s forwards;
+  }
+  .hero-scroll-line span {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    writing-mode: vertical-rl;
+  }
+  .scroll-bar {
+    width: 1px; height: 60px;
+    background: var(--gold);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  /* Section common */
+  section { padding: 120px 48px; }
+  .section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 5vw, 72px);
+    font-weight: 300;
+    line-height: 1.05;
+    color: var(--white);
+  }
+  .section-title em { font-style: italic; color: var(--gold); }
+  .divider {
+    width: 1px;
+    height: 80px;
+    background: var(--gold);
+    margin: 0 auto;
+  }
+
+  /* Services teaser */
+  .services-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 80px;
+  }
+  .service-card {
+    background: var(--surface);
+    padding: 56px 48px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+    cursor: none;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 1px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .service-card:hover::before { transform: scaleX(1); }
+  .service-card:hover { background: var(--surface2); }
+  .service-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 32px;
+  }
+  .service-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--white);
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+  .service-card p {
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+  .service-arrow {
+    position: absolute; bottom: 28px; right: 0; left: 0; text-align: center;
+    font-size: 24px;
+    color: var(--gold);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .service-card:hover .service-arrow { opacity: 1; transform: translateX(0); }
+
+  /* Mixing Section */
+  .mixing-section { background: transparent; }
+  .mixing-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 72px;
+  }
+  .mixing-intro { font-size: 16px; color: var(--text-muted); line-height: 1.7; max-width: 440px; }
+
+  /* ── Before/After Rows ── */
+  .ba-list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border);
+  }
+  .ba-row {
+    display: grid;
+    grid-template-columns: 200px 140px 140px 1fr 48px;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+  .ba-row:hover { background: rgba(255,255,255,0.015); }
+  .ba-row-genre {
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ba-row-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--gold);
+    padding: 2px 7px;
+    border-radius: 99px;
+  }
+  .ba-row-tracks {
+    display: flex;
+    gap: 4px;
+  }
+  .ba-track-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ba-track-btn.active {
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+  }
+  .ba-row-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .ba-pill {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border: none;
+    background: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .ba-pill.active {
+    background: var(--gold);
+    color: var(--black);
+  }
+  .ba-row-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ba-progress-track {
+    flex: 1;
+    height: 36px;
+    background: transparent;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  .ba-waveform {
+    width: 100%;
+    height: 36px;
+    display: block;
+  }
+  .ba-progress-fill {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 2px;
+    transform: translateY(-50%);
+    background: rgba(181,53,53,0.6);
+    width: 0%;
+    z-index: 2;
+    pointer-events: none;
+    transition: width 0.1s linear;
+  }
+  .ba-row-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    width: 32px;
+    text-align: right;
+  }
+  .ba-row-play {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .ba-row-play:hover { border-color: var(--gold); background: var(--gold-glow); }
+  .ba-row-play.playing { border-color: var(--gold); background: var(--gold); }
+  .ba-row-play.playing svg { fill: var(--black); }
+  .ba-row-play svg { width: 14px; height: 14px; fill: var(--text-muted); transition: fill 0.2s; }
+  .ba-row-podcast { opacity: 0.85; }
+
+    /* Composition section */
+  .comp-section { background: transparent; }
+  .comp-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 72px;
+  }
+  .comp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+  .comp-card {
+    background: var(--surface);
+    padding: 24px 28px;
+    position: relative;
+    transition: background 0.3s;
+    cursor: none;
+    border-right: 1px solid var(--border);
+  }
+  .comp-card:nth-child(3n) { border-right: none; }
+  .comp-card { border-bottom: 1px solid var(--border); }
+  .comp-card:nth-last-child(-n+3) { border-bottom: none; }
+  .comp-card:hover { background: var(--surface2); }
+  .comp-vibe {
+    font-family: 'Outfit', sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--white);
+    margin-bottom: 5px;
+  }
+  .comp-card h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .comp-duration {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+  .comp-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .comp-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+  }
+  .comp-play {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .comp-play-btn {
+    width: 42px; height: 42px;
+    border: 1px solid var(--gold);
+    background: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: none;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .comp-play-btn:hover { background: var(--gold-glow); }
+  .comp-play-btn svg { width: 14px; height: 14px; fill: var(--gold); }
+  .comp-mini-wave {
+    flex: 1; height: 28px;
+    display: flex; align-items: center; gap: 2px;
+    opacity: 0.5;
+  }
+  .comp-mini-wave .wave-bar {
+    flex-shrink: 0;
+    width: 2px;
+    border-radius: 99px;
+    background: var(--gold-dim);
+    transition: background 0.3s;
+  }
+  .comp-mini-wave .wave-bar { background: rgba(181,53,53,0.30); }
+  .comp-mini-wave.playing .wave-bar {
+    animation: nowPlaying 0.6s ease-in-out infinite;
+    background: var(--gold);
+  }
+  .comp-mini-wave.playing .wave-bar:nth-child(even) { animation-delay: 0.3s; }
+
+  /* Pricing section */
+  .pricing-section {
+    background: transparent;
+    position: relative; overflow: hidden;
+  }
+  .pricing-section::before {
+    content: '';
+    position: absolute; top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,169,110,0.04), transparent 60%);
+  }
+  .pricing-header { margin-bottom: 72px; }
+  .pricing-tabs {
+    display: inline-flex; gap: 4px;
+    margin-bottom: 48px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 5px;
+  }
+  .ptab {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    padding: 14px 34px;
+    cursor: none;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .ptab:hover { color: var(--white); }
+  .ptab.active { color: var(--black); background: var(--gold); }
+
+  .pricing-pane { display: none; }
+  .pricing-pane.active { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .price-card {
+    background: var(--black);
+    padding: 48px 40px;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .price-card:hover { background: rgba(40,40,40,0.9); }
+  .price-card.featured {
+    background: var(--surface2);
+    border: 1px solid var(--gold-dim);
+  }
+  .price-card.featured:hover { background: rgba(50,35,35,0.95); }
+  .price-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--gold);
+    padding: 4px 12px;
+    display: inline-block;
+    margin-bottom: 24px;
+  }
+  .price-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .price-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 32px;
+    min-height: 42px;
+  }
+  .price-amount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .price-amount sup {
+    font-size: 24px;
+    vertical-align: top;
+    margin-top: 12px;
+    display: inline-block;
+    color: var(--gold);
+  }
+  .price-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 36px;
+  }
+  .price-features { list-style: none; margin-bottom: 40px; }
+  .price-features li {
+    font-size: 14px;
+    color: var(--text-muted);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .price-features li:last-child { border-bottom: none; }
+  .price-features li::before {
+    content: '—';
+    color: var(--gold);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .btn-price {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 14px 24px;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    transition: all 0.25s;
+    cursor: none;
+  }
+  .btn-price:hover { border-color: var(--gold); color: var(--gold); }
+  .price-card.featured .btn-price {
+    background: var(--gold);
+    color: var(--black);
+    border-color: var(--gold);
+  }
+  .price-card.featured .btn-price:hover { opacity: 0.88; }
+
+  /* VGM Calculator */
+  .vgm-pane { display: none; }
+  .vgm-pane.active { display: block; }
+  .vgm-calc {
+    background: var(--black);
+    padding: 56px;
+    max-width: 700px;
+  }
+  .vgm-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .vgm-row:last-of-type { border-bottom: none; }
+  .vgm-label { font-size: 15px; color: var(--text-muted); }
+  .vgm-label small {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    letter-spacing: 0.08em;
+  }
+  .vgm-control {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .vgm-btn {
+    width: 32px; height: 32px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+  .vgm-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .vgm-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    color: var(--white);
+    min-width: 40px;
+    text-align: center;
+  }
+  .vgm-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 8px 14px;
+    letter-spacing: 0.1em;
+    cursor: none;
+    appearance: none;
+  }
+  .vgm-total {
+    margin-top: 36px;
+    padding: 32px 40px;
+    background: var(--surface2);
+    border: 1px solid var(--gold-dim);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .vgm-total-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .vgm-total-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .vgm-total-price sup { font-size: 24px; }
+  .vgm-book {
+    margin-top: 24px;
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 16px;
+    background: var(--gold);
+    color: var(--black);
+    text-decoration: none;
+    cursor: none;
+    transition: opacity 0.2s;
+  }
+  .vgm-book:hover { opacity: 0.88; }
+
+  /* Booking/Contact Form */
+  .booking-section { background: transparent; }
+  .booking-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 80px;
+    margin-top: 72px;
+  }
+  .booking-info h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--white);
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+  .booking-info p {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+  .booking-guideline {
+    display: flex; align-items: flex-start; gap: 16px;
+    margin-bottom: 20px;
+  }
+  .guideline-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .guideline-text { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+  /* Form */
+  .booking-form { display: flex; flex-direction: column; gap: 20px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .field input, .field select, .field textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    padding: 14px 18px;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    width: 100%;
+    cursor: none;
+  }
+  .field input::placeholder, .field textarea::placeholder { color: var(--text-dim); }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--gold-dim);
+  }
+  .field select { appearance: none; cursor: none; }
+  .field select option { background: var(--surface2); }
+  .file-upload {
+    border: 1px dashed var(--border);
+    background: var(--surface);
+    padding: 32px;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: none;
+    position: relative;
+  }
+  .file-upload:hover { border-color: var(--gold-dim); background: var(--surface2); }
+  .file-upload input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0;
+    cursor: none;
+    width: 100%;
+  }
+  .file-upload-icon { font-size: 28px; margin-bottom: 12px; }
+  .file-upload p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .file-upload small {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+  .checkbox-row {
+    display: flex; align-items: flex-start; gap: 14px;
+  }
+  .checkbox-row input[type="checkbox"] {
+    width: 16px; height: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    accent-color: var(--gold);
+    cursor: none;
+  }
+  .checkbox-row label {
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: none;
+    line-height: 1.6;
+  }
+  .form-submit {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 18px 40px;
+    cursor: none;
+    transition: opacity 0.2s;
+    align-self: flex-start;
+  }
+  .form-submit:hover { opacity: 0.88; }
+  .form-success {
+    display: none;
+    padding: 24px;
+    border: 1px solid var(--gold-dim);
+    background: var(--gold-glow);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    text-align: center;
+  }
+  .refs-grid {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .ref-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: none;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .ref-tag.selected {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-glow);
+  }
+
+  /* Footer */
+  footer {
+    padding: 60px 48px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+  }
+  .footer-logo span { color: var(--gold); }
+  .footer-copy {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+  .footer-socials { display: flex; gap: 24px; }
+  .footer-socials a {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    cursor: none;
+    transition: color 0.2s;
+  }
+  .footer-socials a:hover { color: var(--gold); }
+
+  /* Animations */
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.06); }
+  }
+  @keyframes rotateSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes logoPulse {
+    0%, 100% { filter: drop-shadow(0 0 40px rgba(181,53,53,0.5)); }
+    50% { filter: drop-shadow(0 0 70px rgba(181,53,53,0.75)) drop-shadow(0 0 20px rgba(181,53,53,0.4)); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.1); }
+  }
+  @keyframes nowPlaying {
+    0%, 100% { transform: scaleY(0.3); }
+    50% { transform: scaleY(1); }
+  }
+
+  .playing .wave-bar:nth-child(odd) { animation: nowPlaying 0.6s ease-in-out infinite; }
+  .playing .wave-bar:nth-child(even) { animation: nowPlaying 0.6s ease-in-out 0.3s infinite; }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  /* ═══════════════════════════════════════════════════
+     MOBILE RESPONSIVE — 768px and below
+  ═══════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    /* Nav */
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; } /* hide nav links on mobile */
+    .nav-logo img { height: 36px; }
+
+    /* Mobile hamburger hint */
+    nav::after {
+      content: '☰';
+      color: var(--text-muted);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    /* Hero: stack vertically */
+    .hero {
+      display: flex !important;
+      flex-direction: column !important;
+      padding: 100px 24px 60px !important;
+      gap: 40px !important;
+      min-height: 100vh;
+    }
+    .hero-headline { font-size: clamp(42px, 12vw, 72px) !important; }
+    .hero-tag { font-size: 11px; }
+    .hero-stats { flex-wrap: wrap; gap: 0; margin-top: 32px; }
+    .hero-stat { min-width: 45%; margin-bottom: 16px; }
+    .hero-stat-div { display: none; }
+    .hero-stat-num { font-size: 32px; }
+    .hero-stat-label { font-size: 11px; }
+    .hero-actions { flex-direction: column; gap: 14px; }
+    .btn-primary { text-align: center; padding: 14px 28px; }
+    .hero-scroll-line { display: none; }
+
+    /* Services split */
+    .services-split { grid-template-columns: 1fr !important; }
+
+    /* Sections */
+    section { padding: 60px 24px !important; }
+
+    /* Mixing section */
+    .mixing-header { flex-direction: column; gap: 20px; }
+    .mixing-intro { max-width: 100%; }
+
+    /* BA rows */
+    .ba-row {
+      grid-template-columns: 1fr !important;
+      grid-template-rows: auto auto auto auto !important;
+      gap: 10px !important;
+      padding: 16px 0 !important;
+    }
+    .ba-row-genre { font-size: 16px; }
+    .ba-row-tracks { order: 2; }
+    .ba-row-toggle { order: 3; }
+    .ba-row-progress { order: 4; }
+    .ba-row-play { order: 5; width: 36px; height: 36px; }
+
+    /* Composition — mobile: single column, grouped by category */
+    .comp-grid {
+      grid-template-columns: 1fr !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .comp-card { border-right: none !important; border-bottom: 1px solid var(--border); }
+
+    /* Hide desktop column headers */
+    .comp-col-headers { display: none !important; }
+
+    /* Reorder: all VG first, then Film, then Brand */
+    .comp-grid .comp-card:nth-child(1) { order: 2; }
+    .comp-grid .comp-card:nth-child(2) { order: 5; }
+    .comp-grid .comp-card:nth-child(3) { order: 8; }
+    .comp-grid .comp-card:nth-child(4) { order: 3; }
+    .comp-grid .comp-card:nth-child(5) { order: 6; }
+    .comp-grid .comp-card:nth-child(6) { order: 9; }
+    .comp-grid .comp-card:nth-child(7) { order: 4; }
+    .comp-grid .comp-card:nth-child(8) { order: 7; }
+    .comp-grid .comp-card:nth-child(9) { order: 10; }
+
+    /* Category headers injected via ::before on first card of each group */
+    .comp-grid .comp-card:nth-child(1)::before { order: 1; content: "Video Games"; display: block; font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--white); background: var(--surface2); border-bottom: 2px solid var(--gold); padding: 12px 24px; margin: -24px -28px 16px; font-weight: 600; }
+    .comp-grid .comp-card:nth-child(2)::before { order: 4; content: "Film Score"; display: block; font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--white); background: var(--surface2); border-bottom: 2px solid var(--gold); padding: 12px 24px; margin: -24px -28px 16px; font-weight: 600; }
+    .comp-grid .comp-card:nth-child(3)::before { order: 7; content: "Brand / Commercial"; display: block; font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--white); background: var(--surface2); border-bottom: 2px solid var(--gold); padding: 12px 24px; margin: -24px -28px 16px; font-weight: 600; }
+
+    /* Pricing */
+    .pricing-pane.active { grid-template-columns: 1fr !important; }
+    .price-card { padding: 32px 24px; }
+    .price-amount { font-size: 42px; }
+    .pricing-tabs {
+      position: sticky;
+      top: 70px;
+      z-index: 50;
+      background: #141414;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px !important;
+    }
+    .ptab {
+      font-size: 13px !important;
+      padding: 14px 20px !important;
+      white-space: nowrap;
+    }
+    /* Make pricing tab area visually obvious */
+    .pricing-pane.active { grid-template-columns: 1fr !important; gap: 12px !important; }
+    .price-card { padding: 28px 20px !important; }
+    .price-amount { font-size: 40px !important; }
+
+    /* VGM calc */
+    .vgm-calc { padding: 32px 24px; }
+    .vgm-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .vgm-total { flex-direction: column; gap: 16px; }
+
+    /* Add-ons */
+    [style*="grid-template-columns:1fr 1fr 1fr;gap:2px"] {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    /* Booking */
+    .booking-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+    .form-row { grid-template-columns: 1fr !important; }
+
+    /* About */
+    #about .reveal { width: 100% !important; }
+    #about [style*="float:right"] {
+      float: none !important;
+      width: 100% !important;
+      margin: 0 0 40px 0 !important;
+      display: block !important;
+    }
+    #about [style*="float:right"] > div:first-child {
+      width: 100% !important;
+      height: 280px !important;
+    }
+    #about [style*="float:right"] img {
+      width: 100% !important;
+      height: 280px !important;
+      position: relative !important;
+    }
+    /* Credential badge repositioned on mobile */
+    #about [style*="float:right"] [style*="position:absolute;bottom:-16px"] {
+      position: relative !important;
+      bottom: auto !important;
+      left: auto !important;
+      margin-top: 12px !important;
+      display: inline-block !important;
+    }
+
+    /* Section titles */
+    .section-title { font-size: clamp(36px, 10vw, 56px) !important; }
+
+    /* Footer */
+    footer { flex-direction: column; gap: 16px; text-align: center; padding: 40px 24px; }
+    .footer-socials { justify-content: center; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-headline { font-size: 38px !important; }
+    .section-title { font-size: 32px !important; }
+    nav { padding: 12px 16px; }
+    section { padding: 48px 16px !important; }
+    .price-amount { font-size: 36px; }
+    .ba-row { padding: 14px 0 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo"><img src="images/LONG_WHITE_Sound_and_Score_Logo.png" alt="TAB Sound & Score" style="height:48px;width:auto;display:block;" /></a>
+  <div class="nav-links">
+    <a href="#mixing">Mixing</a>
+    <a href="#composition">Composition</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#about">About</a>
+    <a href="reels.html">Demo Reels</a>
+    <a href="#booking" class="nav-cta">Book a Session</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="display:grid;grid-template-columns:1.15fr 0.85fr;align-items:center;min-height:100vh;padding:100px 48px 60px;gap:48px;">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <!-- LEFT: Logo + Visualizer -->
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;position:relative;z-index:1;opacity:0;animation:fadeUp 1s ease 0.2s forwards;">
+    <!-- Circle logo with orbit ring -->
+    <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:32px;">
+      <!-- Subtle bloom behind (supplements logo's built-in glow) -->
+      <div style="position:absolute;inset:-50px;background:radial-gradient(ellipse at 50% 50%, rgba(181,53,53,0.18) 0%, transparent 65%);animation:glowPulse 3.5s ease-in-out infinite;pointer-events:none;border-radius:50%;filter:blur(16px);"></div>
+      <!-- Slow orbit ring -->
+      <div style="position:absolute;inset:-24px;border:1px solid rgba(181,53,53,0.20);border-radius:50%;animation:rotateSlow 16s linear infinite;pointer-events:none;"></div>
+      <div style="position:absolute;inset:-40px;border:1px dashed rgba(181,53,53,0.10);border-radius:50%;animation:rotateSlow 28s linear reverse infinite;pointer-events:none;"></div>
+      <!-- Circle logo — already has glow built in, no blend needed -->
+      <img src="images/Circle_Logo_Dark_Mode.png" alt="TAB Sound & Score"
+           style="width:min(760px,100%);height:auto;display:block;position:relative;z-index:2;" />
+    </div>
+    <p style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-top:8px;">Los Angeles · Available Worldwide</p>
+  </div>
+
+  <!-- RIGHT: Text -->
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center;">
+    <p class="hero-tag" style="opacity:0;animation:fadeUp 0.8s ease 0.3s forwards;">TAB Sound & Score</p>
+    <h1 class="hero-headline" style="opacity:0;animation:fadeUp 0.9s ease 0.45s forwards;">
+      Your Sound.<br><em>Elevated.</em>
+    </h1>
+
+    <!-- Services callout — big and clear -->
+    <div style="margin-top:28px;display:flex;flex-direction:column;gap:12px;opacity:0;animation:fadeUp 0.9s ease 0.6s forwards;">
+      <div style="display:flex;align-items:center;gap:16px;padding:16px 20px;border-left:2px solid var(--gold);background:rgba(181,53,53,0.06);">
+        <div>
+          <div style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:500;color:var(--white);">Mixing & Mastering</div>
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);margin-top:3px;letter-spacing:0.08em;">Any genre · Radio-ready · Fast turnaround</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;padding:16px 20px;border-left:2px solid var(--gold);background:rgba(181,53,53,0.06);">
+        <div>
+          <div style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:500;color:var(--white);">Composition</div>
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);margin-top:3px;letter-spacing:0.08em;">Film · Video Games · Brands · TV</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-actions" style="margin-top:36px;opacity:0;animation:fadeUp 0.9s ease 0.75s forwards;">
+      <a href="#booking" class="btn-primary">Start a Project</a>
+      <a href="#mixing" class="btn-ghost">Hear the Difference</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="hero-stats" style="margin-top:40px;opacity:0;animation:fadeUp 0.9s ease 0.9s forwards;">
+      <div class="hero-stat">
+        <span class="hero-stat-num">100+</span>
+        <span class="hero-stat-label">Tracks Mixed</span>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">20+</span>
+        <span class="hero-stat-label">Artists</span>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">5</span>
+        <span class="hero-stat-label">Film & Game Credits</span>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">12+</span>
+        <span class="hero-stat-label">Genres</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll-line">
+    <div class="scroll-bar"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- SERVICES SPLIT -->
+<section style="padding: 0; background: var(--black);">
+  <div class="services-split">
+    <div class="service-card" onclick="document.getElementById('mixing').scrollIntoView({behavior:'smooth'})" style="text-align:center;">
+      <div class="service-num">01</div>
+      <h3>Mixing &<br>Mastering</h3>
+      <p>Every genre. Every style. Raw multitracks transformed into radio-ready, streaming-competitive masters.</p>
+      <div class="service-arrow">→</div>
+    </div>
+    <div class="service-card" onclick="document.getElementById('composition').scrollIntoView({behavior:'smooth'})" style="text-align:center;">
+      <div class="service-num">02</div>
+      <h3>Original<br>Composition</h3>
+      <p>Cinematic scores, game OSTs, brand identities. Music that doesn't just accompany the moment—it defines it.</p>
+      <div class="service-arrow">→</div>
+    </div>
+  </div>
+</section>
+
+<!-- MIXING SECTION -->
+<section class="mixing-section" id="mixing">
+  <div style="display:inline-block;border:1px solid var(--gold);color:var(--gold);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.22em;text-transform:uppercase;padding:8px 20px;margin-bottom:48px;">Mixing & Mastering</div>
+  <div class="mixing-header reveal">
+    <div>
+      <h2 class="section-title">Hear the<br><em>Difference</em></h2>
+    </div>
+    <p class="mixing-intro">Toggle between raw and finished. Same session, same arrangement—just what proper engineering does to a record.</p>
+  </div>
+
+    <div class="ba-list">
+  <div class="ba-row reveal " data-idxa="0" data-namea="Dakota" data-nameb="Cant Stand" data-idxb="1">
+    <div class="ba-row-genre">Indie / Bedroom</div>
+    <div class="ba-row-tracks">
+      <button class="ba-track-btn active" onclick="selectTrack(this,0,1,'a')" data-track="a">Example 1</button>
+      <button class="ba-track-btn" onclick="selectTrack(this,0,1,'b')" data-track="b">Example 2</button>
+    </div>
+    <div class="ba-row-toggle">
+      <button class="ba-pill before active" onclick="setRowMode(this,'before',0,1)">Before</button>
+      <button class="ba-pill after" onclick="setRowMode(this,'after',0,1)">After</button>
+    </div>
+    <div class="ba-row-progress">
+      <div class="ba-progress-track" onclick="scrubRow(event,0)">
+        <canvas class="ba-waveform" id="rowwave-0"></canvas>
+        <div class="ba-progress-fill" id="rowprog-0"></div>
+      </div>
+      <span class="ba-row-time" id="rowtime-0">0:00</span>
+    </div>
+    <button class="ba-row-play" id="rowplay-0" onclick="toggleRowPlay(0,1)">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+  <div class="ba-row reveal reveal-delay-1" data-idxa="2" data-namea="Obsessed" data-nameb="Get Gone" data-idxb="3">
+    <div class="ba-row-genre">Pop</div>
+    <div class="ba-row-tracks">
+      <button class="ba-track-btn active" onclick="selectTrack(this,2,3,'a')" data-track="a">Example 1</button>
+      <button class="ba-track-btn" onclick="selectTrack(this,2,3,'b')" data-track="b">Example 2</button>
+    </div>
+    <div class="ba-row-toggle">
+      <button class="ba-pill before active" onclick="setRowMode(this,'before',2,3)">Before</button>
+      <button class="ba-pill after" onclick="setRowMode(this,'after',2,3)">After</button>
+    </div>
+    <div class="ba-row-progress">
+      <div class="ba-progress-track" onclick="scrubRow(event,2)">
+        <canvas class="ba-waveform" id="rowwave-2"></canvas>
+        <div class="ba-progress-fill" id="rowprog-2"></div>
+      </div>
+      <span class="ba-row-time" id="rowtime-2">0:00</span>
+    </div>
+    <button class="ba-row-play" id="rowplay-2" onclick="toggleRowPlay(2,3)">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+  <div class="ba-row reveal reveal-delay-2" data-idxa="4" data-namea="Topps" data-nameb="Inheritance" data-idxb="5">
+    <div class="ba-row-genre">Hip-Hop / Trap</div>
+    <div class="ba-row-tracks">
+      <button class="ba-track-btn active" onclick="selectTrack(this,4,5,'a')" data-track="a">Example 1</button>
+      <button class="ba-track-btn" onclick="selectTrack(this,4,5,'b')" data-track="b">Example 2</button>
+    </div>
+    <div class="ba-row-toggle">
+      <button class="ba-pill before active" onclick="setRowMode(this,'before',4,5)">Before</button>
+      <button class="ba-pill after" onclick="setRowMode(this,'after',4,5)">After</button>
+    </div>
+    <div class="ba-row-progress">
+      <div class="ba-progress-track" onclick="scrubRow(event,4)">
+        <canvas class="ba-waveform" id="rowwave-4"></canvas>
+        <div class="ba-progress-fill" id="rowprog-4"></div>
+      </div>
+      <span class="ba-row-time" id="rowtime-4">0:00</span>
+    </div>
+    <button class="ba-row-play" id="rowplay-4" onclick="toggleRowPlay(4,5)">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+  <div class="ba-row reveal " data-idxa="6" data-namea="Welcome Home" data-nameb="Dukka" data-idxb="7">
+    <div class="ba-row-genre">Rock / Alt</div>
+    <div class="ba-row-tracks">
+      <button class="ba-track-btn active" onclick="selectTrack(this,6,7,'a')" data-track="a">Example 1</button>
+      <button class="ba-track-btn" onclick="selectTrack(this,6,7,'b')" data-track="b">Example 2</button>
+    </div>
+    <div class="ba-row-toggle">
+      <button class="ba-pill before active" onclick="setRowMode(this,'before',6,7)">Before</button>
+      <button class="ba-pill after" onclick="setRowMode(this,'after',6,7)">After</button>
+    </div>
+    <div class="ba-row-progress">
+      <div class="ba-progress-track" onclick="scrubRow(event,6)">
+        <canvas class="ba-waveform" id="rowwave-6"></canvas>
+        <div class="ba-progress-fill" id="rowprog-6"></div>
+      </div>
+      <span class="ba-row-time" id="rowtime-6">0:00</span>
+    </div>
+    <button class="ba-row-play" id="rowplay-6" onclick="toggleRowPlay(6,7)">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+  <div class="ba-row reveal reveal-delay-1" data-idxa="8" data-namea="Ride" data-nameb="All For U" data-idxb="9">
+    <div class="ba-row-genre">EDM</div>
+    <div class="ba-row-tracks">
+      <button class="ba-track-btn active" onclick="selectTrack(this,8,9,'a')" data-track="a">Example 1</button>
+      <button class="ba-track-btn" onclick="selectTrack(this,8,9,'b')" data-track="b">Example 2</button>
+    </div>
+    <div class="ba-row-toggle">
+      <button class="ba-pill before active" onclick="setRowMode(this,'before',8,9)">Before</button>
+      <button class="ba-pill after" onclick="setRowMode(this,'after',8,9)">After</button>
+    </div>
+    <div class="ba-row-progress">
+      <div class="ba-progress-track" onclick="scrubRow(event,8)">
+        <canvas class="ba-waveform" id="rowwave-8"></canvas>
+        <div class="ba-progress-fill" id="rowprog-8"></div>
+      </div>
+      <span class="ba-row-time" id="rowtime-8">0:00</span>
+    </div>
+    <button class="ba-row-play" id="rowplay-8" onclick="toggleRowPlay(8,9)">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+  <div class="ba-row reveal reveal-delay-2" data-idxa="10" data-namea="Sumimasen" data-nameb="Degloved" data-idxb="11">
+    <div class="ba-row-genre">Fusion / Hyper</div>
+    <div class="ba-row-tracks">
+      <button class="ba-track-btn active" onclick="selectTrack(this,10,11,'a')" data-track="a">Example 1</button>
+      <button class="ba-track-btn" onclick="selectTrack(this,10,11,'b')" data-track="b">Example 2</button>
+    </div>
+    <div class="ba-row-toggle">
+      <button class="ba-pill before active" onclick="setRowMode(this,'before',10,11)">Before</button>
+      <button class="ba-pill after" onclick="setRowMode(this,'after',10,11)">After</button>
+    </div>
+    <div class="ba-row-progress">
+      <div class="ba-progress-track" onclick="scrubRow(event,10)">
+        <canvas class="ba-waveform" id="rowwave-10"></canvas>
+        <div class="ba-progress-fill" id="rowprog-10"></div>
+      </div>
+      <span class="ba-row-time" id="rowtime-10">0:00</span>
+    </div>
+    <button class="ba-row-play" id="rowplay-10" onclick="toggleRowPlay(10,11)">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+  <div class="ba-row ba-row-podcast reveal">
+    <div class="ba-row-genre">Podcast &amp; Voiceover <span class="ba-row-badge">New</span></div>
+    <div class="ba-row-tracks" style="visibility:hidden;">
+      <button class="ba-track-btn active">—</button>
+    </div>
+    <div class="ba-row-toggle">
+      <button class="ba-pill before active" onclick="setRowMode(this,'before',12,12)">Raw</button>
+      <button class="ba-pill after" onclick="setRowMode(this,'after',12,12)">Processed</button>
+    </div>
+    <div class="ba-row-progress">
+      <div class="ba-progress-track" onclick="scrubRow(event,12)">
+        <canvas class="ba-waveform" id="rowwave-12"></canvas>
+        <div class="ba-progress-fill" id="rowprog-12"></div>
+      </div>
+      <span class="ba-row-time" id="rowtime-12">0:00</span>
+    </div>
+    <button class="ba-row-play" id="rowplay-12" onclick="toggleRowPlay(12,12)">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+</div>
+</section>
+
+<!-- COMPOSITION SECTION -->
+<section class="comp-section" id="composition" style="border-top: 2px solid rgba(181,53,53,0.35);">
+  <div style="display:inline-block;border:1px solid var(--gold);color:var(--gold);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.22em;text-transform:uppercase;padding:8px 20px;margin-bottom:48px;">Composition Services</div>
+  <div class="comp-header reveal">
+    <div>
+      <h2 class="section-title">Worlds Built<br><em>in Sound</em></h2>
+    </div>
+    <p style="color:var(--text-muted);font-size:15px;line-height:1.7;max-width:380px;">30–60 second showcases. Every track a world. Games, film, brands—original music that becomes the identity.</p>
+  </div>
+
+      <!-- Column headers -->
+  <div class="comp-col-headers" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-bottom:1px;">
+    <div style="padding:16px 28px;background:var(--surface2);border-bottom:2px solid var(--gold);">
+      <span style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--white);">Video Games</span>
+    </div>
+    <div style="padding:16px 28px;background:var(--surface2);border-bottom:2px solid var(--gold);">
+      <span style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--white);">Film Score</span>
+    </div>
+    <div style="padding:16px 28px;background:var(--surface2);border-bottom:2px solid var(--gold);">
+      <span style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--white);">Brand / Commercial</span>
+    </div>
+  </div>
+    <!-- Column headers -->
+  
+  <div class="comp-grid">
+    <!-- Row 1 -->
+    <div class="comp-card reveal" data-category="Video Games" style="order:1;">
+      <h4>Neon Dungeon</h4>
+      <div class="comp-duration">0:48 snippet</div>
+      <div class="comp-tags"><span class="comp-tag">Chiptune</span><span class="comp-tag">Electronic</span><span class="comp-tag">High Energy</span></div>
+      <div class="comp-play">
+        <button class="comp-play-btn" id="cplay-0" onclick="toggleCompPlay(0)">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="comp-mini-wave" id="cwave-0"></div>
+      </div>
+    </div>
+    <div class="comp-card reveal" data-category="Film Score" style="order:4;">
+      <h4>Falling Cities</h4>
+      <div class="comp-duration">0:55 snippet</div>
+      <div class="comp-tags"><span class="comp-tag">Cinematic</span><span class="comp-tag">Orchestral</span><span class="comp-tag">Tense</span></div>
+      <div class="comp-play">
+        <button class="comp-play-btn" id="cplay-1" onclick="toggleCompPlay(1)">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="comp-mini-wave" id="cwave-1"></div>
+      </div>
+    </div>
+    <div class="comp-card reveal" data-category="Brand / Commercial" style="order:7;">
+      <h4>The Brief</h4>
+      <div class="comp-duration">0:30 snippet</div>
+      <div class="comp-tags"><span class="comp-tag">Minimal</span><span class="comp-tag">Corporate</span><span class="comp-tag">Optimistic</span></div>
+      <div class="comp-play">
+        <button class="comp-play-btn" id="cplay-2" onclick="toggleCompPlay(2)">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="comp-mini-wave" id="cwave-2"></div>
+      </div>
+    </div>
+    <!-- Row 2 -->
+    <div class="comp-card reveal reveal-delay-1" data-category="Video Games" style="order:2;">
+      <h4>Overworlded</h4>
+      <div class="comp-duration">0:42 snippet</div>
+      <div class="comp-tags"><span class="comp-tag">Lo-Fi</span><span class="comp-tag">Ambient</span><span class="comp-tag">Exploration</span></div>
+      <div class="comp-play">
+        <button class="comp-play-btn" id="cplay-3" onclick="toggleCompPlay(3)">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="comp-mini-wave" id="cwave-3"></div>
+      </div>
+    </div>
+    <div class="comp-card reveal reveal-delay-1" data-category="Film Score" style="order:5;">
+      <h4>The Cartographer</h4>
+      <div class="comp-duration">0:58 snippet</div>
+      <div class="comp-tags"><span class="comp-tag">Adventure</span><span class="comp-tag">Lush</span><span class="comp-tag">Sweeping</span></div>
+      <div class="comp-play">
+        <button class="comp-play-btn" id="cplay-4" onclick="toggleCompPlay(4)">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="comp-mini-wave" id="cwave-4"></div>
+      </div>
+    </div>
+    <div class="comp-card reveal reveal-delay-1" data-category="Brand / Commercial" style="order:8;">
+      <h4>Signal & Noise</h4>
+      <div class="comp-duration">0:30 snippet</div>
+      <div class="comp-tags"><span class="comp-tag">Tech</span><span class="comp-tag">Electronic</span><span class="comp-tag">Forward</span></div>
+      <div class="comp-play">
+        <button class="comp-play-btn" id="cplay-5" onclick="toggleCompPlay(5)">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="comp-mini-wave" id="cwave-5"></div>
+      </div>
+    </div>
+    <!-- Row 3 -->
+    <div class="comp-card reveal reveal-delay-2" data-category="Video Games" style="order:3;">
+      <h4>Battle Theme</h4>
+      <div class="comp-duration">0:45 snippet</div>
+      <div class="comp-tags"><span class="comp-tag">Action</span><span class="comp-tag">Cinematic</span><span class="comp-tag">Intense</span></div>
+      <div class="comp-play">
+        <button class="comp-play-btn" id="cplay-6" onclick="toggleCompPlay(6)">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="comp-mini-wave" id="cwave-6"></div>
+      </div>
+    </div>
+    <div class="comp-card reveal reveal-delay-2" data-category="Film Score" style="order:6;">
+      <h4>Dark Horizon</h4>
+      <div class="comp-duration">0:50 snippet</div>
+      <div class="comp-tags"><span class="comp-tag">Sci-Fi</span><span class="comp-tag">Electronic</span><span class="comp-tag">Eerie</span></div>
+      <div class="comp-play">
+        <button class="comp-play-btn" id="cplay-7" onclick="toggleCompPlay(7)">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="comp-mini-wave" id="cwave-7"></div>
+      </div>
+    </div>
+    <div class="comp-card reveal reveal-delay-2" data-category="Brand / Commercial" style="order:9;">
+      <h4>Morning Light</h4>
+      <div class="comp-duration">0:30 snippet</div>
+      <div class="comp-tags"><span class="comp-tag">Uplifting</span><span class="comp-tag">Acoustic</span><span class="comp-tag">Warm</span></div>
+      <div class="comp-play">
+        <button class="comp-play-btn" id="cplay-8" onclick="toggleCompPlay(8)">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="comp-mini-wave" id="cwave-8"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING SECTION -->
+<section class="pricing-section" id="pricing">
+  <div style="display:inline-block;border:1px solid var(--gold);color:var(--gold);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.22em;text-transform:uppercase;padding:8px 20px;margin-bottom:48px;">Pricing</div>
+  <div class="pricing-header reveal">
+    <h2 class="section-title">Clear.<br><em>Transparent.</em></h2>
+  </div>
+
+  <div class="pricing-tabs">
+    <button class="ptab active" onclick="switchPricingTab(this,'mixing-pricing')">Mixing & Mastering</button>
+    <button class="ptab" onclick="switchPricingTab(this,'vgm-pricing')">Composition</button>
+  </div>
+
+  <!-- Mixing pricing -->
+  <div class="pricing-pane active" id="mixing-pricing">
+    <div class="price-card reveal">
+      <div class="price-name">The Audit</div>
+      <p class="price-desc">Not ready for a full mix? Get a pro's ears on your home mix.</p>
+      <div class="price-amount"><sup>$</sup>35</div>
+      <div class="price-unit">flat fee · delivered in 48hrs</div>
+      <ul class="price-features">
+        <li>10–15 min detailed video breakdown</li>
+        <li>Low-end, vocals, arrangement notes</li>
+        <li>Written action list</li>
+        <li>1 follow-up question</li>
+      </ul>
+      <a href="#booking" class="btn-price" onclick="event.preventDefault();bookService('audit')">Book an Audit</a>
+    </div>
+
+    <div class="price-card featured reveal reveal-delay-1">
+      <div class="price-badge">Most Popular</div>
+      <div class="price-name">The Single</div>
+      <p class="price-desc">Full mix + master for one track. Radio-ready, streaming-competitive.</p>
+      <div class="price-amount"><sup>$</sup>165</div>
+      <div class="price-unit">per track · 3 revision rounds</div>
+      <ul class="price-features">
+        <li>Full stem mix (unlimited tracks)</li>
+        <li>Mastered for streaming + vinyl</li>
+        <li>3 revision rounds included</li>
+        <li>Stems returned + alt versions</li>
+        <li>7-day turnaround</li>
+      </ul>
+      <a href="#booking" class="btn-price" onclick="event.preventDefault();bookService('single')">Book a Single</a>
+    </div>
+
+    <div class="price-card reveal reveal-delay-2">
+      <div class="price-name">The Project</div>
+      <p class="price-desc">EP or album rate. Lock in a project, save per track.</p>
+      <div class="price-amount"><sup>$</sup>135</div>
+      <div class="price-unit">per track · 3–6 tracks</div>
+      <ul class="price-features">
+        <li>Everything in The Single</li>
+        <li>~18% savings vs single rate</li>
+        <li>Cohesive album mastering</li>
+        <li>Priority scheduling</li>
+        <li>Dedicated project folder</li>
+      </ul>
+      <a href="#booking" class="btn-price" onclick="event.preventDefault();bookService('project')">Book a Project</a>
+    </div>
+  </div>
+
+  <!-- Composition pricing — 3 cards matching the main pane -->
+  <div class="pricing-pane" id="vgm-pricing">
+
+    <!-- Card 1: Video Game OST with live calculator -->
+    <div class="price-card featured reveal">
+      <div class="price-badge">Build Your Quote</div>
+      <div class="price-name">Video Game OST</div>
+      <p class="price-desc">$100 per 3-minute track. Adjust below for an instant estimate.</p>
+
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span style="font-size:14px;color:var(--text-muted);">Tracks</span>
+          <div class="vgm-control">
+            <button class="vgm-btn" onclick="vgmAdjust('tracks',-1)">−</button>
+            <span class="vgm-val" id="vgm-tracks">3</span>
+            <button class="vgm-btn" onclick="vgmAdjust('tracks',1)">+</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span style="font-size:14px;color:var(--text-muted);">Avg. Duration</span>
+          <div class="vgm-control">
+            <button class="vgm-btn" onclick="vgmAdjust('duration',-0.5)">−</button>
+            <span class="vgm-val" id="vgm-duration">2.0 <span style="font-size:13px;color:var(--text-dim);">min</span></span>
+            <button class="vgm-btn" onclick="vgmAdjust('duration',0.5)">+</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span style="font-size:14px;color:var(--text-muted);">Revisions</span>
+          <div class="vgm-control">
+            <button class="vgm-btn" onclick="vgmAdjust('revs',-1)">−</button>
+            <span class="vgm-val" id="vgm-revs">2</span>
+            <button class="vgm-btn" onclick="vgmAdjust('revs',1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="vgm-total" style="margin-top:0;padding:20px 24px;">
+        <div>
+          <div class="vgm-total-label">Estimate</div>
+          <small style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-dim);letter-spacing:0.08em;">Final quote after discovery call</small>
+        </div>
+        <div class="vgm-total-price"><sup>$</sup><span id="vgm-total">1,950</span></div>
+      </div>
+
+      <a href="#booking" class="btn-price" style="margin-top:24px;" onclick="event.preventDefault();bookService('vgm')">Lock In This Estimate</a>
+    </div>
+
+    <!-- Card 2: Brand / Sync -->
+    <div class="price-card reveal reveal-delay-1">
+      <div class="price-name">Brand / Sync</div>
+      <p class="price-desc">Commercial spots, brand identity, and sync licensing.</p>
+      <div class="price-amount"><sup>$</sup>300</div>
+      <div class="price-unit">per track · flat rate</div>
+      <ul class="price-features">
+        <li>Commercial &amp; advertising use</li>
+        <li>Brand identity / logo themes</li>
+        <li>Sync-licensing ready delivery</li>
+        <li>Usage terms discussed up front</li>
+      </ul>
+      <a href="#booking" class="btn-price" onclick="event.preventDefault();bookService('brand')">Book Brand / Sync</a>
+    </div>
+
+    <!-- Card 3: Film / Trailer Score -->
+    <div class="price-card reveal reveal-delay-2">
+      <div class="price-name">Film / Trailer Score</div>
+      <p class="price-desc">Every film is different. Scope-based custom quote.</p>
+      <div class="price-amount" style="font-size:42px;">Custom</div>
+      <div class="price-unit">quoted per project</div>
+      <ul class="price-features">
+        <li>Original cues scored to picture</li>
+        <li>Spotting session included</li>
+        <li>Stems + final mix delivered</li>
+        <li>Timeline built around your deadline</li>
+      </ul>
+      <a href="#booking" class="btn-price" onclick="event.preventDefault();bookService('film')">Discuss Your Film</a>
+    </div>
+
+  </div>
+
+  <!-- Add-ons note -->
+  <div style="margin-top:48px;padding:32px 40px;border:1px solid var(--border);background:var(--black);" class="reveal">
+    <p class="section-tag" style="margin-bottom:12px;">Also Available</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-top:20px;">
+      <div onclick="bookService('mastering')" style="padding:28px 32px;background:var(--surface);border-top:2px solid var(--gold);cursor:pointer;transition:background 0.2s;text-align:center;text-align:center;"
+           onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--white);margin-bottom:8px;">Mastering Only</div>
+        <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--gold);">$50<span style="font-size:12px;color:var(--text-dim);"> / track</span></div>
+        <p style="font-size:13px;color:var(--text-muted);margin-top:8px;line-height:1.6;">Your mix, my master. Streaming-ready LUFS, full limiter chain, delivered in 48hrs.</p>
+        <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);margin-top:14px;letter-spacing:0.1em;">Book this →</div>
+      </div>
+      <div onclick="bookService('podcast')" style="padding:28px 32px;background:var(--surface);border-top:2px solid var(--gold);cursor:pointer;transition:background 0.2s;text-align:center;text-align:center;"
+           onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--white);margin-bottom:8px;">Podcast &amp; Dialogue</div>
+        <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--gold);">$100<span style="font-size:14px;color:var(--text-dim);"> / episode</span></div>
+        <p style="font-size:15px;color:var(--text-muted);margin-top:8px;line-height:1.6;">Broadcast-ready voice mixing for podcasters, YouTubers &amp; creators. Noise reduction, EQ, leveling, mastered for streaming.</p>
+        <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);margin-top:14px;letter-spacing:0.1em;">Book this →</div>
+      </div>
+      <div style="padding:28px 32px;background:var(--surface);border-top:2px solid var(--gold);text-align:center;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--white);margin-bottom:8px;">Rush Delivery</div>
+        <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--gold);">+50%<span style="font-size:12px;color:var(--text-dim);"> of rate</span></div>
+        <p style="font-size:13px;color:var(--text-muted);margin-top:8px;line-height:1.6;">24–48hr turnaround when your deadline won't wait.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING SECTION -->
+<section class="booking-section" id="booking">
+  <p class="section-tag reveal">04 — Work With Me</p>
+  <h2 class="section-title reveal">Let's Make<br><em>Something</em></h2>
+  <div class="booking-grid">
+    <div class="booking-info reveal">
+      <h3>How to Prepare Your Files</h3>
+      <p>Sending properly organized stems saves time and means a better mix. Here's what I need:</p>
+      <div style="margin-bottom:32px;">
+        <p style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">Stems</p>
+        <div class="booking-guideline">
+          <span class="guideline-num">—</span>
+          <span class="guideline-text" style="font-size:16px;">All tracks exported as individual <strong style="color:var(--text);">WAV files (24-bit / 48kHz)</strong></span>
+        </div>
+        <div class="booking-guideline">
+          <span class="guideline-num">—</span>
+          <span class="guideline-text" style="font-size:16px;"><strong style="color:var(--text);">No master bus processing</strong> — no limiter or heavy compression on the stereo out</span>
+        </div>
+        <div class="booking-guideline">
+          <span class="guideline-num">—</span>
+          <span class="guideline-text" style="font-size:16px;">All tracks starting from <strong style="color:var(--text);">0:00 / bar 1</strong> so everything lines up</span>
+        </div>
+        <div class="booking-guideline">
+          <span class="guideline-num">—</span>
+          <span class="guideline-text" style="font-size:16px;"><strong style="color:var(--text);">Label tracks clearly</strong> (Kick, Snare, Lead Vox, Guitar L, etc.)</span>
+        </div>
+        <div class="booking-guideline">
+          <span class="guideline-num">—</span>
+          <span class="guideline-text" style="font-size:16px;">Note any <strong style="color:var(--text);">effects or plugins</strong> you want preserved</span>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:20px 24px;border:1px solid var(--border);background:var(--surface);">
+        <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">The form on the right will ask for your reference track links, vibe, and project notes. If you're booking a mix, BPM and key fields will also appear. Fill in what you know — it doesn't need to be perfect.</p>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-1">
+      <form class="booking-form" id="bookingForm"
+          action="https://formspree.io/f/YOUR_FORMSPREE_ID"
+          method="POST">
+
+          <!-- Always: Name + Email -->
+          <div class="form-row">
+            <div class="field">
+              <label>Your Name</label>
+              <input type="text" name="name" placeholder="Artist or studio name" required />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" name="email" placeholder="you@email.com" required />
+            </div>
+          </div>
+
+          <!-- Always: Service selector -->
+          <div class="field">
+            <label>Service</label>
+            <select name="service" id="serviceSelect" required onchange="morphForm(this.value)">
+              <option value="">Select a service...</option>
+              <option value="audit">The Audit — $35</option>
+              <option value="single">The Single — Mixing + Mastering ($165/track)</option>
+              <option value="project">The Project — EP/Album Rate ($135/track)</option>
+              <option value="mastering">Mastering Only — $50/track</option>
+              <option value="podcast">Podcast &amp; Dialogue — $100/episode</option>
+              <option value="vgm">Composition — Video Game OST ($100 / 3min track)</option>
+              <option value="film">Composition — Film / Score (email for quote)</option>
+              <option value="brand">Composition — Brand / Sync ($300/track)</option>
+            </select>
+          </div>
+
+          <!-- MIXING: BPM + Key (audit, single, project, mastering) -->
+          <div class="form-row form-block" id="block-bpm" style="display:none;">
+            <div class="field">
+              <label>BPM</label>
+              <input type="text" name="bpm" placeholder="e.g. 95" />
+            </div>
+            <div class="field">
+              <label>Key of the Song</label>
+              <input type="text" name="key" placeholder="e.g. C minor" />
+            </div>
+          </div>
+
+          <!-- Genre / Style — label and placeholder morph per service -->
+          <div class="field form-block" id="block-genre" style="display:none;">
+            <label id="genre-label">Genre / Style</label>
+            <input type="text" name="genre" id="genre-input" placeholder="e.g. Hip-Hop, Cinematic, Lo-Fi..." />
+          </div>
+
+          <!-- Vibe tags — morph per service -->
+          <div class="field form-block" id="block-tags" style="display:none;">
+            <label id="tags-label">Vibe / Sound Reference Tags</label>
+            <div class="refs-grid" id="refsGrid"></div>
+            <input type="hidden" name="vibe_tags" id="vibeTagsInput" value="" />
+          </div>
+
+          <!-- Reference links — label morphs -->
+          <div class="field form-block" id="block-refs" style="display:none;">
+            <label id="refs-label">Reference Links</label>
+            <input type="text" name="reference_links" id="refs-input" placeholder="Spotify / YouTube URLs (comma separated)" />
+          </div>
+
+          <!-- Notes / Ideas — label + placeholder morph -->
+          <div class="field form-block" id="block-notes" style="display:none;">
+            <label id="notes-label">Project Notes</label>
+            <textarea name="notes" id="notes-input" rows="4" placeholder="What's not working? What's the vision? Deadline?..."></textarea>
+          </div>
+
+          <!-- Upload button (mixing, podcast, vgm only) -->
+          <div class="field form-block" id="block-upload" style="display:none;">
+            <label id="upload-label">Upload Files</label>
+            <a href="https://s.disco.ac/sqpbtenvzivx" target="_blank" rel="noopener"
+               style="display:flex;align-items:center;gap:16px;padding:24px 28px;border:1px dashed var(--border);background:var(--surface);text-decoration:none;transition:border-color 0.2s,background 0.2s;"
+               onmouseover="this.style.borderColor='var(--gold-dim)';this.style.background='var(--surface2)'"
+               onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface)'">
+              <span style="font-size:28px;flex-shrink:0;">⬆</span>
+              <div>
+                <p style="font-size:15px;color:var(--text);margin-bottom:4px;" id="upload-title">UPLOAD FILES HERE</p>
+                <p style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);letter-spacing:0.08em;" id="upload-sub">Opens in a new tab · WAV · AIFF · ZIP accepted</p>
+              </div>
+              <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:0.1em;flex-shrink:0;">OPEN ↗</span>
+            </a>
+            <p style="font-size:13px;color:var(--text-dim);margin-top:8px;" id="upload-note">Upload files first, then submit this form.</p>
+          </div>
+
+          <!-- Terms (mixing + podcast + vgm only) -->
+          <div class="checkbox-row form-block" id="block-terms" style="display:none;">
+            <input type="checkbox" id="termsCheck" name="confirmed" value="yes" />
+            <label for="termsCheck" id="termsLabel">I confirm I've read the requirements, understand the pricing for my selected service, and agree that revisions are included as described in my package.</label>
+          </div>
+
+          <!-- Rush Delivery option — always visible once a service is selected -->
+          <div class="form-block" id="block-rush" style="display:none;align-items:flex-start;gap:12px;padding:14px 16px;border:1px solid var(--border);background:var(--surface);">
+            <input type="checkbox" id="rushCheck" name="rush_delivery" value="yes" style="margin-top:3px;flex-shrink:0;accent-color:var(--gold);width:16px;height:16px;cursor:pointer;" />
+            <label for="rushCheck" style="cursor:pointer;line-height:1.5;">
+              <span style="color:var(--text);font-size:14px;font-weight:500;">Rush Delivery </span><span style="color:var(--gold);font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;">+50% of rate</span>
+              <br><span style="color:var(--text-muted);font-size:13px;">24–48hr turnaround — check this if you have a tight deadline.</span>
+            </label>
+          </div>
+
+          <!-- Film note -->
+          <div class="form-block" id="block-film-note" style="display:none;padding:16px 20px;border:1px solid var(--gold-dim);background:var(--gold-glow);margin-bottom:8px;">
+            <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">Film scoring is complex and every project is different. Once you submit, I'll reply to discuss scope, timeline, and a custom quote. Alternatively, email me directly at <a href="mailto:tabscoreandsound@gmail.com" style="color:var(--gold);">tabscoreandsound@gmail.com</a>.</p>
+          </div>
+
+          <button type="submit" class="form-submit" id="form-submit-btn" style="display:none;">Send Project Brief →</button>
+          <div class="form-success" id="formSuccess" style="display:none;">
+            ✓ &nbsp; RECEIVED. I'll be in your inbox within 24 hours.
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ABOUT SECTION -->
+<section id="about" style="padding: 100px 48px; background: transparent;">
+  <div class="reveal" style="width:100%;max-width:880px;margin:0 auto;text-align:center;">
+    <p class="section-tag" style="margin-bottom:16px;">05 — About</p>
+    <h2 class="section-title" style="margin-bottom:32px;">A Real Person<br><em>Behind the Sound</em></h2>
+    <div style="width:56px;height:2px;background:var(--gold);margin:0 auto 48px;"></div>
+
+    <!-- Photo, centered -->
+    <div class="reveal reveal-delay-2" style="display:inline-block;position:relative;margin:0 auto 52px;">
+      <div style="width:440px;max-width:82vw;aspect-ratio:4/5;overflow:hidden;position:relative;border:1px solid var(--border);">
+        <img id="aboutPhoto" src="images/about-photo.jpg" alt="Taylor A. Bailey"
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;" />
+      </div>
+      <!-- Overlapping credential badge -->
+      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:#141414;border:1px solid var(--border);padding:14px 22px;z-index:3;white-space:nowrap;text-align:center;">
+        <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;color:var(--gold);margin-bottom:6px;">BASED IN</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--white);">Los Angeles, CA</div>
+        <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);margin-top:4px;letter-spacing:0.1em;">Available worldwide · Fast turnaround</div>
+      </div>
+    </div>
+
+    <!-- Role badges -->
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;justify-content:center;">
+      <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Producer</span>
+      <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Composer</span>
+      <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Mix Engineer</span>
+      <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Saxophonist</span>
+      <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Songwriter</span>
+    </div>
+
+    <p style="font-size:16px;color:var(--text-muted);line-height:1.85;margin:0 auto 24px;max-width:720px;">
+      Hey! I'm Taylor. I'm a composer, producer, saxophonist, and mix engineer based in Los Angeles, and I've been obsessing over sound since before I knew what a DAW was. My catalog spans pop, EDM, rock, punk, indie, jazz, lo-fi, classical, and experimental electronic, which means I don't just work in one world: I work in yours.
+    </p>
+    <p style="font-size:16px;color:var(--text-muted);line-height:1.85;margin:0 auto 24px;max-width:720px;">
+      I studied Jazz Saxophone at Cal State Northridge, interned at Teragram Ballroom, Moroccan Lounge, and Ice Cream Sound Recording Studios (all in Los Angeles), and have scored short films under my own name and release original music and game soundtracks under the artist name <em style="color:var(--text);">ASH3R</em>. My scoring work centers on cinematic electronic soundscapes, with film credits including <em style="color:var(--text);">Jo Super</em>, <em style="color:var(--text);">Deer God</em>, and <em style="color:var(--text);">The Imon Chronicles</em>, and game OSTs for <em style="color:var(--text);">The Time Warrior</em> and <em style="color:var(--text);">Night Shift Driver</em>. I've also produced the full catalog for artist <em style="color:var(--text);">Xayvion</em>.
+    </p>
+    <p style="font-size:16px;color:var(--text-muted);line-height:1.85;margin:0 auto 48px;max-width:720px;">
+      When we work together, you're working directly with me — no middleman, no template chain. <strong><em>Just your vision, my ears, and someone who genuinely cares about getting it right.</em></strong>
+    </p>
+
+    <!-- Awards -->
+    <div style="border-top:1px solid var(--border);padding-top:32px;margin:0 auto 40px;max-width:640px;">
+      <p style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Awards &amp; Honors</p>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
+        <div style="display:flex;align-items:baseline;gap:12px;">
+          <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
+          <span style="font-size:14px;color:var(--text-muted);">Louis Armstrong Jazz Award · 2017–2019</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:12px;">
+          <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
+          <span style="font-size:14px;color:var(--text-muted);">Semper Fidelis Award for Musical Excellence · 2019</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:12px;">
+          <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
+          <span style="font-size:14px;color:var(--text-muted);">Command Performance · CMEA Solo &amp; Ensemble State Festival · 2015</span>
+        </div>
+      </div>
+      <p style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-top:24px;margin-bottom:12px;">Education</p>
+      <div style="display:flex;align-items:baseline;gap:12px;justify-content:center;">
+        <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
+        <span style="font-size:14px;color:var(--text-muted);">B.A. Jazz Studies – Saxophone · Cal State Northridge (CSUN)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo" style="font-family:'Cormorant Garamond',serif;font-size:16px;letter-spacing:0.08em;color:var(--text-muted);">Taylor A. Bailey <span style="color:var(--gold);">·</span> TAB Sound & Score</div>
+  <div class="footer-copy">© 2026 Taylor A. Bailey</div>
+  <div class="footer-socials">
+    <a href="#" onclick="return false;" style="opacity:0.35;cursor:default;" title="Coming soon">TikTok</a>
+    <a href="#" onclick="return false;" style="opacity:0.35;cursor:default;" title="Coming soon">Instagram</a>
+    <a href="#" onclick="return false;" style="opacity:0.35;cursor:default;" title="Coming soon">SoundCloud</a>
+    <a href="mailto:tabscoreandsound@gmail.com" style="opacity:1;">Email</a>
+  </div>
+</footer>
+
+<script>
+  // ═══════════════════════════════════════════════════
+  // PRICE CONFIG — edit these to update all prices sitewide
+  // ═══════════════════════════════════════════════════
+  const PRICES = {
+    audit:        35,
+    single:       165,
+    project:      135,
+    masteringOnly: 50,
+    podcast:      100,
+    brandSync:    300,
+    filmPerCue:   300,
+    vgmPer3min:   100,   // $100 per 3-min track
+    rushPercent:  0.50,
+  };
+
+  // Apply prices to DOM on load
+
+  const vgmState = { tracks:3, duration:2.0, revs:2 };
+  function vgmAdjust(field, delta) {
+    if(field==='tracks') vgmState.tracks = Math.max(1, vgmState.tracks+delta);
+    if(field==='duration') vgmState.duration = Math.max(0.5, Math.round((vgmState.duration+delta)*2)/2);
+    if(field==='revs') vgmState.revs = Math.max(1, vgmState.revs+delta);
+    const el = document.getElementById('vgm-'+field);
+    if(field==='duration') {
+      el.innerHTML = vgmState[field] + ' <span style="font-size:13px;color:var(--text-dim);">min</span>';
+    } else {
+      el.textContent = vgmState[field];
+    }
+    calcVGM();
+  }
+  function calcVGM() {
+    const typeEl = document.getElementById('vgm-type');
+    const typeVal = typeEl ? typeEl.value : 'vgm';
+    // $100 per 3 min track, scaled by duration, then by type multiplier
+    const perTrack = PRICES.vgmPer3min * (vgmState.duration / 3);
+    let mult = 1.0;
+    if(typeVal === 'brand') mult = 1.0; // flat $300/track handled separately in UI
+    const revFactor = 1 + Math.max(0, vgmState.revs - 2) * 0.12;
+    const total = Math.round(perTrack * vgmState.tracks * revFactor);
+    document.getElementById('vgm-total').textContent = total.toLocaleString();
+  }
+  calcVGM();
+
+  window.addEventListener('DOMContentLoaded', () => {
+    // These IDs match elements in the pricing cards
+    const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+    // (Add id attributes to price elements if you want live binding)
+    calcVGM(); // recalculate VGM with config values
+  });
+
+  
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx+'px'; cursor.style.top = my+'px'; });
+  function animRing() { rx += (mx-rx)*0.14; ry += (my-ry)*0.14; ring.style.left = rx+'px'; ring.style.top = ry+'px'; requestAnimationFrame(animRing); }
+  animRing();
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } }); }, { threshold: 0.1 });
+  reveals.forEach(r => obs.observe(r));
+
+  // Build waveforms
+  function buildWave(id, barCount=42) {
+    const c = document.getElementById(id);
+    if(!c) return;
+    const prog = c.querySelector('.waveform-progress');
+    for(let i=0;i<barCount;i++) {
+      const b = document.createElement('div');
+      b.className = 'wave-bar';
+      const h = 8 + Math.random()*38;
+      b.style.height = h+'px';
+      c.appendChild(b);
+    }
+  }
+  // Waveform bars replaced by row player
+  function buildCompWave(id) {
+    const c = document.getElementById(id);
+    if(!c) return;
+    for(let i=0;i<24;i++) {
+      const b = document.createElement('div');
+      b.className = 'wave-bar';
+      b.style.height = (4+Math.random()*18)+'px';
+      c.appendChild(b);
+    }
+  }
+  for(let i=0;i<9;i++) buildCompWave('cwave-'+i);
+
+  // Audio player state
+  const players = Array.from({length:13}, (_,i) => ({
+    mode: 'before', playing: false, progress: 0, interval: null, duration: 90,
+    labels: { before: 'Raw Mix · Unprocessed', after: 'Final Mix · Mastered' }
+  }));
+
+  const beforeLabels = ['Dakota · Raw','Cant Stand · Raw','Obsessed · Raw','Get Gone · Raw','Topps · Raw','Inheritance · Raw','Welcome Home · Raw','Dukka · Raw','Ride · Raw','All For U · Raw','Sumimasen · Raw','Degloved · Raw','Earth · Raw Recording'];
+  const afterLabels = ['Dakota · Mixed','Cant Stand · Mixed','Obsessed · Mixed','Get Gone · Mixed','Topps · Mixed','Inheritance · Mixed','Welcome Home · Mixed','Dukka · Mixed','Ride · Mixed','All For U · Mixed','Sumimasen · Mixed','Degloved · Mixed','Earth · Processed'];
+
+  function setMode(btn, mode, idx) {
+    const p = players[idx];
+    const parent = btn.parentElement;
+    parent.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const wasPlaying = p.playing;
+    if(wasPlaying) stopPlayer(idx);
+    p.mode = mode;
+    p.progress = 0;
+    document.getElementById('prog-'+idx).style.width = '0%';
+    document.getElementById('time-'+idx).textContent = '0:00';
+    document.getElementById('label-'+idx).textContent = mode==='before' ? beforeLabels[idx] : afterLabels[idx];
+    const wave = document.getElementById('wave-'+idx);
+    if(mode==='after') wave.classList.add('after'); else wave.classList.remove('after');
+    if(wasPlaying) startPlayer(idx);
+  }
+
+  function togglePlay(idx) {
+    const p = players[idx];
+    if(p.playing) stopPlayer(idx); else startPlayer(idx);
+  }
+
+  function getAudio(idx) {
+    const p = players[idx];
+    return document.getElementById('audio-'+idx+'-'+p.mode);
+  }
+
+  function startPlayer(idx) {
+    // Stop all other players first
+    players.forEach((_,i) => { if(i!==idx && players[i].playing) stopPlayer(i); });
+    const p = players[idx];
+    const audio = getAudio(idx);
+    p.playing = true;
+    const playBtn = document.getElementById('play-'+idx);
+    playBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+    const wave = document.getElementById('wave-'+idx);
+    wave.classList.add('playing');
+
+    if(audio.src && audio.src !== window.location.href) {
+      audio.currentTime = p.progress * (audio.duration||90) / 100;
+      audio.play().catch(()=>{});
+      audio.ontimeupdate = () => {
+        if(!audio.duration) return;
+        p.progress = (audio.currentTime / audio.duration) * 100;
+        document.getElementById('prog-'+idx).style.width = p.progress+'%';
+        const s = Math.floor(audio.currentTime);
+        document.getElementById('time-'+idx).textContent = Math.floor(s/60)+':'+(s%60+'').padStart(2,'0');
+      };
+      audio.onended = () => { p.progress=0; stopPlayer(idx); };
+    } else {
+      // Fallback demo animation when no audio file is connected yet
+      p.interval = setInterval(() => {
+        p.progress += 100/90;
+        if(p.progress >= 100) { p.progress=0; stopPlayer(idx); return; }
+        document.getElementById('prog-'+idx).style.width = p.progress+'%';
+        const s = Math.floor(90 * p.progress/100);
+        document.getElementById('time-'+idx).textContent = Math.floor(s/60)+':'+(s%60+'').padStart(2,'0');
+      },1000);
+    }
+  }
+
+  function stopPlayer(idx) {
+    const p = players[idx];
+    p.playing = false;
+    clearInterval(p.interval);
+    const audio = getAudio(idx);
+    audio.pause();
+    const playBtn = document.getElementById('play-'+idx);
+    playBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    document.getElementById('wave-'+idx).classList.remove('playing');
+  }
+
+  // Comp players
+  const compPlaying = Array(9).fill(false);
+  function toggleCompPlay(idx) {
+    // Stop other comp players
+    compPlaying.forEach((_,i) => { if(i!==idx && compPlaying[i]) toggleCompPlay(i); });
+    const btn = document.getElementById('cplay-'+idx);
+    const wave = document.getElementById('cwave-'+idx);
+    const audio = document.getElementById('comp-audio-'+idx);
+    compPlaying[idx] = !compPlaying[idx];
+    if(compPlaying[idx]) {
+      btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+      wave.style.opacity=1; wave.classList.add('playing');
+      if(audio.src && audio.src !== window.location.href) {
+        audio.play().catch(()=>{});
+        audio.onended = () => { compPlaying[idx]=false; btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'; wave.style.opacity=0.5; wave.classList.remove('playing'); };
+      }
+    } else {
+      btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+      wave.style.opacity=0.5; wave.classList.remove('playing');
+      audio.pause(); audio.currentTime=0;
+    }
+  }
+
+  // Pricing tabs
+  function switchPricingTab(btn, paneId) {
+    document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.pricing-pane, .vgm-pane').forEach(p=>{ p.classList.remove('active'); p.style.display='none'; });
+    const pane = document.getElementById(paneId);
+    pane.style.display = 'grid';
+    pane.classList.add('active');
+  }
+  // init display
+  document.getElementById('mixing-pricing').style.display='grid';
+  document.getElementById('vgm-pricing').style.display='none';
+
+  // VGM calc
+
+  // Ref tags
+  function toggleRef(el) {
+    el.classList.toggle('selected');
+    const selected = Array.from(document.querySelectorAll('.ref-tag.selected')).map(e=>e.textContent.trim());
+    const inp = document.getElementById('vibeTagsInput');
+    if(inp) inp.value = selected.join(', ');
+  }
+
+  // File upload
+  function handleFiles(input) {
+    const files = Array.from(input.files);
+    if(files.length) {
+      document.getElementById('fileLabel').textContent = files.length + ' file' + (files.length>1?'s':'') + ' selected';
+    }
+  }
+
+
+  // Form submits natively via Formspree — no JS needed
+
+  // ─── FORM MORPHING ────────────────────────────────────────────
+  const FORM_MIXING = ['audit','single'];
+  const FORM_TAGS = {
+    mixing: ['Punchy & Loud','Warm & Vintage','Clean & Transparent','Dark & Spacious','Hyped & Bright','Intimate & Raw','Heavy & Dense','Cinematic & Wide'],
+    vgm:    ['Action / Combat','Exploration','Boss Battle','Ambient / Chill','Puzzle / Mystery','Cutscene / Cinematic','Chiptune / Retro','Electronic / Synth'],
+    brand:  ['Uplifting / Positive','Minimal / Clean','Bold / Energetic','Warm / Acoustic','Tech / Forward','Luxury / Premium','Playful / Fun','Cinematic / Epic'],
+  };
+
+  function showBlock(id, d) { const e=document.getElementById(id); if(!e) return; e.style.display = id==='block-rush' ? 'flex' : (d||'block'); }
+  function hideBlock(id)    { const e=document.getElementById(id); if(e) e.style.display='none'; }
+  function setText(id,t)    { const e=document.getElementById(id); if(e) e.textContent=t; }
+  function setAttr(id,a,v)  { const e=document.getElementById(id); if(e) e[a]=v; }
+
+  function setTags(key) {
+    const grid=document.getElementById('refsGrid');
+    const inp=document.getElementById('vibeTagsInput');
+    if(!grid) return;
+    grid.innerHTML='';
+    inp.value='';
+    (FORM_TAGS[key]||FORM_TAGS.mixing).forEach(t=>{
+      const s=document.createElement('span');
+      s.className='ref-tag'; s.textContent=t;
+      s.onclick=()=>toggleRef(s);
+      grid.appendChild(s);
+    });
+  }
+
+  function morphForm(val) {
+    const blocks=['block-bpm','block-genre','block-tags','block-refs','block-notes',
+                  'block-upload','block-terms','block-film-note','form-submit-btn'];
+    blocks.forEach(hideBlock);
+    if(!val) return;
+    showBlock('form-submit-btn');
+
+    if(FORM_MIXING.includes(val)) {
+      showBlock('block-bpm','grid');
+      showBlock('block-genre');
+      setText('genre-label','Genre / Style');
+      setAttr('genre-input','placeholder','e.g. Hip-Hop, Cinematic, Lo-Fi...');
+      showBlock('block-tags');
+      setText('tags-label','Vibe / Sound Reference Tags');
+      setTags('mixing');
+      showBlock('block-refs');
+      setText('refs-label','Reference Song Links');
+      setAttr('refs-input','placeholder','Spotify / YouTube URLs (comma separated)');
+      showBlock('block-notes');
+      setText('notes-label','Project Notes & Problem Areas');
+      setAttr('notes-input','placeholder',"What's not working? Low end muddy? Vocals buried? Deadline?...");
+      showBlock('block-upload');
+      setText('upload-title','UPLOAD FILES HERE');
+      setText('upload-sub','Opens in a new tab · WAV · AIFF · ZIP accepted');
+      setText('upload-note','Upload your stems first, then submit this form.');
+      showBlock('block-terms');
+      showBlock('block-rush');
+
+    } else if(val==='project') {
+      // Project: same as mixing but no BPM/Key
+      showBlock('block-genre');
+      setText('genre-label','Genre / Style');
+      setAttr('genre-input','placeholder','e.g. Hip-Hop, R&B, Pop, Rock...');
+      showBlock('block-tags');
+      setText('tags-label','Vibe / Sound Reference Tags');
+      setTags('mixing');
+      showBlock('block-refs');
+      setText('refs-label','Reference Song Links');
+      setAttr('refs-input','placeholder','Spotify / YouTube URLs (comma separated)');
+      showBlock('block-notes');
+      setText('notes-label','Project Notes & Problem Areas');
+      setAttr('notes-input','placeholder',"How many tracks? Any problem areas? What's the vision?...");
+      showBlock('block-upload');
+      setText('upload-title','UPLOAD FILES HERE');
+      setText('upload-sub','Opens in a new tab · WAV · AIFF · ZIP accepted');
+      setText('upload-note','Upload your stems first, then submit this form.');
+      showBlock('block-terms');
+      showBlock('block-rush');
+
+    } else if(val==='mastering') {
+      // Mastering Only: just notes, refs, upload
+      showBlock('block-genre');
+      setText('genre-label','Genre / Style');
+      setAttr('genre-input','placeholder','e.g. Hip-Hop, Pop, Electronic...');
+      showBlock('block-refs');
+      setText('refs-label','Reference Song Links');
+      setAttr('refs-input','placeholder','Songs that match the loudness and tone you want...');
+      showBlock('block-notes');
+      setText('notes-label','Notes');
+      setAttr('notes-input','placeholder','Target platform (Spotify, Apple Music, vinyl)? Any loudness targets? Specific notes on the mix?...');
+      showBlock('block-upload');
+      setText('upload-title','UPLOAD FILES HERE');
+      setText('upload-sub','Opens in a new tab · Upload your stereo mix file (WAV / AIFF)');
+      setText('upload-note','Upload your final mix first, then submit this form.');
+      showBlock('block-terms');
+      showBlock('block-rush');
+
+    } else if(val==='podcast') {
+      showBlock('block-genre');
+      setText('genre-label','Content Type');
+      setAttr('genre-input','placeholder','e.g. Interview, Solo, Narrative, Voice-Over...');
+      showBlock('block-refs');
+      setText('refs-label','Reference Episodes or Channels');
+      setAttr('refs-input','placeholder','YouTube / Podcast URLs...');
+      showBlock('block-notes');
+      setText('notes-label','Project Notes');
+      setAttr('notes-input','placeholder','Tell me about the show, audience, tone, any audio issues...');
+      showBlock('block-upload');
+      setText('upload-title','UPLOAD FILES HERE');
+      setText('upload-sub','Opens in a new tab · Upload your raw audio recordings');
+      setText('upload-note','Upload your raw audio first, then submit this form.');
+      showBlock('block-terms');
+      showBlock('block-rush');
+
+    } else if(val==='vgm') {
+      showBlock('block-genre');
+      setText('genre-label','Game Genre / Style');
+      setAttr('genre-input','placeholder','e.g. RPG, Platformer, Horror, Puzzle...');
+      showBlock('block-tags');
+      setText('tags-label','Music Vibe Tags');
+      setTags('vgm');
+      showBlock('block-refs');
+      setText('refs-label','Reference Links — game levels, OSTs, trailers');
+      setAttr('refs-input','placeholder','YouTube / game links showing the vibe you want...');
+      showBlock('block-notes');
+      setText('notes-label','Project Details');
+      setAttr('notes-input','placeholder','Tell me about the game, tracks needed, timeline, engine...');
+      showBlock('block-upload');
+      setText('upload-title','UPLOAD FILES HERE');
+      setText('upload-sub','Opens in a new tab · Upload your GDD or design documents');
+      setText('upload-note','Upload your Game Design Document or reference materials first.');
+      showBlock('block-terms');
+      showBlock('block-rush');
+
+    } else if(val==='film') {
+      showBlock('block-rush');
+      showBlock('block-film-note');
+      showBlock('block-genre');
+      setText('genre-label','Film Genre');
+      setAttr('genre-input','placeholder','e.g. Psychological Thriller, Sci-Fi, Drama...');
+      showBlock('block-refs');
+      setText('refs-label','Reference Trailers or Film Cues');
+      setAttr('refs-input','placeholder','YouTube trailer or scene links...');
+      showBlock('block-notes');
+      setText('notes-label','Tell Me About the Project');
+      setAttr('notes-input','placeholder',"Describe the film, tone, timeline, and any temp music...");
+
+    } else if(val==='brand') {
+      showBlock('block-rush');
+      showBlock('block-genre');
+      setText('genre-label','Brand / Campaign Style');
+      setAttr('genre-input','placeholder','e.g. Tech startup, Luxury fashion, Fitness...');
+      showBlock('block-tags');
+      setText('tags-label','Music Vibe Tags');
+      setTags('brand');
+      showBlock('block-refs');
+      setText('refs-label','Reference Ads or Brand Music');
+      setAttr('refs-input','placeholder','YouTube ad links or brand music examples...');
+      showBlock('block-notes');
+      setText('notes-label','Explain the Vision');
+      setAttr('notes-input','placeholder',"What's the campaign? Who's the audience? What emotion should the music create?...");
+    }
+  }
+  // ─── END FORM MORPHING ────────────────────────────────────────
+
+  // ─── BOOK WITH SERVICE PRE-SELECTED ──────────────────────────
+  function bookService(val) {
+    // Scroll to booking section
+    document.getElementById('booking').scrollIntoView({behavior:'smooth'});
+    // After scroll animation, set the dropdown and trigger morph
+    setTimeout(() => {
+      const sel = document.getElementById('serviceSelect');
+      if(sel) {
+        sel.value = val;
+        morphForm(val);
+      }
+    }, 600);
+  }
+  // ─────────────────────────────────────────────────────────────
+
+  // ── ROW PLAYER STATE ──────────────────────────────────────────
+  const rowState = {}; // keyed by active idx: {mode, playing, progress, interval}
+  let activeRowIdx = null;
+
+  function selectTrack(btn, idxA, idxB, track) {
+    const row = btn.closest('.ba-row');
+    row.querySelectorAll('.ba-track-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const newIdx = track === 'a' ? idxA : idxB;
+    const oldIdx = track === 'a' ? idxB : idxA;
+    const wasPlaying = activeRowIdx !== null && rowState[activeRowIdx] && rowState[activeRowIdx].playing;
+
+    // Stop current playback
+    if(activeRowIdx !== null) stopRowPlay(activeRowIdx);
+
+    // Transfer mode from old track to new track
+    const oldState = rowState[oldIdx] || {mode:'before', progress:0};
+    if(!rowState[newIdx]) rowState[newIdx] = {mode: oldState.mode, playing:false, progress:0};
+    rowState[newIdx].mode = oldState.mode; // keep same before/after mode
+
+    // Update which index this row is tracking
+    row.dataset.activeIdx = newIdx;
+
+    // Reset display
+    document.getElementById('rowprog-' + idxA).style.width = '0%';
+    document.getElementById('rowtime-' + idxA).textContent = '0:00';
+    drawWaveform(idxA, 0);
+
+    // Resume if was playing
+    if(wasPlaying) startRowPlay(newIdx, idxA);
+  }
+
+  function setRowMode(btn, mode, idxA, idxB) {
+    const row = btn.closest('.ba-row');
+    row.querySelectorAll('.ba-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const activeIdx = parseInt(row.dataset.activeIdx || idxA);
+    if(!rowState[activeIdx]) rowState[activeIdx] = {mode:'before', playing:false, progress:0};
+    const wasPlaying = rowState[activeIdx].playing;
+    const savedProgress = rowState[activeIdx].progress;
+
+    // Pause old audio without resetting state
+    const oldAudio = document.getElementById('audio-' + activeIdx + '-' + rowState[activeIdx].mode);
+    if(oldAudio) { oldAudio.pause(); clearInterval(rowState[activeIdx].interval); }
+    rowState[activeIdx].playing = false;
+
+    rowState[activeIdx].mode = mode;
+    // Keep progress — do NOT reset to 0
+    loadWaveform(activeIdx, mode);
+
+    if(wasPlaying) {
+      const newAudio = document.getElementById('audio-' + activeIdx + '-' + mode);
+      if(newAudio && newAudio.src && newAudio.src !== window.location.href) {
+        // Start playback, then seek to saved position
+        rowState[activeIdx].playing = false;
+        startRowPlay(activeIdx, idxA);
+        if(savedProgress > 0) {
+          const doSeek = () => {
+            if(newAudio.duration) {
+              newAudio.currentTime = (savedProgress / 100) * newAudio.duration;
+            }
+          };
+          if(newAudio.duration) {
+            // Duration already known — seek immediately
+            setTimeout(doSeek, 30);
+          } else {
+            // Wait for metadata
+            newAudio.addEventListener('loadedmetadata', () => setTimeout(doSeek, 30), {once:true});
+            // Also retry on first timeupdate in case loadedmetadata already fired
+            const retrySeek = () => {
+              if(newAudio.duration && newAudio.currentTime < 1) doSeek();
+              newAudio.removeEventListener('timeupdate', retrySeek);
+            };
+            newAudio.addEventListener('timeupdate', retrySeek);
+          }
+        }
+      } else {
+        startRowPlay(activeIdx, idxA);
+      }
+    } else {
+      drawWaveform(idxA, savedProgress);
+      const prog = document.getElementById('rowprog-' + idxA);
+      if(prog) prog.style.width = savedProgress + '%';
+    }
+  }
+
+  function toggleRowPlay(idxA, idxB) {
+    const row = document.getElementById('rowplay-' + idxA).closest('.ba-row');
+    const activeIdx = parseInt(row ? row.dataset.activeIdx || idxA : idxA);
+    if(!rowState[activeIdx]) rowState[activeIdx] = {mode:'before', playing:false, progress:0};
+    if(rowState[activeIdx].playing) {
+      stopRowPlay(activeIdx);
+    } else {
+      // Stop any other playing row
+      if(activeRowIdx !== null && activeRowIdx !== activeIdx) stopRowPlay(activeRowIdx);
+      startRowPlay(activeIdx, idxA);
+    }
+  }
+
+  function startRowPlay(activeIdx, displayIdxA) {
+    const state = rowState[activeIdx] || (rowState[activeIdx] = {mode:'before', playing:false, progress:0});
+    state.playing = true;
+    activeRowIdx = activeIdx;
+    const playBtn = document.getElementById('rowplay-' + displayIdxA);
+    if(playBtn) {
+      playBtn.classList.add('playing');
+      playBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+    }
+    const audio = document.getElementById('audio-' + activeIdx + '-' + state.mode);
+    if(audio && audio.src && audio.src !== window.location.href) {
+      // Play first, then seek to position
+      // Don't seek here — caller handles seek position if needed
+      audio.play().catch((e) => { console.error('Audio play failed:', e); });
+      audio.ontimeupdate = () => {
+        if(!audio.duration) return;
+        state.progress = (audio.currentTime / audio.duration) * 100;
+        const prog = document.getElementById('rowprog-' + displayIdxA);
+        const time = document.getElementById('rowtime-' + displayIdxA);
+        if(prog) prog.style.width = state.progress + '%';
+        drawWaveform(displayIdxA, state.progress);
+        if(time) { const s=Math.floor(audio.currentTime); time.textContent=Math.floor(s/60)+':'+(s%60+'').padStart(2,'0'); }
+      };
+      audio.onended = () => { state.progress=0; drawWaveform(displayIdxA,0); stopRowPlay(activeIdx); };
+    } else {
+      // Demo animation fallback (audio not connected or failed)
+      console.log('Demo mode for idx', activeIdx, '- audio src:', audio ? audio.src : 'no element');
+      state.interval = setInterval(() => {
+        state.progress += 100/90;
+        if(state.progress >= 100) { state.progress=0; stopRowPlay(activeIdx); return; }
+        const prog = document.getElementById('rowprog-' + displayIdxA);
+        const time = document.getElementById('rowtime-' + displayIdxA);
+        if(prog) prog.style.width = state.progress + '%';
+        drawWaveform(displayIdxA, state.progress);
+        if(time) { const s=Math.floor(90*state.progress/100); time.textContent=Math.floor(s/60)+':'+(s%60+'').padStart(2,'0'); }
+      }, 1000);
+    }
+  }
+
+  function stopRowPlay(activeIdx) {
+    const state = rowState[activeIdx];
+    if(!state) return;
+    state.playing = false;
+    clearInterval(state.interval);
+    const audio = document.getElementById('audio-' + activeIdx + '-' + (state.mode||'before'));
+    if(audio) audio.pause();
+    // Find play button — scan all rows
+    document.querySelectorAll('.ba-row-play').forEach(btn => {
+      btn.classList.remove('playing');
+      btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    });
+    if(activeRowIdx === activeIdx) activeRowIdx = null;
+  }
+
+  // Init row dataset
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.ba-row[data-idxa]').forEach(row => {
+      row.dataset.activeIdx = row.dataset.idxa;
+    });
+  });
+  // ── END ROW PLAYER ────────────────────────────────────────────
+
+  // ── WAVEFORM RENDERER ────────────────────────────────────────
+  const waveformCache = {};
+
+  function drawWaveform(idx, progress) {
+    const canvas = document.getElementById('rowwave-' + idx);
+    if(!canvas) return;
+    const W = canvas.offsetWidth || canvas.parentElement.offsetWidth || 300;
+    const H = 36;
+    if(canvas.width !== W) canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    const barW = 2, gap = 1;
+    const totalBars = Math.floor(W / (barW + gap));
+    const frac = (progress||0) / 100;
+    const peaks = waveformCache[idx];
+    for(let i = 0; i < totalBars; i++) {
+      const x = i * (barW + gap);
+      const played = i / totalBars < frac;
+      let barH;
+      if(peaks) {
+        const si = Math.floor(i / totalBars * peaks.length);
+        barH = Math.max(2, (peaks[si]||0) * H * 0.80);
+      } else {
+        // Gentle pseudo-random flatline until audio loads
+        const seed = Math.sin(i * 127.1 + idx * 31.7) * 43758.5453;
+        barH = 2 + (seed - Math.floor(seed)) * 5;
+      }
+      const y = (H - barH) / 2;
+      ctx.fillStyle = played ? 'rgba(181,53,53,0.80)' : 'rgba(181,53,53,0.15)';
+      if(ctx.roundRect) {
+        ctx.beginPath(); ctx.roundRect(x, y, barW, barH, 1); ctx.fill();
+      } else {
+        ctx.fillRect(x, y, barW, barH);
+      }
+    }
+  }
+
+  async function loadWaveform(idx, mode) {
+    const audio = document.getElementById('audio-' + idx + '-' + (mode||'before'));
+    if(!audio || !audio.src || audio.src === window.location.href) {
+      drawWaveform(idx, 0); return;
+    }
+    if(waveformCache[idx]) { drawWaveform(idx, 0); return; }
+    try {
+      const resp = await fetch(audio.src);
+      const buf = await resp.arrayBuffer();
+      const actx = new (window.AudioContext || window.webkitAudioContext)();
+      const decoded = await actx.decodeAudioData(buf);
+      const raw = decoded.getChannelData(0);
+      const N = 200;
+      const peaks = new Float32Array(N);
+      const block = Math.floor(raw.length / N);
+      for(let i = 0; i < N; i++) {
+        let mx = 0;
+        for(let j = 0; j < block; j++) { const v=Math.abs(raw[i*block+j]); if(v>mx) mx=v; }
+        peaks[i] = mx;
+      }
+      const maxP = Math.max.apply(null, peaks);
+      if(maxP > 0) for(let i = 0; i < N; i++) peaks[i] /= maxP;
+      waveformCache[idx] = peaks;
+      drawWaveform(idx, 0);
+      await actx.close();
+    } catch(e) { drawWaveform(idx, 0); }
+  }
+
+  function scrubRow(e, idxA) {
+    const track = e.currentTarget;
+    const rect = track.getBoundingClientRect();
+    const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+
+    const row = track.closest('.ba-row');
+    const displayIdxA = row ? parseInt(row.dataset.idxa || idxA) : idxA;
+    // Use whichever example is currently selected
+    const activeIdx = row ? parseInt(row.dataset.activeIdx || idxA) : idxA;
+
+    // Stop any other playing row first
+    if(activeRowIdx !== null && activeRowIdx !== activeIdx) stopRowPlay(activeRowIdx);
+
+    const state = rowState[activeIdx] || (rowState[activeIdx] = {mode:'before', playing:false, progress:0});
+
+    // Seek
+    state.progress = frac * 100;
+    const audio = document.getElementById('audio-' + activeIdx + '-' + (state.mode||'before'));
+    if(audio && audio.duration) audio.currentTime = frac * audio.duration;
+    drawWaveform(displayIdxA, frac * 100);
+    const prog = document.getElementById('rowprog-' + displayIdxA);
+    if(prog) prog.style.width = (frac * 100) + '%';
+
+    // Start playback if not already playing
+    if(!state.playing) {
+      startRowPlay(activeIdx, displayIdxA);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      for(let i = 0; i <= 12; i++) drawWaveform(i, 0);
+      // Redraw on resize
+      window.addEventListener('resize', () => {
+        for(let i = 0; i <= 12; i++) drawWaveform(i, (rowState[i]||{}).progress||0);
+      });
+    }, 300);
+    for(let i = 0; i <= 12; i++) loadWaveform(i, 'before');
+  });
+  // ── END WAVEFORM RENDERER ──────────────────────────────────────
+
+  // ── SPACEBAR PLAY/PAUSE ──────────────────────────────────────
+  document.addEventListener('keydown', function(e) {
+    if(e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+      e.preventDefault();
+      if(activeRowIdx !== null) {
+        const state = rowState[activeRowIdx];
+        if(state && state.playing) {
+          stopRowPlay(activeRowIdx);
+        } else {
+          // Find displayIdxA from the row that owns this activeRowIdx
+          const rows = document.querySelectorAll('.ba-row[data-idxa]');
+          let displayIdx = activeRowIdx;
+          rows.forEach(row => {
+            const rIdxA = parseInt(row.dataset.idxa);
+            const rIdxB = row.dataset.idxb ? parseInt(row.dataset.idxb) : rIdxA + 1;
+            if(parseInt(row.dataset.activeIdx || rIdxA) === activeRowIdx) {
+              displayIdx = rIdxA;
+            }
+          });
+          if(!rowState[activeRowIdx]) rowState[activeRowIdx] = {mode:'before', playing:false, progress:0};
+          startRowPlay(activeRowIdx, displayIdx);
+        }
+      }
+    }
+  });
+  // ── END SPACEBAR ─────────────────────────────────────────────
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     AUDIO FILE HOOKS — replace src="" with your actual file paths
+     Put audio files in an /audio/ folder next to index.html
+     Example: src="audio/hiphop-before.mp3"
+     ═══════════════════════════════════════════════════════ -->
+<audio id="audio-0-before" src="audio/Mixing/DAKOTA_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-0-after" src="audio/Mixing/DAKOTA_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-1-before" src="audio/Mixing/CANT_STAND_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-1-after" src="audio/Mixing/CANT_STAND_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-2-before" src="audio/Mixing/OBSESSED_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-2-after" src="audio/Mixing/OBSESSED_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-3-before" src="audio/Mixing/GET_GONE_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-3-after" src="audio/Mixing/GET_GONE_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-4-before" src="audio/Mixing/TOPPS_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-4-after" src="audio/Mixing/TOPPS_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-5-before" src="audio/Mixing/INHERITANCE_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-5-after" src="audio/Mixing/INHERITANCE_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-6-before" src="audio/Mixing/WELCOME_HOME_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-6-after" src="audio/Mixing/WELCOME_HOME_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-7-before" src="audio/Mixing/DUKKA_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-7-after" src="audio/Mixing/DUKKA_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-8-before" src="audio/Mixing/RIDE_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-8-after" src="audio/Mixing/RIDE_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-9-before" src="audio/Mixing/ALL_FOR_U_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-9-after" src="audio/Mixing/ALL_FOR_U_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-10-before" src="audio/Mixing/DEGLOVED_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-10-after" src="audio/Mixing/DEGLOVED_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-11-before" src="audio/Mixing/SUMIMASEN_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-11-after" src="audio/Mixing/SUMIMASEN_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-12-before" src="audio/Mixing/EARTH_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-12-after" src="audio/Mixing/EARTH_AFTER.mp3" preload="metadata"></audio>
+<!-- Composition reel snippets -->
+<audio id="comp-audio-0" src="" preload="metadata"></audio>
+<audio id="comp-audio-1" src="" preload="metadata"></audio>
+<audio id="comp-audio-2" src="" preload="metadata"></audio>
+<audio id="comp-audio-3" src="" preload="metadata"></audio>
+<audio id="comp-audio-4" src="" preload="metadata"></audio>
+<audio id="comp-audio-5" src="" preload="metadata"></audio>
+
+<audio id="comp-audio-6" src="" preload="metadata"></audio>
+<audio id="comp-audio-7" src="" preload="metadata"></audio>
+<audio id="comp-audio-8" src="" preload="metadata"></audio>
+
+
+</body>
+</html>

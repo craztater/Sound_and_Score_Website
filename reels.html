@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Demo Reels — TAB Sound & Score</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --black: #141414;
+    --surface: rgba(28,28,28,0.85);
+    --surface2: rgba(36,36,36,0.90);
+    --border: #363636;
+    --gold: #b53535;
+    --gold-dim: #7a2626;
+    --gold-glow: rgba(181,53,53,0.10);
+    --text: #eeeeee;
+    --text-muted: #888888;
+    --text-dim: #555555;
+    --white: #f5f5f5;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: #141414;
+    background-image:
+      radial-gradient(ellipse 90% 40% at 60% 0%, rgba(181,53,53,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 10% 30%, rgba(181,53,53,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 60% at 80% 70%, rgba(181,53,53,0.04) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Cursor */
+  .cursor { position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%); }
+  .cursor-ring { position:fixed;width:36px;height:36px;border:1px solid rgba(181,53,53,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all 0.12s ease; }
+
+  /* Nav */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 48px;
+    background: #141414;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .nav-logo img { height:46px; width:auto; display:block; mix-blend-mode:screen; }
+  .nav-links { display:flex; gap:36px; align-items:center; }
+  .nav-links a {
+    font-family:'DM Mono',monospace; font-size:13px; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--text-muted); text-decoration:none;
+    transition:color 0.2s; cursor:none;
+  }
+  .nav-links a:hover, .nav-links a.active { color:var(--gold); }
+  .nav-cta {
+    color:var(--black) !important; background:var(--gold);
+    padding:10px 22px; transition:opacity 0.2s !important;
+  }
+  .nav-cta:hover { opacity:0.85; }
+
+  /* Hero */
+  .page-hero {
+    padding: 140px 48px 80px;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-tag {
+    font-family:'DM Mono',monospace; font-size:13px; letter-spacing:0.2em;
+    text-transform:uppercase; color:var(--gold); margin-bottom:20px; display:block;
+  }
+  .page-title {
+    font-family:'Cormorant Garamond',serif; font-size:clamp(52px,7vw,100px);
+    font-weight:300; line-height:0.95; color:var(--white); margin-bottom:24px;
+  }
+  .page-title em { font-style:italic; color:var(--gold); }
+  .page-sub { font-size:16px; color:var(--text-muted); line-height:1.7; max-width:560px; }
+
+  /* Category tabs */
+  .reel-tabs {
+    display:flex; gap:0; padding:0 48px;
+    border-bottom:1px solid var(--border);
+    position:sticky; top:79px; z-index:50;
+    background:#141414;
+  }
+  .rtab {
+    font-family:'DM Mono',monospace; font-size:13px; letter-spacing:0.15em;
+    text-transform:uppercase; color:var(--text-dim);
+    background:none; border:none; padding:18px 28px; cursor:none;
+    transition:color 0.2s; position:relative;
+  }
+  .rtab::after {
+    content:''; position:absolute; bottom:-1px; left:0; right:0;
+    height:1px; background:var(--gold); transform:scaleX(0); transition:transform 0.25s;
+  }
+  .rtab.active { color:var(--gold); }
+  .rtab.active::after { transform:scaleX(1); }
+
+  /* Reel section */
+  .reel-section { padding:80px 48px; display:none; }
+  .reel-section.active { display:block; }
+
+  .reel-intro {
+    margin-bottom:56px;
+  }
+  .reel-intro h2 {
+    font-family:'Cormorant Garamond',serif; font-size:48px; font-weight:300;
+    color:var(--white); margin-bottom:12px;
+  }
+  .reel-intro p { font-size:15px; color:var(--text-muted); line-height:1.7; max-width:560px; }
+
+  /* Video embed cards */
+  .reel-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:48px; }
+  .reel-card { background:var(--surface); overflow:hidden; }
+  .reel-embed {
+    position:relative; padding-bottom:56.25%; height:0; overflow:hidden;
+    background:#000;
+  }
+  .reel-embed iframe {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    border:none;
+  }
+  /* Placeholder when no video yet */
+  .reel-placeholder {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:16px; background:var(--surface2);
+  }
+  .reel-placeholder .ph-icon { font-size:40px; opacity:0.2; }
+  .reel-placeholder p {
+    font-family:'DM Mono',monospace; font-size:13px; letter-spacing:0.15em;
+    text-transform:uppercase; color:var(--text-dim); text-align:center;
+  }
+  .reel-placeholder small {
+    font-size:12px; color:var(--text-dim); text-align:center; line-height:1.6;
+    max-width:220px;
+  }
+  .reel-card-info { padding:24px 28px; }
+  .reel-card-tag {
+    font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.15em;
+    text-transform:uppercase; color:var(--gold); margin-bottom:8px;
+  }
+  .reel-card-title {
+    font-family:'Outfit',sans-serif; font-size:20px; font-weight:400;
+    color:var(--white); margin-bottom:6px;
+  }
+  .reel-card-desc { font-size:14px; color:var(--text-muted); line-height:1.7; }
+  .reel-card-credits {
+    margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;
+  }
+  .credit-tag {
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.1em;
+    border:1px solid var(--border); color:var(--text-dim); padding:4px 10px;
+  }
+
+  /* Full-width featured reel */
+  .reel-featured { margin-bottom:2px; }
+  .reel-featured .reel-embed { padding-bottom:42%; }
+
+  /* How to submit */
+  .submit-section {
+    margin-top:80px; padding:48px; border:1px solid var(--border);
+    background:var(--surface);
+  }
+  .submit-section h3 {
+    font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:300;
+    color:var(--white); margin-bottom:16px;
+  }
+  .submit-section p { font-size:15px; color:var(--text-muted); line-height:1.7; margin-bottom:24px; }
+  .btn-red {
+    display:inline-block; font-family:'DM Mono',monospace; font-size:13px;
+    letter-spacing:0.12em; text-transform:uppercase; background:var(--gold);
+    color:#141414; padding:16px 36px; text-decoration:none;
+    transition:opacity 0.2s; cursor:none;
+  }
+  .btn-red:hover { opacity:0.88; }
+
+  /* Footer */
+  footer {
+    padding:48px; border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .footer-copy { font-family:'DM Mono',monospace; font-size:13px; color:var(--text-dim); letter-spacing:0.1em; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);} }
+  .fadein { opacity:0; animation:fadeUp 0.8s ease 0.1s forwards; }
+
+  /* Scroll reveal */
+  .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <!-- Replace with your actual logo path once deployed: <img src="assets/logo-white.png" ...> -->
+    <span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;letter-spacing:0.15em;color:var(--white);">TAB <span style="color:var(--gold);">Sound & Score</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html#mixing">Mixing</a>
+    <a href="index.html#composition">Composition</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="index.html#about">About</a>
+    <a href="reels.html" class="active">Demo Reels</a>
+    <a href="index.html#booking" class="nav-cta">Book a Session</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero fadein">
+  <span class="page-tag">Demo Reels</span>
+  <h1 class="page-title">Hear the<br><em>Work.</em></h1>
+  <p class="page-sub">Full composition reels and mixing showcases. Scroll by category — film scores, game soundtracks, and brand work.</p>
+</div>
+
+<!-- CATEGORY TABS -->
+<div class="reel-tabs">
+  <button class="rtab active" onclick="switchReel(this,'film')">Film & Score</button>
+  <button class="rtab" onclick="switchReel(this,'games')">Video Games</button>
+  <button class="rtab" onclick="switchReel(this,'brand')">Brand & Commercial</button>
+  <button class="rtab" onclick="switchReel(this,'mixing')">Mixing Reel</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FILM & SCORE
+══════════════════════════════════════════ -->
+<section class="reel-section active" id="reel-film">
+  <div class="reel-intro reveal">
+    <h2>Film & Score</h2>
+    <p>Original scores for short films and narrative projects. Atmospheric, cinematic electronic soundscapes that serve the story without overpowering it.</p>
+  </div>
+
+  <!-- Featured reel - full width -->
+  <div class="reel-card reel-featured reveal">
+    <div class="reel-embed">
+      <div class="reel-placeholder">
+        <div class="ph-icon">🎬</div>
+        <p>Film Composition Reel</p>
+        <small>Paste your YouTube or Vimeo embed URL here once your reel is ready</small>
+      </div>
+      <!-- TO ADD VIDEO: replace the placeholder div above with:
+      <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" allowfullscreen></iframe>
+      -->
+    </div>
+    <div class="reel-card-info">
+      <div class="reel-card-tag">Composition Reel · 2024</div>
+      <div class="reel-card-title">Film Score Demo Reel</div>
+      <p class="reel-card-desc">A curated selection of cues from short film projects — ranging from psychological thriller to emotional drama.</p>
+      <div class="reel-card-credits">
+        <span class="credit-tag">Cinematic Electronic</span>
+        <span class="credit-tag">Orchestral Hybrid</span>
+        <span class="credit-tag">Atmospheric</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Individual project cards -->
+  <div class="reel-grid">
+    <div class="reel-card reveal">
+      <div class="reel-embed">
+        <div class="reel-placeholder">
+          <div class="ph-icon">🎥</div>
+          <p>Jo Super</p>
+          <small>Dir. Rene Liera · Add YouTube embed</small>
+        </div>
+        <!-- <iframe src="https://www.youtube.com/embed/VIDEO_ID" allowfullscreen></iframe> -->
+      </div>
+      <div class="reel-card-info">
+        <div class="reel-card-tag">Short Film · Score</div>
+        <div class="reel-card-title">Jo Super</div>
+        <p class="reel-card-desc">Original score. Dir. Rene Liera.</p>
+        <div class="reel-card-credits">
+          <span class="credit-tag">Composer</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reel-card reveal">
+      <div class="reel-embed">
+        <div class="reel-placeholder">
+          <div class="ph-icon">🎥</div>
+          <p>Deer God</p>
+          <small>Dir. Lucy Brodersen · Add YouTube embed</small>
+        </div>
+      </div>
+      <div class="reel-card-info">
+        <div class="reel-card-tag">Short Film · Score</div>
+        <div class="reel-card-title">Deer God</div>
+        <p class="reel-card-desc">Original score. Dir. Lucy Brodersen.</p>
+        <div class="reel-card-credits">
+          <span class="credit-tag">Composer</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reel-card reveal">
+      <div class="reel-embed">
+        <div class="reel-placeholder">
+          <div class="ph-icon">🎥</div>
+          <p>The Imon Chronicles</p>
+          <small>Dir. Sebastian Verduzco · Add YouTube embed</small>
+        </div>
+      </div>
+      <div class="reel-card-info">
+        <div class="reel-card-tag">Short Film · Score</div>
+        <div class="reel-card-title">The Imon Chronicles</div>
+        <p class="reel-card-desc">Original score. Dir. Sebastian Verduzco.</p>
+        <div class="reel-card-credits">
+          <span class="credit-tag">Composer</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reel-card reveal">
+      <div class="reel-embed">
+        <div class="reel-placeholder">
+          <div class="ph-icon">🎬</div>
+          <p>School Project Reel</p>
+          <small>Add your CSUN composition reel when ready</small>
+        </div>
+      </div>
+      <div class="reel-card-info">
+        <div class="reel-card-tag">Academic · Composition</div>
+        <div class="reel-card-title">CSUN Composition Reel</div>
+        <p class="reel-card-desc">Selected works from film scoring coursework at Cal State Northridge.</p>
+        <div class="reel-card-credits">
+          <span class="credit-tag">Composer</span>
+          <span class="credit-tag">CSUN · Jazz Studies</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     VIDEO GAMES
+══════════════════════════════════════════ -->
+<section class="reel-section" id="reel-games">
+  <div class="reel-intro reveal">
+    <h2>Video Games</h2>
+    <p>Interactive scores built for atmosphere, replayability, and emotional resonance. From lo-fi exploration themes to high-energy action cues.</p>
+  </div>
+
+  <div class="reel-card reel-featured reveal">
+    <div class="reel-embed">
+      <div class="reel-placeholder">
+        <div class="ph-icon">🎮</div>
+        <p>Game OST Demo Reel</p>
+        <small>Add your game composition reel once complete</small>
+      </div>
+    </div>
+    <div class="reel-card-info">
+      <div class="reel-card-tag">Game OST · 2024</div>
+      <div class="reel-card-title">Video Game Composition Reel</div>
+      <p class="reel-card-desc">Cues from indie game projects — adventure, psychological, and action themes.</p>
+      <div class="reel-card-credits">
+        <span class="credit-tag">Chiptune</span>
+        <span class="credit-tag">Lo-Fi Ambient</span>
+        <span class="credit-tag">Electronic</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="reel-grid">
+    <div class="reel-card reveal">
+      <div class="reel-embed">
+        <div class="reel-placeholder">
+          <div class="ph-icon">🎮</div>
+          <p>The Time Warrior</p>
+          <small>Indie game · Add gameplay/OST video</small>
+        </div>
+      </div>
+      <div class="reel-card-info">
+        <div class="reel-card-tag">Indie Game · OST</div>
+        <div class="reel-card-title">The Time Warrior</div>
+        <p class="reel-card-desc">Full original soundtrack for the indie title.</p>
+        <div class="reel-card-credits">
+          <span class="credit-tag">Composer</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reel-card reveal">
+      <div class="reel-embed">
+        <div class="reel-placeholder">
+          <div class="ph-icon">🎮</div>
+          <p>Night Shift Driver</p>
+          <small>Indie game · Add gameplay/OST video</small>
+        </div>
+      </div>
+      <div class="reel-card-info">
+        <div class="reel-card-tag">Indie Game · OST</div>
+        <div class="reel-card-title">Night Shift Driver</div>
+        <p class="reel-card-desc">Original soundtrack — late-night driving atmosphere.</p>
+        <div class="reel-card-credits">
+          <span class="credit-tag">Composer</span>
+          <span class="credit-tag">Lo-Fi</span>
+          <span class="credit-tag">Synthwave</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     BRAND & COMMERCIAL
+══════════════════════════════════════════ -->
+<section class="reel-section" id="reel-brand">
+  <div class="reel-intro reveal">
+    <h2>Brand & Commercial</h2>
+    <p>Music built to carry a brand identity. Clean, purposeful, and instantly recognizable — from minimalist tech vibes to bold commercial energy.</p>
+  </div>
+
+  <div class="reel-card reel-featured reveal">
+    <div class="reel-embed">
+      <div class="reel-placeholder">
+        <div class="ph-icon">📺</div>
+        <p>Brand / Commercial Reel</p>
+        <small>Add commercial and sync work as you complete it</small>
+      </div>
+    </div>
+    <div class="reel-card-info">
+      <div class="reel-card-tag">Brand · Sync · Commercial</div>
+      <div class="reel-card-title">Brand Music Reel</div>
+      <p class="reel-card-desc">Original compositions for brand identity, advertising, and sync licensing — available for placement.</p>
+      <div class="reel-card-credits">
+        <span class="credit-tag">Minimalist</span>
+        <span class="credit-tag">Corporate</span>
+        <span class="credit-tag">Electronic</span>
+        <span class="credit-tag">Optimistic</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     MIXING REEL
+══════════════════════════════════════════ -->
+<section class="reel-section" id="reel-mixing">
+  <div class="reel-intro reveal">
+    <h2>Mixing Reel</h2>
+    <p>Before/after showcases and full mix examples across genres. The same ears, the same process — just different sounds.</p>
+  </div>
+
+  <div class="reel-card reel-featured reveal">
+    <div class="reel-embed">
+      <div class="reel-placeholder">
+        <div class="ph-icon">🎚</div>
+        <p>Mixing Demo Reel</p>
+        <small>Upload a before/after video or mix breakdown to YouTube, then embed it here</small>
+      </div>
+    </div>
+    <div class="reel-card-info">
+      <div class="reel-card-tag">Mix Engineering · 2024</div>
+      <div class="reel-card-title">Mixing Demo Reel</div>
+      <p class="reel-card-desc">Before/after comparisons and finished mixes across Hip-Hop, R&B, Pop, Rock, and Electronic. Full-range mixes, competitive loudness, genre-appropriate processing.</p>
+      <div class="reel-card-credits">
+        <span class="credit-tag">Hip-Hop</span>
+        <span class="credit-tag">R&amp;B</span>
+        <span class="credit-tag">Pop</span>
+        <span class="credit-tag">Rock</span>
+        <span class="credit-tag">Electronic</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;padding:32px 40px;border:1px solid var(--border);background:var(--surface);" class="reveal">
+    <p style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Hear it live instead</p>
+    <p style="font-size:15px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">The real demo is on the main page — toggle between raw and finished mixes on any of the six genre examples to hear the before/after in real time.</p>
+    <a href="index.html#mixing" class="btn-red">Go to the Before/After Players →</a>
+  </div>
+</section>
+
+<!-- HOW TO SUBMIT -->
+<div style="padding:0 48px 80px;">
+  <div class="submit-section reveal">
+    <h3>Interested in Working Together?</h3>
+    <p>Whether you need a score, a mix, or a full soundtrack — the process starts with a conversation. Fill out the brief on the main site and I'll be in touch within 24 hours.</p>
+    <a href="index.html#booking" class="btn-red">Start a Project →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:16px;letter-spacing:0.08em;color:var(--text-muted);">
+    Taylor A. Bailey <span style="color:var(--gold);">·</span> TAB Sound & Score
+  </div>
+  <div class="footer-copy">© 2025</div>
+  <a href="index.html" style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;cursor:none;transition:color 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">← Back to Main Site</a>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+  function animRing(){rx+=(mx-rx)*0.14;ry+=(my-ry)*0.14;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
+  animRing();
+
+  // Tab switching
+  function switchReel(btn, id) {
+    document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.reel-section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('reel-'+id).classList.add('active');
+    window.scrollTo({top: document.querySelector('.reel-tabs').offsetTop - 80, behavior:'smooth'});
+    // Re-trigger reveals for newly shown section
+    setTimeout(triggerReveals, 50);
+  }
+
+  // Scroll reveal
+  function triggerReveals() {
+    document.querySelectorAll('.reel-section.active .reveal').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if(rect.top < window.innerHeight * 0.92) el.classList.add('visible');
+    });
+  }
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+  },{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
+</script>
+</body>
+</html>
