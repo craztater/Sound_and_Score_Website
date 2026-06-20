@@ -1828,8 +1828,15 @@
 
     <div class="reveal reveal-delay-1">
       <form class="booking-form" id="bookingForm"
-          action="https://formspree.io/f/xjgqbbnq"
+          action="https://api.web3forms.com/submit"
           method="POST">
+
+          <!-- Web3Forms config -->
+          <input type="hidden" name="access_key" value="31bb0baa-288a-4632-a22f-ea3b9406d293" />
+          <input type="hidden" name="subject" value="New booking enquiry — TAB Sound & Score" />
+          <input type="hidden" name="from_name" value="TAB Sound & Score Website" />
+          <!-- Honeypot: bots fill this, real visitors never see it -->
+          <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none !important;" aria-hidden="true" />
 
           <!-- Always: Name + Email -->
           <div class="form-row">
@@ -1934,6 +1941,7 @@
           </div>
 
           <button type="submit" class="form-submit" id="form-submit-btn" style="display:none;">Send Project Brief →</button>
+          <div id="formError" style="display:none;font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.04em;color:var(--gold);margin-top:14px;"></div>
           <div class="form-success" id="formSuccess" style="display:none;">
             ✓ &nbsp; RECEIVED. I'll be in your inbox within 24 hours.
           </div>
@@ -2767,7 +2775,45 @@
 <audio id="comp-audio-6" src="" preload="metadata"></audio>
 <audio id="comp-audio-7" src="" preload="metadata"></audio>
 <audio id="comp-audio-8" src="" preload="metadata"></audio>
-
+<script>
+/* Booking form — background submit via Web3Forms */
+(function(){
+  var form = document.getElementById('bookingForm');
+  if(!form) return;
+  var successEl = document.getElementById('formSuccess');
+  var errorEl = document.getElementById('formError');
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    if(!form.checkValidity()){ form.reportValidity(); return; }
+    var btn = document.getElementById('form-submit-btn');
+    var orig = btn ? btn.textContent : '';
+    if(errorEl){ errorEl.style.display='none'; errorEl.textContent=''; }
+    if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+    try {
+      var res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      });
+      var json = await res.json();
+      if(json.success){
+        Array.prototype.forEach.call(form.children, function(c){
+          if(c.id !== 'formSuccess') c.style.display = 'none';
+        });
+        if(successEl) successEl.style.display = 'block';
+      } else {
+        throw new Error(json.message || 'Submission failed');
+      }
+    } catch(err){
+      if(btn){ btn.disabled = false; btn.textContent = orig; }
+      if(errorEl){
+        errorEl.textContent = "Couldn't send that — please email tabsoundandscore@gmail.com directly.";
+        errorEl.style.display = 'block';
+      }
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
