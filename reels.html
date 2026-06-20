@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Demo Reels — TAB Sound & Score</title>
+<link rel="icon" type="image/png" href="images/Circle_TAB_Black.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet" />
@@ -38,9 +39,30 @@
     cursor: none;
   }
 
-  /* Cursor */
-  .cursor { position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%); }
-  .cursor-ring { position:fixed;width:36px;height:36px;border:1px solid rgba(181,53,53,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all 0.12s ease; }
+  /* Custom cursor — spinning reticle (matches index) */
+  .cursor {
+    position: fixed; width: 7px; height: 7px;
+    background: var(--gold); pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%) rotate(45deg);
+    transition: width 0.18s, height 0.18s;
+  }
+  .cursor-ring {
+    position: fixed; width: 32px; height: 32px;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.18s ease, height 0.18s ease;
+  }
+  .cursor-ring::before {
+    content: ''; position: absolute; inset: 0;
+    border: 1px solid rgba(181,53,53,0.40);
+    animation: cursorSpin 6s linear infinite;
+  }
+  @keyframes cursorSpin { to { transform: rotate(360deg); } }
+  body:has(a:hover) .cursor, body:has(button:hover) .cursor { width: 11px; height: 11px; }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 46px; height: 46px; }
+  body:has(a:hover) .cursor-ring::before, body:has(button:hover) .cursor-ring::before {
+    border-color: var(--gold); animation-duration: 2s;
+  }
 
   /* Nav */
   nav {
@@ -50,10 +72,10 @@
     background: #141414;
     border-bottom: 1px solid #2a2a2a;
   }
-  .nav-logo img { height:46px; width:auto; display:block; mix-blend-mode:screen; }
+  .nav-logo img { height:48px; width:auto; display:block; }
   .nav-links { display:flex; gap:36px; align-items:center; }
   .nav-links a {
-    font-family:'DM Mono',monospace; font-size:13px; letter-spacing:0.12em;
+    font-family:'DM Mono',monospace; font-size:14px; letter-spacing:0.12em;
     text-transform:uppercase; color:var(--text-muted); text-decoration:none;
     transition:color 0.2s; cursor:none;
   }
@@ -80,28 +102,33 @@
   .page-title em { font-style:italic; color:var(--gold); }
   .page-sub { font-size:16px; color:var(--text-muted); line-height:1.7; max-width:560px; }
 
-  /* Category tabs */
+  /* Category tabs — matches index pricing tabs */
   .reel-tabs {
-    display:flex; gap:0; padding:0 48px;
-    border-bottom:1px solid var(--border);
-    position:sticky; top:79px; z-index:50;
-    background:#141414;
+    display: flex;
+    padding: 0 48px 0;
+    margin-bottom: 0;
+    position: sticky; top: 79px; z-index: 50;
+    background: #141414;
+    border-bottom: 1px solid var(--border);
+  }
+  .reel-tabs-inner {
+    display: inline-flex; gap: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 5px;
+    margin: 24px 0;
   }
   .rtab {
-    font-family:'DM Mono',monospace; font-size:13px; letter-spacing:0.15em;
-    text-transform:uppercase; color:var(--text-dim);
-    background:none; border:none; padding:18px 28px; cursor:none;
-    transition:color 0.2s; position:relative;
+    font-family: 'DM Mono', monospace; font-size: 14px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text-muted);
+    background: none; border: none; padding: 14px 28px; cursor: none;
+    transition: all 0.2s; position: relative;
   }
-  .rtab::after {
-    content:''; position:absolute; bottom:-1px; left:0; right:0;
-    height:1px; background:var(--gold); transform:scaleX(0); transition:transform 0.25s;
-  }
-  .rtab.active { color:var(--gold); }
-  .rtab.active::after { transform:scaleX(1); }
+  .rtab:hover { color: var(--white); }
+  .rtab.active { color: var(--black); background: var(--gold); }
 
   /* Reel section */
-  .reel-section { padding:80px 48px; display:none; }
+  .reel-section { padding:48px 48px; display:none; max-width:800px; margin:0 auto; }
   .reel-section.active { display:block; }
 
   .reel-intro {
@@ -117,7 +144,7 @@
   .reel-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:48px; }
   .reel-card { background:var(--surface); overflow:hidden; }
   .reel-embed {
-    position:relative; padding-bottom:56.25%; height:0; overflow:hidden;
+    position:relative; padding-bottom:46%; height:0; overflow:hidden;
     background:#000;
   }
   .reel-embed iframe {
@@ -159,7 +186,7 @@
 
   /* Full-width featured reel */
   .reel-featured { margin-bottom:2px; }
-  .reel-featured .reel-embed { padding-bottom:42%; }
+  .reel-featured .reel-embed { padding-bottom:34%; }
 
   /* How to submit */
   .submit-section {
@@ -201,10 +228,7 @@
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="nav-logo">
-    <!-- Replace with your actual logo path once deployed: <img src="assets/logo-white.png" ...> -->
-    <span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;letter-spacing:0.15em;color:var(--white);">TAB <span style="color:var(--gold);">Sound & Score</span></span>
-  </a>
+  <a href="index.html" class="nav-logo"><img src="images/LONG_WHITE_Sound_and_Score_Logo.png" alt="TAB Sound & Score" style="height:48px;width:auto;display:block;" /></a>
   <div class="nav-links">
     <a href="index.html#mixing">Mixing</a>
     <a href="index.html#composition">Composition</a>
@@ -224,10 +248,11 @@
 
 <!-- CATEGORY TABS -->
 <div class="reel-tabs">
-  <button class="rtab active" onclick="switchReel(this,'film')">Film & Score</button>
-  <button class="rtab" onclick="switchReel(this,'games')">Video Games</button>
-  <button class="rtab" onclick="switchReel(this,'brand')">Brand & Commercial</button>
-  <button class="rtab" onclick="switchReel(this,'mixing')">Mixing Reel</button>
+  <div class="reel-tabs-inner">
+    <button class="rtab active" onclick="switchReel(this,'film')">Film & Score</button>
+    <button class="rtab" onclick="switchReel(this,'games')">Video Games</button>
+    <button class="rtab" onclick="switchReel(this,'brand')">Brand & Commercial</button>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -439,44 +464,6 @@
         <span class="credit-tag">Optimistic</span>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════════
-     MIXING REEL
-══════════════════════════════════════════ -->
-<section class="reel-section" id="reel-mixing">
-  <div class="reel-intro reveal">
-    <h2>Mixing Reel</h2>
-    <p>Before/after showcases and full mix examples across genres. The same ears, the same process — just different sounds.</p>
-  </div>
-
-  <div class="reel-card reel-featured reveal">
-    <div class="reel-embed">
-      <div class="reel-placeholder">
-        <div class="ph-icon">🎚</div>
-        <p>Mixing Demo Reel</p>
-        <small>Upload a before/after video or mix breakdown to YouTube, then embed it here</small>
-      </div>
-    </div>
-    <div class="reel-card-info">
-      <div class="reel-card-tag">Mix Engineering · 2024</div>
-      <div class="reel-card-title">Mixing Demo Reel</div>
-      <p class="reel-card-desc">Before/after comparisons and finished mixes across Hip-Hop, R&B, Pop, Rock, and Electronic. Full-range mixes, competitive loudness, genre-appropriate processing.</p>
-      <div class="reel-card-credits">
-        <span class="credit-tag">Hip-Hop</span>
-        <span class="credit-tag">R&amp;B</span>
-        <span class="credit-tag">Pop</span>
-        <span class="credit-tag">Rock</span>
-        <span class="credit-tag">Electronic</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="margin-top:32px;padding:32px 40px;border:1px solid var(--border);background:var(--surface);" class="reveal">
-    <p style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Hear it live instead</p>
-    <p style="font-size:15px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">The real demo is on the main page — toggle between raw and finished mixes on any of the six genre examples to hear the before/after in real time.</p>
-    <a href="index.html#mixing" class="btn-red">Go to the Before/After Players →</a>
   </div>
 </section>
 
