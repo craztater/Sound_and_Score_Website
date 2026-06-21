@@ -1876,10 +1876,14 @@
             <input type="text" name="project_title" placeholder="Song, EP, film, or game name" />
           </div>
 
+          <!-- Hidden: price data passed to Web3Forms -->
+          <input type="hidden" name="service_price" id="service_price" value="" />
+          <input type="hidden" name="vgm_estimate" id="vgm_estimate" value="" />
+
           <!-- Always: Service selector -->
           <div class="field">
             <label>Service</label>
-            <select name="service" id="serviceSelect" required onchange="morphForm(this.value)">
+            <select name="service" id="serviceSelect" required onchange="morphForm(this.value);updateServicePrice(this.value)">
               <option value="">Select a service...</option>
               <option value="audit">The Audit — $35</option>
               <option value="single">The Single — Mixing + Mastering ($165/track)</option>
@@ -2096,6 +2100,9 @@
     const revFactor = 1 + Math.max(0, vgmState.revs - 2) * 0.12;
     const total = Math.round(perTrack * vgmState.tracks * revFactor);
     document.getElementById('vgm-total').textContent = total.toLocaleString();
+    // Keep hidden form field in sync
+    const vgmField = document.getElementById('vgm_estimate');
+    if(vgmField) vgmField.value = '$' + total.toLocaleString() + ' (estimate: ' + vgmState.tracks + ' tracks × ' + vgmState.duration + 'min avg, ' + vgmState.revs + ' revisions)';
   }
   calcVGM();
 
@@ -2446,16 +2453,33 @@
 
   // ─── BOOK WITH SERVICE PRE-SELECTED ──────────────────────────
   function bookService(val) {
-    // Scroll to booking section
     document.getElementById('booking').scrollIntoView({behavior:'smooth'});
-    // After scroll animation, set the dropdown and trigger morph
     setTimeout(() => {
       const sel = document.getElementById('serviceSelect');
       if(sel) {
         sel.value = val;
         morphForm(val);
+        updateServicePrice(val);
       }
     }, 600);
+  }
+
+  // Writes the flat service price into the hidden field so Web3Forms receives it.
+  // For VGM the calculator field already handles its own value — this just labels it.
+  function updateServicePrice(val) {
+    const field = document.getElementById('service_price');
+    if(!field) return;
+    const labels = {
+      audit:      'The Audit — $35',
+      single:     'The Single — $165 / track (Mixing + Mastering)',
+      project:    'The Project — $135 / track (EP/Album rate)',
+      mastering:  'Mastering Only — $50 / track',
+      podcast:    'Podcast & Dialogue — $100 / episode',
+      vgm:        'Video Game OST — see VGM estimate field',
+      film:       'Film / Score — custom quote',
+      brand:      'Brand / Sync — $300 / track',
+    };
+    field.value = labels[val] || '';
   }
   // ─────────────────────────────────────────────────────────────
 
