@@ -1089,6 +1089,7 @@
 
     /* Services split */
     .services-split { grid-template-columns: 1fr !important; }
+    #about .reveal[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
 
     /* Sections */
     section { padding: 60px 24px !important; }
@@ -1983,68 +1984,77 @@
 
 
 <!-- ABOUT SECTION -->
-<section id="about" style="padding: 100px 48px; background: transparent;">
-  <div class="reveal" style="width:100%;max-width:880px;margin:0 auto;text-align:center;">
+<section id="about" style="padding:100px 48px;background:transparent;">
+  <!-- Section label + title, centered above the two-col block -->
+  <div class="reveal" style="text-align:center;margin-bottom:48px;">
     <p class="section-tag" style="margin-bottom:16px;">05 — About</p>
-    <h2 class="section-title" style="margin-bottom:32px;">A Real Person<br><em>Behind the Sound</em></h2>
-    <div style="width:56px;height:2px;background:var(--gold);margin:0 auto 48px;"></div>
+    <h2 class="section-title">A Real Person<br><em>Behind the Sound</em></h2>
+    <div style="width:56px;height:2px;background:var(--gold);margin:32px auto 0;"></div>
+  </div>
 
-    <!-- Photo, centered -->
-    <div class="reveal reveal-delay-2" style="display:inline-block;position:relative;margin:0 auto 52px;">
-      <div style="width:440px;max-width:82vw;aspect-ratio:4/5;overflow:hidden;position:relative;border:1px solid var(--border);">
+  <!-- Two-col: photo | text, centered on screen -->
+  <div class="reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;max-width:1100px;margin:0 auto;">
+
+    <!-- LEFT: Photo -->
+    <div class="reveal reveal-delay-1" style="position:relative;">
+      <div style="aspect-ratio:4/5;overflow:hidden;position:relative;border:1px solid var(--border);">
         <img id="aboutPhoto" src="images/about-photo.jpg" alt="Taylor A. Bailey"
              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;" />
       </div>
-      <!-- Overlapping credential badge -->
-      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:#141414;border:1px solid var(--border);padding:14px 22px;z-index:3;white-space:nowrap;text-align:center;">
+      <!-- Credential badge -->
+      <div style="position:absolute;bottom:-16px;left:24px;background:#141414;border:1px solid var(--border);padding:14px 22px;z-index:3;">
         <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;color:var(--gold);margin-bottom:6px;">BASED IN</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--white);">Los Angeles, CA</div>
         <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);margin-top:4px;letter-spacing:0.1em;">Available worldwide · Fast turnaround</div>
       </div>
     </div>
 
-    <!-- Role badges -->
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;justify-content:center;">
-      <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Producer</span>
-      <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Composer</span>
-      <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Mix Engineer</span>
-      <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Saxophonist</span>
-      <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Songwriter</span>
-    </div>
+    <!-- RIGHT: Text -->
+    <div style="padding-top:8px;">
+      <!-- Role badges -->
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;">
+        <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Producer</span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Composer</span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Mix Engineer</span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Saxophonist</span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;border:1px solid var(--border);color:var(--text-muted);padding:5px 13px;">Songwriter</span>
+      </div>
 
-    <p style="font-size:16px;color:var(--text-muted);line-height:1.85;margin:0 auto 24px;max-width:720px;">
-      Hey! I'm Taylor. I'm a composer, producer, saxophonist, and mix engineer based in Los Angeles, and I've been obsessing over sound since before I knew what a DAW was. My catalog spans pop, EDM, rock, punk, indie, jazz, lo-fi, classical, and experimental electronic, which means I don't just work in one world: I work in yours.
-    </p>
-    <p style="font-size:16px;color:var(--text-muted);line-height:1.85;margin:0 auto 24px;max-width:720px;">
-      I studied Jazz Saxophone at Cal State Northridge, interned at Teragram Ballroom, Moroccan Lounge, and Ice Cream Sound Recording Studios (all in Los Angeles), and have scored short films under my own name and release original music and game soundtracks under the artist name <em style="color:var(--text);">ASH3R</em>. My scoring work centers on cinematic electronic soundscapes, with film credits including <em style="color:var(--text);">Jo Super</em>, <em style="color:var(--text);">Deer God</em>, and <em style="color:var(--text);">The Imon Chronicles</em>, and game OSTs for <em style="color:var(--text);">The Time Warrior</em> and <em style="color:var(--text);">Night Shift Driver</em>. I've also produced the full catalog for artist <em style="color:var(--text);">Xayvion</em>.
-    </p>
-    <p style="font-size:16px;color:var(--text-muted);line-height:1.85;margin:0 auto 48px;max-width:720px;">
-      When we work together, you're working directly with me — no middleman, no template chain. <strong><em>Just your vision, my ears, and someone who genuinely cares about getting it right.</em></strong>
-    </p>
+      <p style="font-size:16px;color:var(--text-muted);line-height:1.85;margin-bottom:20px;">
+        Hey! I'm Taylor. I'm a composer, producer, saxophonist, and mix engineer based in Los Angeles, and I've been obsessing over sound since before I knew what a DAW was. My catalog spans pop, EDM, rock, punk, indie, jazz, lo-fi, classical, and experimental electronic, which means I don't just work in one world: I work in yours.
+      </p>
+      <p style="font-size:16px;color:var(--text-muted);line-height:1.85;margin-bottom:20px;">
+        I studied Jazz Saxophone at Cal State Northridge, interned at Teragram Ballroom, Moroccan Lounge, and Ice Cream Sound Recording Studios (all in Los Angeles), and have scored short films under my own name and release original music and game soundtracks under the artist name <em style="color:var(--text);">ASH3R</em>. Film credits include <em style="color:var(--text);">Jo Super</em>, <em style="color:var(--text);">Deer God</em>, and <em style="color:var(--text);">The Imon Chronicles</em>. Game OSTs: <em style="color:var(--text);">The Time Warrior</em> and <em style="color:var(--text);">Night Shift Driver</em>. Full catalog production for artist <em style="color:var(--text);">Xayvion</em>.
+      </p>
+      <p style="font-size:16px;color:var(--text-muted);line-height:1.85;margin-bottom:32px;">
+        When we work together, you're working directly with me — no middleman, no template chain. <strong><em>Just your vision, my ears, and someone who genuinely cares about getting it right.</em></strong>
+      </p>
 
-    <!-- Awards -->
-    <div style="border-top:1px solid var(--border);padding-top:32px;margin:0 auto 40px;max-width:640px;">
-      <p style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Awards &amp; Honors</p>
-      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
-        <div style="display:flex;align-items:baseline;gap:12px;">
-          <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
-          <span style="font-size:14px;color:var(--text-muted);">Louis Armstrong Jazz Award · 2017–2019</span>
+      <!-- Awards + Education -->
+      <div style="border-top:1px solid var(--border);padding-top:24px;">
+        <p style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Awards &amp; Honors</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+          <div style="display:flex;align-items:baseline;gap:12px;">
+            <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
+            <span style="font-size:14px;color:var(--text-muted);">Louis Armstrong Jazz Award · 2017–2019</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:12px;">
+            <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
+            <span style="font-size:14px;color:var(--text-muted);">Semper Fidelis Award for Musical Excellence · 2019</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:12px;">
+            <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
+            <span style="font-size:14px;color:var(--text-muted);">Command Performance · CMEA Solo &amp; Ensemble State Festival · 2015</span>
+          </div>
         </div>
+        <p style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">Education</p>
         <div style="display:flex;align-items:baseline;gap:12px;">
           <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
-          <span style="font-size:14px;color:var(--text-muted);">Semper Fidelis Award for Musical Excellence · 2019</span>
-        </div>
-        <div style="display:flex;align-items:baseline;gap:12px;">
-          <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
-          <span style="font-size:14px;color:var(--text-muted);">Command Performance · CMEA Solo &amp; Ensemble State Festival · 2015</span>
+          <span style="font-size:14px;color:var(--text-muted);">B.A. Jazz Studies – Saxophone · Cal State Northridge (CSUN)</span>
         </div>
       </div>
-      <p style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-top:24px;margin-bottom:12px;">Education</p>
-      <div style="display:flex;align-items:baseline;gap:12px;justify-content:center;">
-        <span style="color:var(--gold);font-size:14px;flex-shrink:0;">—</span>
-        <span style="font-size:14px;color:var(--text-muted);">B.A. Jazz Studies – Saxophone · Cal State Northridge (CSUN)</span>
-      </div>
     </div>
+
   </div>
 </section>
 
