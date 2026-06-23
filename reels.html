@@ -740,7 +740,21 @@
       if(!audio.duration) return;
       const rect = bar.getBoundingClientRect();
       audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+      if(audio.paused) {
+        audio.play();
+        btnPlay.style.display  = 'none';
+        btnPause.style.display = '';
+        if(!peaks) loadWaveform();
+      }
     };
+
+    // Spacebar toggles playback
+    document.addEventListener('keydown', function(e) {
+      if(e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'BUTTON') {
+        e.preventDefault();
+        window.toggleBrandsReel();
+      }
+    });
 
     // Initial draw
     draw(0);
