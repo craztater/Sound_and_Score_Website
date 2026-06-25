@@ -637,16 +637,32 @@
     border: 1px solid var(--gold-dim);
   }
   .price-card.featured:hover { background: rgba(50,35,35,0.95); }
+  .price-card { cursor: none; }
+  /* Selected card takes on the featured highlight look */
   .price-card.selected {
-    border: 1px solid var(--gold) !important;
-    box-shadow: 0 0 0 1px var(--gold), 0 0 30px rgba(181,53,53,0.20);
-    background: rgba(50,35,35,0.95);
+    background: var(--surface2);
+    border: 1px solid var(--gold);
   }
-  .selected-flag {
-    position: absolute; top: 0; left: 0;
-    background: var(--gold); color: #000;
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    letter-spacing: 0.16em; padding: 5px 11px; z-index: 6;
+  .price-card.selected .btn-price {
+    background: var(--gold);
+    color: var(--black);
+    border-color: var(--gold);
+  }
+  .price-card.selected .btn-price:hover { opacity: 0.88; }
+  /* Once the user has selected a card, neutralize the default featured highlight */
+  .pricing-pane.has-selection .price-card.featured:not(.selected) {
+    background: var(--black);
+    border: 1px solid transparent;
+  }
+  .pricing-pane.has-selection .price-card.featured:not(.selected) .btn-price {
+    background: none;
+    color: var(--text-muted);
+    border-color: var(--border);
+  }
+  .pricing-pane.has-selection .price-card.featured:not(.selected) .btn-price:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    opacity: 1;
   }
   .price-badge {
     font-family: 'DM Mono', monospace;
@@ -2497,23 +2513,31 @@
 
   // Highlight the pricing card matching a service value
   function highlightCard(val) {
-    document.querySelectorAll('.price-card.selected').forEach(c => {
-      c.classList.remove('selected');
-      const f = c.querySelector('.selected-flag'); if(f) f.remove();
-    });
-    // Map service value -> the card's Book button
+    document.querySelectorAll('.price-card.selected').forEach(c => c.classList.remove('selected'));
     const btn = document.querySelector('.btn-price[onclick*="bookService(\'' + val + '\')"]');
     const card = btn ? btn.closest('.price-card') : null;
     if(card) {
       card.classList.add('selected');
-      if(!card.querySelector('.selected-flag')) {
-        const flag = document.createElement('div');
-        flag.className = 'selected-flag';
-        flag.textContent = '✓ Selected';
-        card.appendChild(flag);
-      }
+      const pane = card.closest('.pricing-pane');
+      if(pane) pane.classList.add('has-selection');
     }
   }
+
+  // Make the entire pricing card clickable, not just its button
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.price-card').forEach(card => {
+      const btn = card.querySelector('.btn-price[onclick*="bookService"]');
+      if(!btn) return;
+      const m = btn.getAttribute('onclick').match(/bookService\('([^']+)'\)/);
+      if(!m) return;
+      const val = m[1];
+      card.addEventListener('click', e => {
+        // If they clicked the button or any link directly, let that handle it
+        if(e.target.closest('a')) return;
+        bookService(val);
+      });
+    });
+  });
 
   // Writes the flat service price into the hidden field so Web3Forms receives it.
   // For VGM the calculator field already handles its own value — this just labels it.
