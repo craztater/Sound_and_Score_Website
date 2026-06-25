@@ -192,7 +192,7 @@
     width:100%; aspect-ratio:1/1; object-fit:cover;
     border:1px solid var(--border); display:block;
   }
-  .spotify-btn {
+  .stream-btn {
     display:inline-flex; align-items:center; gap:8px;
     margin-top:14px; width:100%; justify-content:center;
     font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.12em;
@@ -201,8 +201,8 @@
     text-decoration:none; cursor:none; transition:all 0.18s;
     box-sizing:border-box;
   }
-  .spotify-btn:hover { border-color:#1DB954; color:#1DB954; }
-  .spotify-btn svg { width:16px; height:16px; flex-shrink:0; }
+  .stream-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .stream-btn svg { width:15px; height:15px; flex-shrink:0; }
   .vgm-track {
     display:grid; grid-template-columns:28px 1fr auto;
     align-items:center; gap:12px;
@@ -492,9 +492,9 @@
   <div class="vgm-album reveal">
     <div>
       <img class="vgm-cover" src="images/vgm_timewarrior.jpg" alt="The Time Warrior" />
-      <a class="spotify-btn" href="https://open.spotify.com/album/0tu5jWbgkDnVaJqt66Ev8T" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.2.4-.7.5-1 .3-2.8-1.7-6.3-2.1-10.5-1.1-.4.1-.8-.2-.9-.6-.1-.4.2-.8.6-.9 4.5-1 8.4-.6 11.5 1.3.4.2.5.7.3 1zm1.5-3.3c-.3.4-.8.6-1.2.3-3.2-2-8.1-2.5-11.9-1.4-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4.4-1.3 9.8-.7 13.5 1.5.4.3.5.9.1 1.3zm.1-3.4C15.2 8.2 8.7 8 5 9.1c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4C8.6 5.8 15.8 6 20.2 8.6c.5.3.7 1 .4 1.5-.3.6-1 .8-1.5.5z"/></svg>
-        Listen on Spotify
+      <a class="stream-btn" href="https://distrokid.com/hyperfollow/ash3r/the-time-warrior-original-video-game-soundtrack" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+        Stream Now
       </a>
     </div>
     <div>
@@ -511,10 +511,10 @@
   <div class="vgm-album reveal">
     <div>
       <img class="vgm-cover" src="images/vgm_nightshift.jpg" alt="Night Shift Driver" />
-      <div class="spotify-btn" style="opacity:0.5;cursor:default;border-style:dashed;">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.2.4-.7.5-1 .3-2.8-1.7-6.3-2.1-10.5-1.1-.4.1-.8-.2-.9-.6-.1-.4.2-.8.6-.9 4.5-1 8.4-.6 11.5 1.3.4.2.5.7.3 1zm1.5-3.3c-.3.4-.8.6-1.2.3-3.2-2-8.1-2.5-11.9-1.4-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4.4-1.3 9.8-.7 13.5 1.5.4.3.5.9.1 1.3zm.1-3.4C15.2 8.2 8.7 8 5 9.1c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4C8.6 5.8 15.8 6 20.2 8.6c.5.3.7 1 .4 1.5-.3.6-1 .8-1.5.5z"/></svg>
-        Spotify · Out Soon
-      </div>
+      <a class="stream-btn" href="https://distrokid.com/hyperfollow/ash3r/the-nightshift-driver-original-video-game-soundtrack" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+        Pre-Save
+      </a>
     </div>
     <div>
       <div class="reel-card-tag" style="margin-bottom:8px;">Indie Game · Full OST · 8 Tracks</div>
@@ -530,9 +530,9 @@
   <div class="vgm-album reveal">
     <div>
       <img class="vgm-cover" src="images/vgm_dreamscapes.jpg" alt="Dreamscapes" />
-      <a class="spotify-btn" href="https://open.spotify.com/album/5VV0CaM1i5zFeNtgs2fZIQ" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.2.4-.7.5-1 .3-2.8-1.7-6.3-2.1-10.5-1.1-.4.1-.8-.2-.9-.6-.1-.4.2-.8.6-.9 4.5-1 8.4-.6 11.5 1.3.4.2.5.7.3 1zm1.5-3.3c-.3.4-.8.6-1.2.3-3.2-2-8.1-2.5-11.9-1.4-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4.4-1.3 9.8-.7 13.5 1.5.4.3.5.9.1 1.3zm.1-3.4C15.2 8.2 8.7 8 5 9.1c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4C8.6 5.8 15.8 6 20.2 8.6c.5.3.7 1 .4 1.5-.3.6-1 .8-1.5.5z"/></svg>
-        Listen on Spotify
+      <a class="stream-btn" href="https://distrokid.com/hyperfollow/ash3r/dreamscapes-original-game-concept-soundtrack" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+        Stream Now
       </a>
     </div>
     <div>
