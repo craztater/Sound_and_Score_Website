@@ -192,6 +192,17 @@
     width:100%; aspect-ratio:1/1; object-fit:cover;
     border:1px solid var(--border); display:block;
   }
+  .spotify-btn {
+    display:inline-flex; align-items:center; gap:8px;
+    margin-top:14px; width:100%; justify-content:center;
+    font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--text-muted);
+    border:1px solid var(--border); padding:11px 16px;
+    text-decoration:none; cursor:none; transition:all 0.18s;
+    box-sizing:border-box;
+  }
+  .spotify-btn:hover { border-color:#1DB954; color:#1DB954; }
+  .spotify-btn svg { width:16px; height:16px; flex-shrink:0; }
   .vgm-track {
     display:grid; grid-template-columns:28px 1fr auto;
     align-items:center; gap:12px;
@@ -481,17 +492,15 @@
   <div class="vgm-album reveal">
     <div>
       <img class="vgm-cover" src="images/vgm_timewarrior.jpg" alt="The Time Warrior" />
+      <a class="spotify-btn" href="https://open.spotify.com/album/0tu5jWbgkDnVaJqt66Ev8T" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.2.4-.7.5-1 .3-2.8-1.7-6.3-2.1-10.5-1.1-.4.1-.8-.2-.9-.6-.1-.4.2-.8.6-.9 4.5-1 8.4-.6 11.5 1.3.4.2.5.7.3 1zm1.5-3.3c-.3.4-.8.6-1.2.3-3.2-2-8.1-2.5-11.9-1.4-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4.4-1.3 9.8-.7 13.5 1.5.4.3.5.9.1 1.3zm.1-3.4C15.2 8.2 8.7 8 5 9.1c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4C8.6 5.8 15.8 6 20.2 8.6c.5.3.7 1 .4 1.5-.3.6-1 .8-1.5.5z"/></svg>
+        Listen on Spotify
+      </a>
     </div>
     <div>
       <div class="reel-card-tag" style="margin-bottom:8px;">Indie Game · Full OST · 7 Tracks</div>
       <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--white);margin-bottom:6px;">The Time Warrior</div>
-      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:20px;">An epic cross-era adventure score spanning ancient Egypt to cyberpunk future — orchestral energy meets electronic punch.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;">
-        <span class="credit-tag">Composer</span>
-        <span class="credit-tag">Orchestral</span>
-        <span class="credit-tag">Cinematic</span>
-        <span class="credit-tag">Action</span>
-      </div>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">A full score for a time-traveling warrior fighting through history — ancient Egypt, medieval kingdoms, and a neon cyber-future, each era with its own enemies, bosses, and sound.</p>
       <div class="vgm-tracklist" id="tl-tw">
         <!-- tracks injected by JS -->
       </div>
@@ -502,17 +511,15 @@
   <div class="vgm-album reveal">
     <div>
       <img class="vgm-cover" src="images/vgm_nightshift.jpg" alt="Night Shift Driver" />
+      <div class="spotify-btn" style="opacity:0.5;cursor:default;border-style:dashed;">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.2.4-.7.5-1 .3-2.8-1.7-6.3-2.1-10.5-1.1-.4.1-.8-.2-.9-.6-.1-.4.2-.8.6-.9 4.5-1 8.4-.6 11.5 1.3.4.2.5.7.3 1zm1.5-3.3c-.3.4-.8.6-1.2.3-3.2-2-8.1-2.5-11.9-1.4-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4.4-1.3 9.8-.7 13.5 1.5.4.3.5.9.1 1.3zm.1-3.4C15.2 8.2 8.7 8 5 9.1c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4C8.6 5.8 15.8 6 20.2 8.6c.5.3.7 1 .4 1.5-.3.6-1 .8-1.5.5z"/></svg>
+        Spotify · Out Soon
+      </div>
     </div>
     <div>
       <div class="reel-card-tag" style="margin-bottom:8px;">Indie Game · Full OST · 8 Tracks</div>
       <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--white);margin-bottom:6px;">Night Shift Driver</div>
-      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:20px;">Late-night synthwave and lo-fi grooves for an indie driving game. Every track built to loop without wearing out.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;">
-        <span class="credit-tag">Composer</span>
-        <span class="credit-tag">Synthwave</span>
-        <span class="credit-tag">Lo-Fi</span>
-        <span class="credit-tag">Atmospheric</span>
-      </div>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">In-game radio for a late-night driving title — synthwave, lo-fi, and saxophone-laced grooves you'd actually want playing on a midnight drive.</p>
       <div class="vgm-tracklist" id="tl-ns">
         <!-- tracks injected by JS -->
       </div>
@@ -523,17 +530,15 @@
   <div class="vgm-album reveal">
     <div>
       <img class="vgm-cover" src="images/vgm_dreamscapes.jpg" alt="Dreamscapes" />
+      <a class="spotify-btn" href="https://open.spotify.com/album/5VV0CaM1i5zFeNtgs2fZIQ" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.2.4-.7.5-1 .3-2.8-1.7-6.3-2.1-10.5-1.1-.4.1-.8-.2-.9-.6-.1-.4.2-.8.6-.9 4.5-1 8.4-.6 11.5 1.3.4.2.5.7.3 1zm1.5-3.3c-.3.4-.8.6-1.2.3-3.2-2-8.1-2.5-11.9-1.4-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4.4-1.3 9.8-.7 13.5 1.5.4.3.5.9.1 1.3zm.1-3.4C15.2 8.2 8.7 8 5 9.1c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4C8.6 5.8 15.8 6 20.2 8.6c.5.3.7 1 .4 1.5-.3.6-1 .8-1.5.5z"/></svg>
+        Listen on Spotify
+      </a>
     </div>
     <div>
       <div class="reel-card-tag" style="margin-bottom:8px;">Original Concept OST · 13 Tracks</div>
       <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--white);margin-bottom:6px;">Dreamscapes</div>
-      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:20px;">A fully realized concept soundtrack for an original game world. Atmospheric, emotional, and unpredictable — from whimsical markets to electronic suspense.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;">
-        <span class="credit-tag">Composer</span>
-        <span class="credit-tag">Atmospheric</span>
-        <span class="credit-tag">Emotional</span>
-        <span class="credit-tag">Experimental</span>
-      </div>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">Original concept OST for a surreal, choice-driven dream game — you drift through a stranger's corrupted save file, one fragmented dream at a time. The score has to sell each shift: pirate chaos, a cozy mini-mart, a robot war, an underwater calm, a love that only exists while you're asleep.</p>
       <div class="vgm-tracklist" id="tl-ds">
         <!-- tracks injected by JS -->
       </div>
@@ -724,12 +729,12 @@
       'tl-ns': {
         path: 'audio/VGM/NightShift/',
         tracks: [
-          { file:'NS_01_TheNightShiftDriver.mp3',      title:'The Night Shift Driver',             tag:'Main Theme' },
-          { file:'NS_02_OnADarkNight.mp3',             title:'On A Dark Night',                    tag:'Ambient' },
+          { file:'NS_01_TheNightShiftDriver.mp3',      title:'The Night Shift Driver',             tag:'Main Theme · Cinematic Spooky' },
+          { file:'NS_02_OnADarkNight.mp3',             title:'On A Dark Night',                    tag:'Dark · Confident' },
           { file:'NS_03_ViberDriver.mp3',              title:'Viber Driver',                       tag:'Lo-Fi Groove' },
-          { file:'NS_04_StreetLife.mp3',               title:'Street Life',                        tag:'Driving' },
-          { file:'NS_05_AwakeUntilDawn.mp3',           title:'Awake Until Dawn',                   tag:'Atmospheric' },
-          { file:'NS_06_ChillinLikeAVillain.mp3',      title:'Chillin Like A Villain',             tag:'Lo-Fi Chill' },
+          { file:'NS_04_StreetLife.mp3',               title:'Street Life',                        tag:'Driving · Offbeat' },
+          { file:'NS_05_AwakeUntilDawn.mp3',           title:'Awake Until Dawn',                   tag:'Chill Lo-Fi · Sax' },
+          { file:'NS_06_ChillinLikeAVillain.mp3',      title:'Chillin Like A Villain',             tag:'Chill Lo-Fi · Sax' },
           { file:'NS_07_OldJunkyardAmbience.mp3',      title:'Old Junkyard Ambience',              tag:'Ambient' },
           { file:'NS_08_OldGasStationAmbience.mp3',    title:'Old Gas Station Ambience',           tag:'Ambient' },
         ]
@@ -740,28 +745,28 @@
           { file:'TW_01_EgyptTheme.mp3',               title:'Egypt Theme',                        tag:'Exploration' },
           { file:'TW_02_ThePharaohAwakens.mp3',        title:'The Pharaoh Awakens',                tag:'Boss Battle' },
           { file:'TW_03_MedievalTheme.mp3',            title:'Medieval Theme',                     tag:'Exploration' },
-          { file:'TW_04_TheKingOfTheGoldenThrone.mp3', title:'The King of the Golden Throne',      tag:'Epic' },
-          { file:'TW_05_FutureTheme.mp3',              title:'Future Theme',                       tag:'Action' },
+          { file:'TW_04_TheKingOfTheGoldenThrone.mp3', title:'The King of the Golden Throne',      tag:'Boss Battle' },
+          { file:'TW_05_FutureTheme.mp3',              title:'Future Theme',                       tag:'Exploration · Cyber City' },
           { file:'TW_06_MotherboardMayhem.mp3',        title:'Motherboard Mayhem',                 tag:'Boss Battle' },
-          { file:'TW_07_MenuCreditsTheme.mp3',         title:'Menu / Credits Theme',               tag:'Menu' },
+          { file:'TW_07_MenuCreditsTheme.mp3',         title:'Menu / Credits Theme',               tag:'Quirky Jazz · Menu' },
         ]
       },
       'tl-ds': {
         path: 'audio/VGM/Dreamscapes/',
         tracks: [
-          { file:'DS_01_HoistTheSails.mp3',                        title:'Hoist the Sails',                       tag:'Adventure' },
-          { file:'DS_02_NewBoots,NewTown.mp3',                     title:'New Boots, New Town',                   tag:'Exploration' },
-          { file:'DS_03_TheIttyBittyMiniMarket.mp3',               title:'The Itty Bitty Mini Market',            tag:'Whimsical' },
-          { file:'DS_04_Onward!.mp3',                              title:'Onward!',                               tag:'Action' },
+          { file:'DS_01_HoistTheSails.mp3',                        title:'Hoist the Sails',                       tag:'Epic Adventure' },
+          { file:'DS_02_NewBoots,NewTown.mp3',                     title:'New Boots, New Town',                   tag:'Exploration · Day' },
+          { file:'DS_03_TheIttyBittyMiniMarket.mp3',               title:'The Itty Bitty Mini Market',            tag:'Cute Shop Theme' },
+          { file:'DS_04_Onward!.mp3',                              title:'Onward!',                               tag:'Exploration · Night' },
           { file:'DS_05_VenumInTheLeaves.mp3',                     title:'Venum in the Leaves',                   tag:'Tension' },
           { file:'DS_06_CircuitStorm.mp3',                         title:'Circuit Storm',                         tag:'Electronic' },
-          { file:'DS_07_ElectronicSuspense.mp3',                   title:'Electronic Suspense',                   tag:'Suspense' },
+          { file:'DS_07_ElectronicSuspense.mp3',                   title:'Electronic Suspense',                   tag:'Time Trial' },
           { file:'DS_08_Trenches.mp3',                             title:'Trenches',                              tag:'Intense' },
           { file:'DS_09_TooManyPigeons!!!.mp3',                    title:'Too Many Pigeons!!!',                   tag:'Chaotic Fun' },
-          { file:'DS_10_BeneathTheSurface,AllIsBeautiful.mp3',     title:'Beneath the Surface, All Is Beautiful', tag:'Emotional' },
+          { file:'DS_10_BeneathTheSurface,AllIsBeautiful.mp3',     title:'Beneath the Surface, All Is Beautiful', tag:'Underwater · Floating' },
           { file:'DS_11_Latitude.mp3',                             title:'Latitude',                              tag:'Atmospheric' },
           { file:'DS_12_SeekingComfort.mp3',                       title:'Seeking Comfort',                       tag:'Emotional' },
-          { file:'DS_13_LoveThatLastsForever.mp3',                 title:'Love That Lasts Forever',               tag:'Ending' },
+          { file:'DS_13_LoveThatLastsForever.mp3',                 title:'Love That Lasts Forever',               tag:'Love Theme · End Credits' },
         ]
       }
     };
