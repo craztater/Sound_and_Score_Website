@@ -637,6 +637,17 @@
     border: 1px solid var(--gold-dim);
   }
   .price-card.featured:hover { background: rgba(50,35,35,0.95); }
+  .price-card.selected {
+    border: 1px solid var(--gold) !important;
+    box-shadow: 0 0 0 1px var(--gold), 0 0 30px rgba(181,53,53,0.20);
+    background: rgba(50,35,35,0.95);
+  }
+  .selected-flag {
+    position: absolute; top: 0; left: 0;
+    background: var(--gold); color: #000;
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.16em; padding: 5px 11px; z-index: 6;
+  }
   .price-badge {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
@@ -1884,7 +1895,7 @@
           <!-- Always: Service selector -->
           <div class="field">
             <label>Service</label>
-            <select name="service" id="serviceSelect" required onchange="morphForm(this.value);updateServicePrice(this.value)">
+            <select name="service" id="serviceSelect" required onchange="morphForm(this.value);updateServicePrice(this.value);highlightCard(this.value)">
               <option value="">Select a service...</option>
               <option value="audit">The Audit — $35</option>
               <option value="single">The Single — Mixing + Mastering ($165/track)</option>
@@ -1895,6 +1906,13 @@
               <option value="film">Composition — Film / Score (email for quote)</option>
               <option value="brand">Composition — Brand / Sync ($300/track)</option>
             </select>
+          </div>
+
+          <!-- VGM locked-in estimate readout (shown only for Video Game OST) -->
+          <div class="field form-block" id="block-vgm-estimate" style="display:none;">
+            <label>Your Locked-In Estimate</label>
+            <div id="vgm-estimate-display" style="font-family:'DM Mono',monospace;border:1px solid var(--gold);background:rgba(181,53,53,0.07);padding:16px 20px;color:var(--white);font-size:15px;letter-spacing:0.03em;line-height:1.5;"></div>
+            <small style="display:block;margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:0.06em;">Adjust the calculator in the pricing section to change this.</small>
           </div>
 
           <!-- MIXING: BPM + Key (audit, single, project, mastering) -->
@@ -2328,7 +2346,7 @@
 
   function morphForm(val) {
     const blocks=['block-bpm','block-genre','block-tags','block-refs','block-notes',
-                  'block-upload','block-terms','block-film-note','form-submit-btn'];
+                  'block-upload','block-terms','block-film-note','block-vgm-estimate','form-submit-btn'];
     blocks.forEach(hideBlock);
     if(!val) return;
     showBlock('form-submit-btn');
@@ -2411,6 +2429,8 @@
       showBlock('block-rush');
 
     } else if(val==='vgm') {
+      const est = document.getElementById('vgm_estimate');
+      if(est && est.value){ showBlock('block-vgm-estimate'); setText('vgm-estimate-display', est.value); }
       showBlock('block-genre');
       setText('genre-label','Game Genre / Style');
       setAttr('genre-input','placeholder','e.g. RPG, Platformer, Horror, Puzzle...');
@@ -2463,6 +2483,7 @@
 
   // ─── BOOK WITH SERVICE PRE-SELECTED ──────────────────────────
   function bookService(val) {
+    highlightCard(val);
     document.getElementById('booking').scrollIntoView({behavior:'smooth'});
     setTimeout(() => {
       const sel = document.getElementById('serviceSelect');
@@ -2472,6 +2493,26 @@
         updateServicePrice(val);
       }
     }, 600);
+  }
+
+  // Highlight the pricing card matching a service value
+  function highlightCard(val) {
+    document.querySelectorAll('.price-card.selected').forEach(c => {
+      c.classList.remove('selected');
+      const f = c.querySelector('.selected-flag'); if(f) f.remove();
+    });
+    // Map service value -> the card's Book button
+    const btn = document.querySelector('.btn-price[onclick*="bookService(\'' + val + '\')"]');
+    const card = btn ? btn.closest('.price-card') : null;
+    if(card) {
+      card.classList.add('selected');
+      if(!card.querySelector('.selected-flag')) {
+        const flag = document.createElement('div');
+        flag.className = 'selected-flag';
+        flag.textContent = '✓ Selected';
+        card.appendChild(flag);
+      }
+    }
   }
 
   // Writes the flat service price into the hidden field so Web3Forms receives it.
