@@ -2523,7 +2523,7 @@
     }
   }
 
-  // Make the entire pricing card clickable, not just its button
+  // Make the entire pricing card clickable to highlight (button still books)
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.price-card').forEach(card => {
       const btn = card.querySelector('.btn-price[onclick*="bookService"]');
@@ -2532,9 +2532,10 @@
       if(!m) return;
       const val = m[1];
       card.addEventListener('click', e => {
-        // If they clicked the button or any link directly, let that handle it
+        // Clicking the button (or any link) does the full booking + scroll
         if(e.target.closest('a')) return;
-        bookService(val);
+        // Clicking anywhere else on the card only highlights it
+        highlightCard(val);
       });
     });
   });
