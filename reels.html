@@ -192,6 +192,17 @@
     width:100%; aspect-ratio:1/1; object-fit:cover;
     border:1px solid var(--border); display:block;
   }
+  .spotify-btn {
+    display:inline-flex; align-items:center; gap:8px;
+    margin-top:14px; width:100%; justify-content:center;
+    font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--text-muted);
+    border:1px solid var(--border); padding:11px 16px;
+    text-decoration:none; cursor:none; transition:all 0.18s;
+    box-sizing:border-box;
+  }
+  .spotify-btn:hover { border-color:#1DB954; color:#1DB954; }
+  .spotify-btn svg { width:16px; height:16px; flex-shrink:0; }
   .vgm-track {
     display:grid; grid-template-columns:28px 1fr auto;
     align-items:center; gap:12px;
@@ -481,6 +492,10 @@
   <div class="vgm-album reveal">
     <div>
       <img class="vgm-cover" src="images/vgm_timewarrior.jpg" alt="The Time Warrior" />
+      <a class="spotify-btn" href="https://open.spotify.com/album/0tu5jWbgkDnVaJqt66Ev8T" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.2.4-.7.5-1 .3-2.8-1.7-6.3-2.1-10.5-1.1-.4.1-.8-.2-.9-.6-.1-.4.2-.8.6-.9 4.5-1 8.4-.6 11.5 1.3.4.2.5.7.3 1zm1.5-3.3c-.3.4-.8.6-1.2.3-3.2-2-8.1-2.5-11.9-1.4-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4.4-1.3 9.8-.7 13.5 1.5.4.3.5.9.1 1.3zm.1-3.4C15.2 8.2 8.7 8 5 9.1c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4C8.6 5.8 15.8 6 20.2 8.6c.5.3.7 1 .4 1.5-.3.6-1 .8-1.5.5z"/></svg>
+        Listen on Spotify
+      </a>
     </div>
     <div>
       <div class="reel-card-tag" style="margin-bottom:8px;">Indie Game · Full OST · 7 Tracks</div>
@@ -496,6 +511,10 @@
   <div class="vgm-album reveal">
     <div>
       <img class="vgm-cover" src="images/vgm_nightshift.jpg" alt="Night Shift Driver" />
+      <div class="spotify-btn" style="opacity:0.5;cursor:default;border-style:dashed;">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.2.4-.7.5-1 .3-2.8-1.7-6.3-2.1-10.5-1.1-.4.1-.8-.2-.9-.6-.1-.4.2-.8.6-.9 4.5-1 8.4-.6 11.5 1.3.4.2.5.7.3 1zm1.5-3.3c-.3.4-.8.6-1.2.3-3.2-2-8.1-2.5-11.9-1.4-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4.4-1.3 9.8-.7 13.5 1.5.4.3.5.9.1 1.3zm.1-3.4C15.2 8.2 8.7 8 5 9.1c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4C8.6 5.8 15.8 6 20.2 8.6c.5.3.7 1 .4 1.5-.3.6-1 .8-1.5.5z"/></svg>
+        Spotify · Out Soon
+      </div>
     </div>
     <div>
       <div class="reel-card-tag" style="margin-bottom:8px;">Indie Game · Full OST · 8 Tracks</div>
@@ -511,11 +530,15 @@
   <div class="vgm-album reveal">
     <div>
       <img class="vgm-cover" src="images/vgm_dreamscapes.jpg" alt="Dreamscapes" />
+      <a class="spotify-btn" href="https://open.spotify.com/album/5VV0CaM1i5zFeNtgs2fZIQ" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.2.4-.7.5-1 .3-2.8-1.7-6.3-2.1-10.5-1.1-.4.1-.8-.2-.9-.6-.1-.4.2-.8.6-.9 4.5-1 8.4-.6 11.5 1.3.4.2.5.7.3 1zm1.5-3.3c-.3.4-.8.6-1.2.3-3.2-2-8.1-2.5-11.9-1.4-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4.4-1.3 9.8-.7 13.5 1.5.4.3.5.9.1 1.3zm.1-3.4C15.2 8.2 8.7 8 5 9.1c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4C8.6 5.8 15.8 6 20.2 8.6c.5.3.7 1 .4 1.5-.3.6-1 .8-1.5.5z"/></svg>
+        Listen on Spotify
+      </a>
     </div>
     <div>
       <div class="reel-card-tag" style="margin-bottom:8px;">Original Concept OST · 13 Tracks</div>
       <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--white);margin-bottom:6px;">Dreamscapes</div>
-      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">A fully realized concept soundtrack for an original game world. Atmospheric, emotional, and unpredictable — from whimsical markets to electronic suspense.</p>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">Original concept OST for a surreal, choice-driven dream game — you drift through a stranger's corrupted save file, one fragmented dream at a time. The score has to sell each shift: pirate chaos, a cozy mini-mart, a robot war, an underwater calm, a love that only exists while you're asleep.</p>
       <div class="vgm-tracklist" id="tl-ds">
         <!-- tracks injected by JS -->
       </div>
