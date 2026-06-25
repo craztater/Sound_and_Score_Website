@@ -238,9 +238,49 @@
     margin-top:6px; cursor:pointer; display:none;
   }
   .vgm-track.expanded .vgm-mini-wave { display:block; }
+  /* Mobile hamburger button */
+  .nav-toggle {
+    display: none;
+    background: none; border: none;
+    flex-direction: column; gap: 5px;
+    cursor: none; padding: 6px; z-index: 1001;
+  }
+  .nav-toggle span {
+    display: block; width: 24px; height: 2px;
+    background: var(--text); transition: all 0.25s;
+  }
+  .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
   @media(max-width:768px) {
     .vgm-album { grid-template-columns:1fr; }
     .vgm-cover { max-width:200px; }
+    .nav-toggle { display: flex; }
+    .nav-links {
+      position: fixed;
+      top: 0; right: 0;
+      width: 75%; max-width: 320px; height: 100vh;
+      background: #161616;
+      border-left: 1px solid var(--border);
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 0;
+      padding: 90px 32px 32px;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+    .nav-links.open { transform: translateX(0); }
+    .nav-links a {
+      font-size: 18px; padding: 18px 0; width: 100%;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-links a.nav-cta {
+      margin-top: 20px; border-bottom: none;
+      text-align: center; border: 1px solid var(--gold);
+    }
   }
   .reel-placeholder {
     position:absolute; top:0; left:0; width:100%; height:100%;
@@ -327,6 +367,9 @@
     <a href="reels.html" class="active">Demo Reels</a>
     <a href="index.html#booking" class="nav-cta">Book a Session</a>
   </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- PAGE HERO -->
@@ -723,6 +766,24 @@
 </footer>
 
 <script>
+  // Mobile hamburger menu
+  (function(){
+    const toggle = document.getElementById('navToggle');
+    const links = document.querySelector('.nav-links');
+    if(toggle && links){
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('open');
+        links.classList.toggle('open');
+      });
+      links.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+          toggle.classList.remove('open');
+          links.classList.remove('open');
+        });
+      });
+    }
+  })();
+
   // ── VGM ALBUM PLAYERS ──────────────────────────────────────────
   (function(){
     const ALBUMS = {
