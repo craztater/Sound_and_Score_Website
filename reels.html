@@ -547,15 +547,24 @@
     </div>
   </div>
 
-  <!-- MAIN REEL — VGM (coming soon) -->
+  <!-- MAIN REEL — VGM (live audio player) -->
   <div class="reel-hero reveal">
-    <div class="reel-hero-eyebrow">Main Reel · Coming Soon</div>
+    <div class="reel-hero-eyebrow">▶ Main Reel · Press Play</div>
     <div style="display:flex;align-items:center;gap:24px;">
-      <div class="reel-hero-play soon">
-        <div style="width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:19px solid var(--gold);margin-left:4px;"></div>
+      <button id="vgm-playbtn" class="reel-hero-play" onclick="toggleVgmReel()">
+        <svg id="vgm-icon-play" width="24" height="24" viewBox="0 0 18 18" fill="#000" style="position:absolute;">
+          <polygon points="4,2 16,9 4,16"/>
+        </svg>
+        <svg id="vgm-icon-pause" width="24" height="24" viewBox="0 0 18 18" fill="#000" style="position:absolute;display:none;">
+          <rect x="3" y="2" width="4" height="14"/><rect x="11" y="2" width="4" height="14"/>
+        </svg>
+      </button>
+      <div style="flex:1;position:relative;cursor:none;" onclick="seekVgmReel(event,this)">
+        <canvas id="vgm-waveform" style="display:block;width:100%;height:64px;"></canvas>
       </div>
-      <div style="font-family:'DM Mono',monospace;font-size:14px;letter-spacing:0.14em;color:var(--text-dim);text-transform:uppercase;">Reel in post — full soundtracks below</div>
+      <div id="vgm-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
     </div>
+    <audio id="vgm-audio" src="audio/VGM_Reel.mp3" preload="metadata"></audio>
   </div>
 
   <!-- Divider -->
@@ -979,8 +988,9 @@
         else { activeAudio.pause(); if(activeBtn){activeBtn.classList.remove('playing');activeBtn.innerHTML=playIcon();} }
         return;
       }
-      // No VGM active — fall through to brands reel
-      if(typeof toggleBrandsReel==='function'){ e.preventDefault(); toggleBrandsReel(); }
+      // No album track active — toggle whichever hero reel was last used
+      if(window.__lastHeroToggle){ e.preventDefault(); window.__lastHeroToggle(); }
+      else if(typeof toggleBrandsReel==='function'){ e.preventDefault(); toggleBrandsReel(); }
     });
   })();
 </script>
@@ -1091,6 +1101,7 @@
         audio.play();
         btnPlay.style.display  = 'none';
         btnPause.style.display = '';
+        window.__lastHeroToggle = window.toggleBrandsReel;
         if(!peaks) loadWaveform();
       } else {
         audio.pause();
@@ -1108,11 +1119,124 @@
         audio.play();
         btnPlay.style.display  = 'none';
         btnPause.style.display = '';
+        window.__lastHeroToggle = window.toggleBrandsReel;
         if(!peaks) loadWaveform();
       }
     };
 
     // Initial draw
+    draw(0);
+  })();
+
+
+  // VGM Reel — waveform player (clone of brands)
+  (function(){
+    const audio  = document.getElementById('vgm-audio');
+    const canvas = document.getElementById('vgm-waveform');
+    const btnPlay  = document.getElementById('vgm-icon-play');
+    const btnPause = document.getElementById('vgm-icon-pause');
+    const timeEl = document.getElementById('vgm-time');
+    if(!audio || !canvas) return;
+
+    let peaks = null;
+    let progress = 0;
+
+    function fmt(s) {
+      if(isNaN(s)) return '0:00';
+      const m = Math.floor(s/60), sec = Math.floor(s%60);
+      return m + ':' + (sec<10?'0':'') + sec;
+    }
+
+    function draw(pct) {
+      const W = canvas.offsetWidth || canvas.parentElement.offsetWidth || 400;
+      const H = 48;
+      if(canvas.width !== W) canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,W,H);
+      const barW = 2, gap = 1;
+      const totalBars = Math.floor(W / (barW + gap));
+      const frac = (pct||0) / 100;
+      for(let i = 0; i < totalBars; i++) {
+        const x = i * (barW + gap);
+        const played = i / totalBars < frac;
+        let barH;
+        if(peaks) {
+          const si = Math.floor(i / totalBars * peaks.length);
+          barH = Math.max(2, (peaks[si]||0) * H * 0.80);
+        } else {
+          const seed = Math.sin(i * 91.3 + 47 * 19.4) * 43758.5453;
+          barH = 2 + (seed - Math.floor(seed)) * 5;
+        }
+        const y = (H - barH) / 2;
+        ctx.fillStyle = played ? 'rgba(181,53,53,0.85)' : 'rgba(181,53,53,0.18)';
+        if(ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, barW, barH, 1); ctx.fill(); }
+        else { ctx.fillRect(x, y, barW, barH); }
+      }
+    }
+
+    async function loadWaveform() {
+      if(peaks) return;
+      try {
+        const resp = await fetch(audio.src);
+        const buf  = await resp.arrayBuffer();
+        const actx = new (window.AudioContext || window.webkitAudioContext)();
+        const decoded = await actx.decodeAudioData(buf);
+        const raw = decoded.getChannelData(0);
+        const N = 200, p = new Float32Array(N), block = Math.floor(raw.length / N);
+        for(let i = 0; i < N; i++) { let mx = 0; for(let j = 0; j < block; j++){ const v = Math.abs(raw[i*block+j]); if(v>mx) mx=v; } p[i] = mx; }
+        const maxP = Math.max.apply(null, p);
+        if(maxP > 0) for(let i = 0; i < N; i++) p[i] /= maxP;
+        peaks = p; draw(progress); await actx.close();
+      } catch(e) { draw(0); }
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+      timeEl.textContent = '0:00 / ' + fmt(audio.duration);
+      draw(0); loadWaveform();
+    });
+    audio.addEventListener('timeupdate', () => {
+      progress = audio.duration ? (audio.currentTime / audio.duration * 100) : 0;
+      draw(progress);
+      timeEl.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
+    });
+    audio.addEventListener('ended', () => {
+      progress = 0; draw(0);
+      btnPlay.style.display = ''; btnPause.style.display = 'none';
+    });
+
+    window.__reelStoppers = window.__reelStoppers || [];
+    window.__reelStoppers.push({ id:'vgmreel', stop: function(){
+      if(!audio.paused) audio.pause();
+      btnPlay.style.display = ''; btnPause.style.display = 'none';
+    }});
+
+    window.toggleVgmReel = function() {
+      if(audio.paused) {
+        if(window.stopAllReelsExcept) window.stopAllReelsExcept('vgmreel');
+        audio.play();
+        btnPlay.style.display = 'none'; btnPause.style.display = '';
+        window.__lastHeroToggle = window.toggleVgmReel;
+        if(!peaks) loadWaveform();
+      } else {
+        audio.pause();
+        btnPlay.style.display = ''; btnPause.style.display = 'none';
+      }
+    };
+
+    window.seekVgmReel = function(e, bar) {
+      if(!audio.duration) return;
+      const rect = bar.getBoundingClientRect();
+      audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+      if(audio.paused) {
+        if(window.stopAllReelsExcept) window.stopAllReelsExcept('vgmreel');
+        audio.play();
+        btnPlay.style.display = 'none'; btnPause.style.display = '';
+        window.__lastHeroToggle = window.toggleVgmReel;
+        if(!peaks) loadWaveform();
+      }
+    };
+
     draw(0);
   })();
 
