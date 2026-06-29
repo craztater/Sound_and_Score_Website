@@ -102,6 +102,41 @@
   .page-title em { font-style:italic; color:var(--gold); }
   .page-sub { font-size:16px; color:var(--text-muted); line-height:1.7; max-width:560px; }
 
+  /* Identity strip */
+  .id-strip {
+    display:flex; align-items:center; gap:22px;
+    max-width:1200px; margin:36px auto 0; padding:0 48px;
+  }
+  .id-photo {
+    width:76px; height:76px; border-radius:50%; object-fit:cover;
+    object-position:center top; border:1px solid var(--gold); flex-shrink:0;
+  }
+  .id-name {
+    font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:300;
+    color:var(--white); letter-spacing:0.03em; line-height:1.1;
+  }
+  .id-name span { color:var(--gold); }
+  .id-role {
+    font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--text-muted); margin-top:5px;
+  }
+  .id-sub {
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.1em;
+    color:var(--text-dim); margin-top:3px;
+  }
+  .id-links { display:flex; gap:18px; margin-top:9px; }
+  .id-links a {
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--text-muted); text-decoration:none;
+    transition:color 0.2s; cursor:none;
+  }
+  .id-links a:hover { color:var(--gold); }
+  @media(max-width:768px) {
+    .id-strip { padding:0 20px; gap:16px; }
+    .id-photo { width:60px; height:60px; }
+    .id-name { font-size:20px; }
+  }
+
   /* Category tabs — matches index pricing tabs */
   .reel-tabs {
     display: flex;
@@ -419,6 +454,21 @@
   <span class="page-tag">Demo Reels</span>
   <h1 class="page-title">Hear the<br><em>Work.</em></h1>
   <p class="page-sub">Full composition reels and mixing showcases. Scroll by category — film scores, game soundtracks, and brand work.</p>
+</div>
+
+<!-- IDENTITY STRIP -->
+<div class="id-strip fadein">
+  <img class="id-photo" src="images/additional_profile_pic.jpg" alt="Taylor A. Bailey" />
+  <div>
+    <div class="id-name">Taylor A. Bailey <span>· ASH3R</span></div>
+    <div class="id-role">Composer · Producer · Mix Engineer</div>
+    <div class="id-sub">Los Angeles, CA</div>
+    <div class="id-links">
+      <a href="https://www.instagram.com/taylor.bailey.music/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://soundcloud.com/ash3rbmusic" target="_blank" rel="noopener">SoundCloud</a>
+      <a href="mailto:tabsoundandscore@gmail.com">Email</a>
+    </div>
+  </div>
 </div>
 
 <!-- CATEGORY TABS -->
