@@ -357,26 +357,24 @@
   .submit-section {
     margin-top:80px; padding:56px; border:1px solid var(--gold-dim);
     background:linear-gradient(180deg, var(--surface), rgba(181,53,53,0.05));
-    display:flex; align-items:center; gap:48px;
+    display:flex; align-items:center; justify-content:center; gap:48px;
+    max-width:920px; margin-left:auto; margin-right:auto;
   }
   .submit-photo {
     width:240px; height:300px; flex-shrink:0;
     object-fit:cover; object-position:center 35%;
     border:1px solid var(--gold);
   }
-  .submit-text { flex:1; text-align:left; }
+  .submit-text { flex:1; text-align:center; }
   @media(max-width:768px) {
-    .submit-section { flex-direction:column; text-align:center; padding:40px 28px; gap:28px; }
+    .submit-section { flex-direction:column; padding:40px 28px; gap:28px; }
     .submit-photo { width:180px; height:220px; }
-    .submit-text { text-align:center; }
   }
   .submit-section h3 {
     font-family:'Cormorant Garamond',serif; font-size:clamp(34px,5vw,52px); font-weight:300;
     color:var(--white); margin-bottom:16px;
   }
-  .submit-section p { font-size:16px; color:var(--text-muted); line-height:1.7; margin-bottom:36px; max-width:600px; }
-  .submit-section.reveal .submit-text p { margin-left:0; margin-right:0; }
-  @media(max-width:768px){ .submit-section p { margin-left:auto; margin-right:auto; } }
+  .submit-section p { font-size:16px; color:var(--text-muted); line-height:1.7; margin-bottom:36px; max-width:520px; margin-left:auto; margin-right:auto; }
   .btn-red {
     display:inline-block; font-family:'DM Mono',monospace; font-size:16px;
     letter-spacing:0.14em; text-transform:uppercase; background:var(--gold);
@@ -1146,15 +1144,33 @@
   animRing();
 
   // Tab switching
-  function switchReel(btn, id) {
+  function activateReel(id, doScroll) {
+    if(id === 'vgm') id = 'games';            // alias
+    const valid = ['brand','film','games'];
+    if(!valid.includes(id)) id = 'brand';
     document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));
     document.querySelectorAll('.reel-section').forEach(s=>s.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('reel-'+id).classList.add('active');
-    window.scrollTo({top: document.querySelector('.reel-tabs').offsetTop - 80, behavior:'smooth'});
-    // Re-trigger reveals for newly shown section
+    const btn = document.querySelector('.rtab[onclick*="switchReel(this,\'' + id + '\')"]');
+    if(btn) btn.classList.add('active');
+    const sec = document.getElementById('reel-' + id);
+    if(sec) sec.classList.add('active');
+    if(doScroll){
+      const tabs = document.querySelector('.reel-tabs');
+      if(tabs) window.scrollTo({top: tabs.offsetTop - 80, behavior:'smooth'});
+    }
     setTimeout(triggerReveals, 50);
   }
+
+  function switchReel(btn, id) {
+    activateReel(id, true);
+    history.replaceState(null, '', '#' + id);   // make the URL shareable
+  }
+
+  // On load: open the section named in the URL hash (e.g. reels.html#games)
+  (function(){
+    const h = (window.location.hash || '').replace('#','').toLowerCase();
+    if(h) activateReel(h, false);
+  })();
 
   // Scroll reveal
   function triggerReveals() {
