@@ -364,7 +364,7 @@
     object-fit:cover; object-position:center 35%;
     border:1px solid var(--gold);
   }
-  .submit-text { flex:1; text-align:center; }
+  .submit-text { flex:0 1 auto; max-width:560px; text-align:center; }
   @media(max-width:768px) {
     .submit-section { flex-direction:column; padding:40px 28px; gap:28px; }
     .submit-photo { width:180px; height:220px; }
@@ -458,13 +458,11 @@
   <!-- MAIN REEL — Film (coming soon) -->
   <div class="reel-hero reveal">
     <div class="reel-hero-eyebrow">Main Reel · Coming Soon</div>
-    <div class="reel-hero-title">Film Score Demo Reel</div>
-    <p class="reel-hero-desc">A curated cut of cues from short film projects — psychological, emotional, atmospheric. Currently in post.</p>
-    <div style="display:flex;align-items:center;gap:20px;">
+    <div style="display:flex;align-items:center;gap:24px;">
       <div class="reel-hero-play soon">
-        <div style="width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:18px solid var(--gold);margin-left:4px;"></div>
+        <div style="width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:19px solid var(--gold);margin-left:4px;"></div>
       </div>
-      <div style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.14em;color:var(--text-dim);text-transform:uppercase;">Reel in post — check back soon</div>
+      <div style="font-family:'DM Mono',monospace;font-size:14px;letter-spacing:0.14em;color:var(--text-dim);text-transform:uppercase;">Reel in post — check back soon</div>
     </div>
   </div>
 
@@ -552,13 +550,11 @@
   <!-- MAIN REEL — VGM (coming soon) -->
   <div class="reel-hero reveal">
     <div class="reel-hero-eyebrow">Main Reel · Coming Soon</div>
-    <div class="reel-hero-title">VGM Demo Reel</div>
-    <p class="reel-hero-desc">A curated cut across all three soundtracks — action, atmosphere, emotion, in one listen. Currently in post.</p>
-    <div style="display:flex;align-items:center;gap:20px;">
+    <div style="display:flex;align-items:center;gap:24px;">
       <div class="reel-hero-play soon">
-        <div style="width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:18px solid var(--gold);margin-left:4px;"></div>
+        <div style="width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:19px solid var(--gold);margin-left:4px;"></div>
       </div>
-      <div style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.14em;color:var(--text-dim);text-transform:uppercase;">Reel in post — full soundtracks below</div>
+      <div style="font-family:'DM Mono',monospace;font-size:14px;letter-spacing:0.14em;color:var(--text-dim);text-transform:uppercase;">Reel in post — full soundtracks below</div>
     </div>
   </div>
 
@@ -649,22 +645,19 @@
 
   <!-- MAIN REEL — Brand (live audio player) -->
   <div class="reel-hero reveal">
-    <div class="reel-hero-eyebrow">▶ Start Here · Main Reel</div>
-    <div class="reel-hero-title">Brand Music Reel</div>
-    <p class="reel-hero-desc">The full compilation — orchestral, electronic, emotional, cinematic. Press play and hear the range in one listen.</p>
-
+    <div class="reel-hero-eyebrow">▶ Main Reel · Press Play</div>
     <!-- Waveform player -->
-    <div style="display:flex;align-items:center;gap:20px;">
+    <div style="display:flex;align-items:center;gap:24px;">
       <button id="brands-playbtn" class="reel-hero-play" onclick="toggleBrandsReel()">
-        <svg id="brands-icon-play" width="22" height="22" viewBox="0 0 18 18" fill="#000" style="position:absolute;">
+        <svg id="brands-icon-play" width="24" height="24" viewBox="0 0 18 18" fill="#000" style="position:absolute;">
           <polygon points="4,2 16,9 4,16"/>
         </svg>
-        <svg id="brands-icon-pause" width="22" height="22" viewBox="0 0 18 18" fill="#000" style="position:absolute;display:none;">
+        <svg id="brands-icon-pause" width="24" height="24" viewBox="0 0 18 18" fill="#000" style="position:absolute;display:none;">
           <rect x="3" y="2" width="4" height="14"/><rect x="11" y="2" width="4" height="14"/>
         </svg>
       </button>
       <div style="flex:1;position:relative;cursor:none;" onclick="seekBrandsReel(event,this)">
-        <canvas id="brands-waveform" style="display:block;width:100%;height:56px;"></canvas>
+        <canvas id="brands-waveform" style="display:block;width:100%;height:64px;"></canvas>
       </div>
       <div id="brands-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
     </div>
