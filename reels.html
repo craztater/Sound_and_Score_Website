@@ -203,6 +203,9 @@
   }
   .stream-btn:hover { border-color:var(--gold); color:var(--gold); }
   .stream-btn svg { width:15px; height:15px; flex-shrink:0; }
+  .vgm-tracklist {
+    display:grid; grid-template-columns:1fr 1fr; gap:0 36px;
+  }
   .vgm-track {
     display:grid; grid-template-columns:28px 1fr auto;
     align-items:center; gap:12px;
@@ -256,6 +259,7 @@
   @media(max-width:768px) {
     .vgm-album { grid-template-columns:1fr; }
     .vgm-cover { max-width:200px; }
+    .vgm-tracklist { grid-template-columns:1fr; }
     .nav-toggle { display: flex; }
     .nav-links {
       position: fixed;
@@ -1279,7 +1283,7 @@
 
   function switchReel(btn, id) {
     activateReel(id, true);
-    history.replaceState(null, '', '#' + id);   // make the URL shareable
+    try { history.replaceState(null, '', '#' + id); } catch(e) { /* sandboxed preview blocks this; harmless */ }
   }
 
   // On load: open the section named in the URL hash (e.g. reels.html#games)
