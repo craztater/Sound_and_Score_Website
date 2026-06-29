@@ -545,6 +545,54 @@
     margin-bottom: 24px;
   }
   .comp-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  /* Composition gateway cards (link to reels) */
+  .gateway-card {
+    display: block;
+    background: var(--black);
+    border: 1px solid var(--border);
+    padding: 36px 32px;
+    text-decoration: none;
+    transition: background 0.25s, border-color 0.25s, transform 0.25s;
+    cursor: none;
+  }
+  .gateway-card:hover {
+    background: var(--surface2);
+    border-color: var(--gold);
+    transform: translateY(-4px);
+  }
+  .gateway-cat {
+    font-family: 'DM Mono', monospace; font-size: 12px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 16px;
+  }
+  .gateway-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 28px;
+    font-weight: 300; color: var(--white); margin-bottom: 14px;
+  }
+  .gateway-desc {
+    font-size: 14px; color: var(--text-muted); line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .gateway-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 24px; }
+  .gateway-go {
+    font-family: 'DM Mono', monospace; font-size: 13px;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--text);
+    transition: color 0.2s;
+  }
+  .gateway-card:hover .gateway-go { color: var(--gold); }
+  .gateway-btn {
+    display: inline-block;
+    font-family: 'DM Mono', monospace; font-size: 15px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    background: var(--gold); color: #141414;
+    padding: 20px 48px; text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s; cursor: none;
+  }
+  .gateway-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+  @media (max-width: 768px) {
+    .comp-gateway { grid-template-columns: 1fr !important; }
+  }
+
   .comp-tag {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
@@ -1563,131 +1611,45 @@
 
 <!-- COMPOSITION SECTION -->
 <section class="comp-section" id="composition" style="border-top: 2px solid rgba(181,53,53,0.35);">
-  <div style="display:inline-block;border:1px solid var(--gold);color:var(--gold);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.22em;text-transform:uppercase;padding:8px 20px;margin-bottom:48px;">Composition Services</div>
+  <div style="display:inline-block;border:1px solid var(--gold);color:var(--gold);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.22em;text-transform:uppercase;padding:8px 20px;margin-bottom:48px;">Composition &amp; Scoring</div>
   <div class="comp-header reveal">
     <div>
       <h2 class="section-title">Worlds Built<br><em>in Sound</em></h2>
     </div>
-    <p style="color:var(--text-muted);font-size:15px;line-height:1.7;max-width:380px;">30–60 second showcases. Every track a world. Games, film, brands—original music that becomes the identity.</p>
+    <p style="color:var(--text-muted);font-size:15px;line-height:1.7;max-width:380px;">Original music for film, games, and brands — cinematic, electronic, emotional. The full reels live on a dedicated page. Pick a world and dive in.</p>
   </div>
 
-      <!-- Column headers -->
-  <div class="comp-col-headers" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-bottom:1px;">
-    <div style="padding:16px 28px;background:var(--surface2);border-bottom:2px solid var(--gold);">
-      <span style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--white);">Video Games</span>
-    </div>
-    <div style="padding:16px 28px;background:var(--surface2);border-bottom:2px solid var(--gold);">
-      <span style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--white);">Film Score</span>
-    </div>
-    <div style="padding:16px 28px;background:var(--surface2);border-bottom:2px solid var(--gold);">
-      <span style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--white);">Brand / Commercial</span>
-    </div>
+  <!-- Gateway cards: each links to its reel -->
+  <div class="comp-gateway" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;">
+
+    <a href="reels.html#games" class="gateway-card">
+      <div class="gateway-cat">Video Games</div>
+      <div class="gateway-title">Game Soundtracks</div>
+      <p class="gateway-desc">Three full original OSTs — orchestral adventure, late-night synthwave, and a surreal concept score.</p>
+      <div class="gateway-tags"><span class="comp-tag">Orchestral</span><span class="comp-tag">Electronic</span><span class="comp-tag">Atmospheric</span></div>
+      <div class="gateway-go">View the VGM Reel →</div>
+    </a>
+
+    <a href="reels.html#film" class="gateway-card">
+      <div class="gateway-cat">Film &amp; Score</div>
+      <div class="gateway-title">Film Scoring</div>
+      <p class="gateway-desc">Original scores for short films and narrative projects — atmospheric, cinematic, built to serve the story.</p>
+      <div class="gateway-tags"><span class="comp-tag">Cinematic</span><span class="comp-tag">Emotional</span><span class="comp-tag">Narrative</span></div>
+      <div class="gateway-go">View the Film Reel →</div>
+    </a>
+
+    <a href="reels.html#brand" class="gateway-card">
+      <div class="gateway-cat">Brand &amp; Commercial</div>
+      <div class="gateway-title">Brand &amp; Sync</div>
+      <p class="gateway-desc">Music with weight for brands and commercials — orchestral, electronic, emotional. Rescores and originals.</p>
+      <div class="gateway-tags"><span class="comp-tag">High Energy</span><span class="comp-tag">Techy</span><span class="comp-tag">Bold</span></div>
+      <div class="gateway-go">View the Brand Reel →</div>
+    </a>
+
   </div>
-    <!-- Column headers -->
-  
-  <div class="comp-grid">
-    <!-- Row 1 -->
-    <div class="comp-card reveal" data-category="Video Games" style="order:1;">
-      <h4>Neon Dungeon</h4>
-      <div class="comp-duration">0:48 snippet</div>
-      <div class="comp-tags"><span class="comp-tag">Chiptune</span><span class="comp-tag">Electronic</span><span class="comp-tag">High Energy</span></div>
-      <div class="comp-play">
-        <button class="comp-play-btn" id="cplay-0" onclick="toggleCompPlay(0)">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="comp-mini-wave" id="cwave-0"></div>
-      </div>
-    </div>
-    <div class="comp-card reveal" data-category="Film Score" style="order:4;">
-      <h4>Falling Cities</h4>
-      <div class="comp-duration">0:55 snippet</div>
-      <div class="comp-tags"><span class="comp-tag">Cinematic</span><span class="comp-tag">Orchestral</span><span class="comp-tag">Tense</span></div>
-      <div class="comp-play">
-        <button class="comp-play-btn" id="cplay-1" onclick="toggleCompPlay(1)">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="comp-mini-wave" id="cwave-1"></div>
-      </div>
-    </div>
-    <div class="comp-card reveal" data-category="Brand / Commercial" style="order:7;">
-      <h4>The Brief</h4>
-      <div class="comp-duration">0:30 snippet</div>
-      <div class="comp-tags"><span class="comp-tag">Minimal</span><span class="comp-tag">Corporate</span><span class="comp-tag">Optimistic</span></div>
-      <div class="comp-play">
-        <button class="comp-play-btn" id="cplay-2" onclick="toggleCompPlay(2)">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="comp-mini-wave" id="cwave-2"></div>
-      </div>
-    </div>
-    <!-- Row 2 -->
-    <div class="comp-card reveal reveal-delay-1" data-category="Video Games" style="order:2;">
-      <h4>Overworlded</h4>
-      <div class="comp-duration">0:42 snippet</div>
-      <div class="comp-tags"><span class="comp-tag">Lo-Fi</span><span class="comp-tag">Ambient</span><span class="comp-tag">Exploration</span></div>
-      <div class="comp-play">
-        <button class="comp-play-btn" id="cplay-3" onclick="toggleCompPlay(3)">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="comp-mini-wave" id="cwave-3"></div>
-      </div>
-    </div>
-    <div class="comp-card reveal reveal-delay-1" data-category="Film Score" style="order:5;">
-      <h4>The Cartographer</h4>
-      <div class="comp-duration">0:58 snippet</div>
-      <div class="comp-tags"><span class="comp-tag">Adventure</span><span class="comp-tag">Lush</span><span class="comp-tag">Sweeping</span></div>
-      <div class="comp-play">
-        <button class="comp-play-btn" id="cplay-4" onclick="toggleCompPlay(4)">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="comp-mini-wave" id="cwave-4"></div>
-      </div>
-    </div>
-    <div class="comp-card reveal reveal-delay-1" data-category="Brand / Commercial" style="order:8;">
-      <h4>Signal & Noise</h4>
-      <div class="comp-duration">0:30 snippet</div>
-      <div class="comp-tags"><span class="comp-tag">Tech</span><span class="comp-tag">Electronic</span><span class="comp-tag">Forward</span></div>
-      <div class="comp-play">
-        <button class="comp-play-btn" id="cplay-5" onclick="toggleCompPlay(5)">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="comp-mini-wave" id="cwave-5"></div>
-      </div>
-    </div>
-    <!-- Row 3 -->
-    <div class="comp-card reveal reveal-delay-2" data-category="Video Games" style="order:3;">
-      <h4>Battle Theme</h4>
-      <div class="comp-duration">0:45 snippet</div>
-      <div class="comp-tags"><span class="comp-tag">Action</span><span class="comp-tag">Cinematic</span><span class="comp-tag">Intense</span></div>
-      <div class="comp-play">
-        <button class="comp-play-btn" id="cplay-6" onclick="toggleCompPlay(6)">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="comp-mini-wave" id="cwave-6"></div>
-      </div>
-    </div>
-    <div class="comp-card reveal reveal-delay-2" data-category="Film Score" style="order:6;">
-      <h4>Dark Horizon</h4>
-      <div class="comp-duration">0:50 snippet</div>
-      <div class="comp-tags"><span class="comp-tag">Sci-Fi</span><span class="comp-tag">Electronic</span><span class="comp-tag">Eerie</span></div>
-      <div class="comp-play">
-        <button class="comp-play-btn" id="cplay-7" onclick="toggleCompPlay(7)">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="comp-mini-wave" id="cwave-7"></div>
-      </div>
-    </div>
-    <div class="comp-card reveal reveal-delay-2" data-category="Brand / Commercial" style="order:9;">
-      <h4>Morning Light</h4>
-      <div class="comp-duration">0:30 snippet</div>
-      <div class="comp-tags"><span class="comp-tag">Uplifting</span><span class="comp-tag">Acoustic</span><span class="comp-tag">Warm</span></div>
-      <div class="comp-play">
-        <button class="comp-play-btn" id="cplay-8" onclick="toggleCompPlay(8)">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="comp-mini-wave" id="cwave-8"></div>
-      </div>
-    </div>
+
+  <div style="text-align:center;margin-top:48px;">
+    <a href="reels.html" class="gateway-btn">Explore All Demo Reels →</a>
   </div>
 </section>
 
@@ -2944,17 +2906,6 @@
 <audio id="audio-11-after" src="audio/Mixing/SUMIMASEN_AFTER.mp3" preload="metadata"></audio>
 <audio id="audio-12-before" src="audio/Mixing/EARTH_BEFORE.mp3" preload="metadata"></audio>
 <audio id="audio-12-after" src="audio/Mixing/EARTH_AFTER.mp3" preload="metadata"></audio>
-<!-- Composition reel snippets -->
-<audio id="comp-audio-0" src="" preload="metadata"></audio>
-<audio id="comp-audio-1" src="" preload="metadata"></audio>
-<audio id="comp-audio-2" src="" preload="metadata"></audio>
-<audio id="comp-audio-3" src="" preload="metadata"></audio>
-<audio id="comp-audio-4" src="" preload="metadata"></audio>
-<audio id="comp-audio-5" src="" preload="metadata"></audio>
-
-<audio id="comp-audio-6" src="" preload="metadata"></audio>
-<audio id="comp-audio-7" src="" preload="metadata"></audio>
-<audio id="comp-audio-8" src="" preload="metadata"></audio>
 <script>
 /* Booking form — background submit via Web3Forms */
 (function(){
