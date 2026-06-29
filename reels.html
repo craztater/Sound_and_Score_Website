@@ -318,23 +318,65 @@
   .reel-featured { margin-bottom:16px; }
   .reel-featured .reel-embed { padding-bottom:34%; }
 
-  /* How to submit */
+  /* Unified hero "main reel" block — big, gold, clearly the first thing to click */
+  .reel-hero {
+    border:1px solid var(--gold);
+    background:linear-gradient(180deg, var(--surface2), rgba(181,53,53,0.07));
+    padding:clamp(32px,5vw,56px);
+    margin-bottom:0;
+    box-shadow:0 0 40px rgba(181,53,53,0.06);
+  }
+  .reel-hero-eyebrow {
+    font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.24em;
+    text-transform:uppercase; color:var(--gold); margin-bottom:18px;
+  }
+  .reel-hero-title {
+    font-family:'Cormorant Garamond',serif; font-weight:300; line-height:1.04;
+    font-size:clamp(34px,5vw,50px); color:var(--white); margin-bottom:12px;
+  }
+  .reel-hero-desc {
+    font-size:15px; color:var(--text-muted); line-height:1.7;
+    max-width:600px; margin-bottom:34px;
+  }
+  .reel-hero-play {
+    width:68px; height:68px; flex-shrink:0; border-radius:50%;
+    background:var(--gold); border:none; cursor:none;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform 0.18s; position:relative;
+    animation:heroPulse 2.4s ease-out infinite;
+  }
+  .reel-hero-play:hover { transform:scale(1.06); }
+  @keyframes heroPulse {
+    0%   { box-shadow:0 0 0 0 rgba(181,53,53,0.45); }
+    70%  { box-shadow:0 0 0 18px rgba(181,53,53,0); }
+    100% { box-shadow:0 0 0 0 rgba(181,53,53,0); }
+  }
+  .reel-hero-play.soon { background:transparent; border:1px solid var(--gold); animation:none; opacity:0.55; }
+
+  /* How to submit / contact CTA */
   .submit-section {
-    margin-top:80px; padding:48px; border:1px solid var(--border);
-    background:var(--surface);
+    margin-top:80px; padding:72px 48px; border:1px solid var(--gold-dim);
+    background:linear-gradient(180deg, var(--surface), rgba(181,53,53,0.05));
+    text-align:center;
   }
   .submit-section h3 {
-    font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:300;
+    font-family:'Cormorant Garamond',serif; font-size:clamp(34px,5vw,52px); font-weight:300;
     color:var(--white); margin-bottom:16px;
   }
-  .submit-section p { font-size:15px; color:var(--text-muted); line-height:1.7; margin-bottom:24px; }
+  .submit-section p { font-size:16px; color:var(--text-muted); line-height:1.7; margin-bottom:36px; max-width:560px; margin-left:auto; margin-right:auto; }
   .btn-red {
-    display:inline-block; font-family:'DM Mono',monospace; font-size:13px;
-    letter-spacing:0.12em; text-transform:uppercase; background:var(--gold);
-    color:#141414; padding:16px 36px; text-decoration:none;
-    transition:opacity 0.2s; cursor:none;
+    display:inline-block; font-family:'DM Mono',monospace; font-size:16px;
+    letter-spacing:0.14em; text-transform:uppercase; background:var(--gold);
+    color:#141414; padding:22px 56px; text-decoration:none;
+    transition:opacity 0.2s, transform 0.2s; cursor:none;
   }
-  .btn-red:hover { opacity:0.88; }
+  .btn-red:hover { opacity:0.9; transform:translateY(-2px); }
+  .submit-email {
+    display:block; margin-top:24px;
+    font-family:'DM Mono',monospace; font-size:13px; letter-spacing:0.08em;
+    color:var(--text-muted); text-decoration:none; transition:color 0.2s; cursor:none;
+  }
+  .submit-email:hover { color:var(--gold); }
 
   /* Footer */
   footer {
@@ -403,23 +445,16 @@
     </div>
   </div>
 
-  <!-- Featured: Film Score Reel placeholder -->
-  <div class="reel-card reel-featured reveal" style="margin-bottom:0;">
-    <div style="background:var(--surface);border:1px solid var(--border);padding:48px 40px;display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap;">
-      <div>
-        <div class="reel-card-tag" style="margin-bottom:12px;">Film · Score · Composition</div>
-        <div class="reel-card-title" style="font-size:28px;margin-bottom:10px;">Film Score Demo Reel</div>
-        <p class="reel-card-desc" style="max-width:480px;">A curated cut of cues from short film projects — psychological, emotional, atmospheric. Reel coming soon.</p>
+  <!-- MAIN REEL — Film (coming soon) -->
+  <div class="reel-hero reveal">
+    <div class="reel-hero-eyebrow">Main Reel · Coming Soon</div>
+    <div class="reel-hero-title">Film Score Demo Reel</div>
+    <p class="reel-hero-desc">A curated cut of cues from short film projects — psychological, emotional, atmospheric. Currently in post.</p>
+    <div style="display:flex;align-items:center;gap:20px;">
+      <div class="reel-hero-play soon">
+        <div style="width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:18px solid var(--gold);margin-left:4px;"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
-        <div style="width:56px;height:56px;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;">
-          <div style="width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:16px solid var(--gold);margin-left:4px;opacity:0.4;"></div>
-        </div>
-        <div>
-          <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;color:var(--gold);margin-bottom:4px;">COMING SOON</div>
-          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:0.08em;">Reel in post</div>
-        </div>
-      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.14em;color:var(--text-dim);text-transform:uppercase;">Reel in post — check back soon</div>
     </div>
   </div>
 
@@ -504,23 +539,16 @@
     </div>
   </div>
 
-  <!-- Featured: VGM Reel placeholder -->
-  <div class="reel-card reel-featured reveal" style="margin-bottom:0;">
-    <div style="background:var(--surface);border:1px solid var(--border);padding:40px;display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap;">
-      <div>
-        <div class="reel-card-tag" style="margin-bottom:12px;">Video Game · OST · Composition</div>
-        <div class="reel-card-title" style="font-size:28px;margin-bottom:10px;">VGM Demo Reel</div>
-        <p class="reel-card-desc" style="max-width:480px;">A curated cut across all three soundtracks — action, atmosphere, emotion. Reel coming soon.</p>
+  <!-- MAIN REEL — VGM (coming soon) -->
+  <div class="reel-hero reveal">
+    <div class="reel-hero-eyebrow">Main Reel · Coming Soon</div>
+    <div class="reel-hero-title">VGM Demo Reel</div>
+    <p class="reel-hero-desc">A curated cut across all three soundtracks — action, atmosphere, emotion, in one listen. Currently in post.</p>
+    <div style="display:flex;align-items:center;gap:20px;">
+      <div class="reel-hero-play soon">
+        <div style="width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:18px solid var(--gold);margin-left:4px;"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
-        <div style="width:56px;height:56px;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;">
-          <div style="width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:16px solid var(--gold);margin-left:4px;opacity:0.4;"></div>
-        </div>
-        <div>
-          <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;color:var(--gold);margin-bottom:4px;">COMING SOON</div>
-          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:0.08em;">Reel in post</div>
-        </div>
-      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.14em;color:var(--text-dim);text-transform:uppercase;">Reel in post — full soundtracks below</div>
     </div>
   </div>
 
@@ -609,38 +637,29 @@
     </div>
   </div>
 
-  <!-- Featured: Audio Reel placeholder (swap src when ready) -->
-  <div class="reel-card reel-featured reveal" style="margin-bottom:0;">
-    <div style="background:var(--surface);border:1px solid var(--border);padding:40px;">
-      <div style="margin-bottom:28px;">
-        <div class="reel-card-tag" style="margin-bottom:10px;">Brand · Sync · Commercial</div>
-        <div class="reel-card-title" style="font-size:28px;">Brand Music Reel</div>
+  <!-- MAIN REEL — Brand (live audio player) -->
+  <div class="reel-hero reveal">
+    <div class="reel-hero-eyebrow">▶ Start Here · Main Reel</div>
+    <div class="reel-hero-title">Brand Music Reel</div>
+    <p class="reel-hero-desc">The full compilation — orchestral, electronic, emotional, cinematic. Press play and hear the range in one listen.</p>
+
+    <!-- Waveform player -->
+    <div style="display:flex;align-items:center;gap:20px;">
+      <button id="brands-playbtn" class="reel-hero-play" onclick="toggleBrandsReel()">
+        <svg id="brands-icon-play" width="22" height="22" viewBox="0 0 18 18" fill="#000" style="position:absolute;">
+          <polygon points="4,2 16,9 4,16"/>
+        </svg>
+        <svg id="brands-icon-pause" width="22" height="22" viewBox="0 0 18 18" fill="#000" style="position:absolute;display:none;">
+          <rect x="3" y="2" width="4" height="14"/><rect x="11" y="2" width="4" height="14"/>
+        </svg>
+      </button>
+      <div style="flex:1;position:relative;cursor:none;" onclick="seekBrandsReel(event,this)">
+        <canvas id="brands-waveform" style="display:block;width:100%;height:56px;"></canvas>
       </div>
-
-      <!-- Waveform player -->
-      <div style="display:flex;align-items:center;gap:16px;">
-        <!-- Play/pause -->
-        <button id="brands-playbtn" onclick="toggleBrandsReel()"
-          style="width:52px;height:52px;flex-shrink:0;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.18s;position:relative;">
-          <svg id="brands-icon-play" width="18" height="18" viewBox="0 0 18 18" fill="#000" style="position:absolute;">
-            <polygon points="4,2 16,9 4,16"/>
-          </svg>
-          <svg id="brands-icon-pause" width="18" height="18" viewBox="0 0 18 18" fill="#000" style="position:absolute;display:none;">
-            <rect x="3" y="2" width="4" height="14"/><rect x="11" y="2" width="4" height="14"/>
-          </svg>
-        </button>
-
-        <!-- Waveform canvas -->
-        <div style="flex:1;position:relative;cursor:pointer;" onclick="seekBrandsReel(event,this)">
-          <canvas id="brands-waveform" style="display:block;width:100%;height:48px;"></canvas>
-        </div>
-
-        <!-- Time -->
-        <div id="brands-time" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:80px;text-align:right;">0:00 / 0:00</div>
-      </div>
-
-      <audio id="brands-audio" src="audio/Brands_Reel.mp3" preload="metadata"></audio>
+      <div id="brands-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
     </div>
+
+    <audio id="brands-audio" src="audio/Brands_Reel.mp3" preload="metadata"></audio>
   </div>
 
   <!-- Divider between audio reel and video rescores -->
@@ -750,9 +769,10 @@
 <!-- HOW TO SUBMIT -->
 <div style="padding:0 48px 80px;">
   <div class="submit-section reveal">
-    <h3>Interested in Working Together?</h3>
-    <p>Whether you need a score, a mix, or a full soundtrack — the process starts with a conversation. Fill out the brief on the main site and I'll be in touch within 24 hours.</p>
-    <a href="index.html#booking" class="btn-red">Start a Project →</a>
+    <h3>Let's Build Something</h3>
+    <p>Whether you need a score, a mix, or a full soundtrack — it starts with a conversation. Send me a project brief and I'll be in touch within 24 hours.</p>
+    <a href="index.html#booking" class="btn-red">Contact Me →</a>
+    <a href="mailto:tabsoundandscore@gmail.com" class="submit-email">or email tabsoundandscore@gmail.com</a>
   </div>
 </div>
 
