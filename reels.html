@@ -183,17 +183,34 @@
     border-left:20px solid #fff;
     margin-left:4px;
   }
-  /* Vertical poster inside a landscape facade: blurred fill + sharp poster on top */
-  .yt-facade.poster-fit { background:#000; }
-  .yt-facade.poster-fit .poster-blur {
-    position:absolute; inset:0;
-    background:center/cover no-repeat;
-    filter:blur(24px) brightness(0.45);
-    transform:scale(1.15);
+  /* Film poster cards: full poster shown as a picture, small play button, plays in place */
+  .film-poster { position:relative; background:#000; line-height:0; overflow:hidden; }
+  .film-poster-img { width:100%; height:auto; display:block; }
+  .film-play {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:40px; height:40px; border:none; padding:0; cursor:pointer;
+    background:rgba(15,15,15,0.55); border-radius:50%; backdrop-filter:blur(2px);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .18s, background .18s; z-index:2;
   }
-  .yt-facade.poster-fit .poster-sharp {
-    position:absolute; inset:0;
-    background:center/contain no-repeat;
+  .film-play::after {
+    content:''; width:0; height:0;
+    border-top:7px solid transparent;
+    border-bottom:7px solid transparent;
+    border-left:11px solid #fff;
+    margin-left:3px;
+  }
+  .film-poster:hover .film-play { transform:translate(-50%,-50%) scale(1.1); background:var(--gold); }
+  .film-badge {
+    position:absolute; top:10px; left:10px; z-index:2; line-height:1;
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.16em;
+    text-transform:uppercase; color:#fff; background:rgba(181,53,53,0.92);
+    padding:5px 9px;
+  }
+  .film-player { position:absolute; inset:0; background:#000; z-index:3; }
+  .film-player iframe, .film-player video {
+    position:absolute; inset:0; width:100%; height:100%; border:none;
+    object-fit:contain; background:#000;
   }
   /* VGM Album blocks */
   .vgm-album {
@@ -493,12 +510,9 @@
   <div class="reel-grid reel-grid-3" style="grid-template-columns:1fr 1fr 1fr;">
 
     <div class="reel-card reveal">
-      <div class="reel-embed">
-        <div class="yt-facade poster-fit" data-src="https://www.youtube.com/embed/5ClvleBbQxY?vq=hd1080" onclick="loadYT(this)">
-          <div class="poster-blur" style="background-image:url('images/JoSuperPoster.png')"></div>
-          <div class="poster-sharp" style="background-image:url('images/JoSuperPoster.png')"></div>
-          <div class="yt-play"></div>
-        </div>
+      <div class="film-poster">
+        <img class="film-poster-img" src="images/JoSuperPoster.png" alt="Jo Super poster">
+        <button class="film-play" aria-label="Play Jo Super" data-type="yt" data-src="https://www.youtube.com/embed/5ClvleBbQxY?vq=hd1080" onclick="playFilm(this)"></button>
       </div>
       <div class="reel-card-info">
         <div class="reel-card-tag">Short Film · Score</div>
@@ -512,12 +526,9 @@
     </div>
 
     <div class="reel-card reveal reveal-delay-1">
-      <div class="reel-embed">
-        <div class="yt-facade poster-fit" data-src="https://www.youtube.com/embed/TWoAWCGpjTY?vq=hd1080" onclick="loadYT(this)">
-          <div class="poster-blur" style="background-image:url('images/DeerGodPoster.jpeg')"></div>
-          <div class="poster-sharp" style="background-image:url('images/DeerGodPoster.jpeg')"></div>
-          <div class="yt-play"></div>
-        </div>
+      <div class="film-poster">
+        <img class="film-poster-img" src="images/DeerGodPoster.jpeg" alt="Deer God! poster">
+        <button class="film-play" aria-label="Play Deer God!" data-type="yt" data-src="https://www.youtube.com/embed/TWoAWCGpjTY?vq=hd1080" onclick="playFilm(this)"></button>
       </div>
       <div class="reel-card-info">
         <div class="reel-card-tag">Short Film · Score</div>
@@ -531,17 +542,15 @@
     </div>
 
     <div class="reel-card reveal reveal-delay-2">
-      <div class="reel-embed">
-        <div class="yt-facade poster-fit" data-src="audio/Imon_Chronicles_Trailer.mp4" onclick="loadVideo(this)">
-          <div class="poster-blur" style="background-image:url('images/TheImonChroniclesPoster.jpg')"></div>
-          <div class="poster-sharp" style="background-image:url('images/TheImonChroniclesPoster.jpg')"></div>
-          <div class="yt-play"></div>
-        </div>
+      <div class="film-poster">
+        <span class="film-badge">Trailer</span>
+        <img class="film-poster-img" src="images/TheImonChroniclesPoster.jpg" alt="The Imon Chronicles poster">
+        <button class="film-play" aria-label="Play The Imon Chronicles trailer" data-type="video" data-src="audio/Imon_Chronicles_Trailer.mp4" onclick="playFilm(this)"></button>
       </div>
       <div class="reel-card-info">
-        <div class="reel-card-tag">Short Film · Score</div>
+        <div class="reel-card-tag">Short Film · Score · Trailer</div>
         <div class="reel-card-title">The Imon Chronicles</div>
-        <p class="reel-card-desc">Original score. Dir. Sebastian Verduzco.</p>
+        <p class="reel-card-desc">Original score. Trailer only, full film in post. Dir. Sebastian Verduzco.</p>
         <div class="reel-card-credits">
           <span class="credit-tag">Composer</span>
         </div>
@@ -1273,16 +1282,29 @@
   }
 
 
-  function loadVideo(el) {
-    const src = el.getAttribute('data-src');
-    const v = document.createElement('video');
-    v.src = src;
-    v.controls = true;
-    v.autoplay = true;
-    v.playsInline = true;
-    v.preload = 'metadata';
-    v.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;object-fit:contain;';
-    el.parentNode.replaceChild(v, el);
+  function playFilm(btn) {
+    const wrap = btn.closest('.film-poster');
+    const src = btn.getAttribute('data-src');
+    const type = btn.getAttribute('data-type');
+    const player = document.createElement('div');
+    player.className = 'film-player';
+    if (type === 'video') {
+      const v = document.createElement('video');
+      v.src = src;
+      v.controls = true;
+      v.autoplay = true;
+      v.playsInline = true;
+      v.preload = 'metadata';
+      player.appendChild(v);
+    } else {
+      const iframe = document.createElement('iframe');
+      iframe.src = src + (src.includes('?') ? '&' : '?') + 'autoplay=1';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      player.appendChild(iframe);
+    }
+    wrap.appendChild(player);
+    btn.remove();
   }
 
 
