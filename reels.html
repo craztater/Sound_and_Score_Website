@@ -405,6 +405,16 @@
   }
   .reel-hero-play.soon { background:transparent; border:1px solid var(--gold); animation:none; opacity:0.55; }
 
+  /* Genre markers on the hero reels */
+  .reel-markers { position:absolute; inset:0; pointer-events:none; }
+  .reel-markers i { position:absolute; top:0; bottom:0; width:1px; background:rgba(245,245,245,0.30); }
+  .reel-mtip {
+    position:absolute; bottom:100%; margin-bottom:9px; transform:translateX(-50%);
+    white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .12s;
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.08em; color:var(--white);
+    background:rgba(20,20,20,0.94); border:1px solid var(--border); padding:4px 8px; border-radius:4px; z-index:5;
+  }
+
   /* How to submit / contact CTA */
   .submit-section {
     margin-top:80px; padding:64px 56px; border:1px solid var(--gold-dim);
@@ -610,6 +620,8 @@
       </button>
       <div style="flex:1;position:relative;cursor:none;" onclick="seekVgmReel(event,this)">
         <canvas id="vgm-waveform" style="display:block;width:100%;height:64px;"></canvas>
+        <div class="reel-markers" id="vgm-markers"></div>
+        <div class="reel-mtip" id="vgm-mtip"></div>
       </div>
       <div id="vgm-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
     </div>
@@ -624,7 +636,7 @@
   </div>
 
   <!-- ── DREAMSCAPES ── -->
-  <div class="vgm-album reveal">
+  <div class="vgm-album reveal" id="album-dreamscapes">
     <div>
       <img class="vgm-cover" src="images/vgm_dreamscapes.jpg" alt="Dreamscapes" />
       <a class="stream-btn" href="https://distrokid.com/hyperfollow/ash3r/dreamscapes-original-game-concept-soundtrack" target="_blank" rel="noopener">
@@ -643,7 +655,7 @@
   </div>
 
   <!-- ── TIME WARRIOR ── -->
-  <div class="vgm-album reveal">
+  <div class="vgm-album reveal" id="album-timewarrior">
     <div>
       <img class="vgm-cover" src="images/vgm_timewarrior.jpg" alt="The Time Warrior" />
       <a class="stream-btn" href="https://distrokid.com/hyperfollow/ash3r/the-time-warrior-original-video-game-soundtrack" target="_blank" rel="noopener">
@@ -662,7 +674,7 @@
   </div>
 
   <!-- ── NIGHT SHIFT DRIVER ── -->
-  <div class="vgm-album reveal">
+  <div class="vgm-album reveal" id="album-nightshift">
     <div>
       <img class="vgm-cover" src="images/vgm_nightshift.jpg" alt="Night Shift Driver" />
       <a class="stream-btn" href="https://distrokid.com/hyperfollow/ash3r/the-nightshift-driver-original-video-game-soundtrack" target="_blank" rel="noopener">
@@ -716,6 +728,8 @@
       </button>
       <div style="flex:1;position:relative;cursor:none;" onclick="seekBrandsReel(event,this)">
         <canvas id="brands-waveform" style="display:block;width:100%;height:64px;"></canvas>
+        <div class="reel-markers" id="brands-markers"></div>
+        <div class="reel-mtip" id="brands-mtip"></div>
       </div>
       <div id="brands-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
     </div>
@@ -1357,11 +1371,40 @@
     try { history.replaceState(null, '', '#' + id); } catch(e) { /* sandboxed preview blocks this; harmless */ }
   }
 
-  // On load: open the section named in the URL hash (e.g. reels.html#games)
-  (function(){
-    const h = (window.location.hash || '').replace('#','').toLowerCase();
-    if(h) activateReel(h, false);
-  })();
+  // Shareable album hashes -> album block IDs (e.g. reels.html#timewarrior)
+  const ALBUM_ANCHORS = {
+    timewarrior: 'album-timewarrior',
+    nightshift:  'album-nightshift',
+    dreamscapes: 'album-dreamscapes'
+  };
+
+  function scrollToAlbum(elId){
+    const el = document.getElementById(elId);
+    if(!el) return;
+    setTimeout(function(){
+      const y = el.getBoundingClientRect().top + window.pageYOffset - 90;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }, 120);
+  }
+
+  function routeHash(h, doScroll){
+    h = (h || '').replace('#','').toLowerCase();
+    if(!h) return;
+    if(ALBUM_ANCHORS[h]){
+      activateReel('games', false);   // album lives in the Video Games tab
+      scrollToAlbum(ALBUM_ANCHORS[h]);
+    } else {
+      activateReel(h, doScroll);
+    }
+  }
+
+  // On load: open the section (and album) named in the URL hash
+  routeHash(window.location.hash, false);
+
+  // Also respond if the hash changes while the page is open
+  window.addEventListener('hashchange', function(){
+    routeHash(window.location.hash, false);
+  });
 
   // Scroll reveal
   function triggerReveals() {
@@ -1374,6 +1417,74 @@
     entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
   },{threshold:0.08});
   document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
+
+  /* ── Genre markers on the two hero reels ──
+     t = seconds into the reel, g = genre label.
+     EDIT THESE: confirm each t matches your current reel audio, and fix any genre. */
+  const REEL_MARKERS = {
+    brands: [
+      { t:0,   g:'Cinematic' },
+      { t:18,  g:'Action / Electronic' },
+      { t:41,  g:'Elegant Orchestral' },
+      { t:54,  g:'Corporate Electronic' },
+      { t:79,  g:'Indie Pop' },
+      { t:100, g:'Ambient / Cinematic' }
+    ],
+    vgm: [
+      { t:0,   g:'Cozy / Playful' },
+      { t:8,   g:'Adventure Orchestral' },
+      { t:18,  g:'World / Cinematic' },
+      { t:30,  g:'Pirate / Swashbuckle' },
+      { t:42,  g:'Romantic' },
+      { t:52,  g:'Ambient / Calm' },
+      { t:62,  g:'Lo-fi Ambient' },
+      { t:73,  g:'Electronic Suspense' },
+      { t:84,  g:'Synthwave / Noir' },
+      { t:95,  g:'Epic Cinematic' },
+      { t:107, g:'Electronic Battle' },
+      { t:116, g:'Latin / Flamenco' }
+    ]
+  };
+
+  function initReelMarkers(key, audioId, markersId, tipId){
+    const audio   = document.getElementById(audioId);
+    const markers = document.getElementById(markersId);
+    const tip     = document.getElementById(tipId);
+    if(!audio || !markers || !tip) return;
+    const wrap = markers.parentNode;
+    const data = REEL_MARKERS[key] || [];
+
+    function render(){
+      const dur = audio.duration;
+      if(!dur || !isFinite(dur)) return;
+      markers.innerHTML = '';
+      data.forEach(function(m){
+        if(m.t <= 0 || m.t > dur) return;   // skip the 0s edge line; still used on hover
+        const line = document.createElement('i');
+        line.style.left = (m.t / dur * 100) + '%';
+        markers.appendChild(line);
+      });
+    }
+    if(audio.readyState >= 1) render();
+    audio.addEventListener('loadedmetadata', render);
+
+    wrap.addEventListener('mousemove', function(e){
+      const dur = audio.duration;
+      if(!dur || !data.length){ tip.style.opacity = '0'; return; }
+      const rect = wrap.getBoundingClientRect();
+      const x = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+      const t = x * dur;
+      let cur = data[0];
+      for(let i=0;i<data.length;i++){ if(data[i].t <= t) cur = data[i]; else break; }
+      tip.textContent = cur.g;
+      tip.style.left = (x * 100) + '%';
+      tip.style.opacity = '1';
+    });
+    wrap.addEventListener('mouseleave', function(){ tip.style.opacity = '0'; });
+  }
+
+  initReelMarkers('brands', 'brands-audio', 'brands-markers', 'brands-mtip');
+  initReelMarkers('vgm', 'vgm-audio', 'vgm-markers', 'vgm-mtip');
 </script>
 </body>
 </html>
