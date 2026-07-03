@@ -1365,7 +1365,24 @@
     section { padding: 48px 16px !important; }
     .price-amount { font-size: 36px; }
     .ba-row { padding: 14px 0 !important; }
+
+    /* Hero orbit rings: force rotating ovals (atom look) on mobile, like desktop */
+    .hero-orbit { border-radius:50% !important; }
+    .hero-orbit-1 {
+      inset:auto !important; top:50% !important; left:50% !important;
+      width:128% !important; height:104% !important;
+      transform:translate(-50%,-50%) !important;
+      animation:heroOrbitM1 16s linear infinite !important;
+    }
+    .hero-orbit-2 {
+      inset:auto !important; top:50% !important; left:50% !important;
+      width:148% !important; height:116% !important;
+      transform:translate(-50%,-50%) !important;
+      animation:heroOrbitM2 28s linear infinite !important;
+    }
   }
+  @keyframes heroOrbitM1 { from{transform:translate(-50%,-50%) rotate(0);}   to{transform:translate(-50%,-50%) rotate(360deg);} }
+  @keyframes heroOrbitM2 { from{transform:translate(-50%,-50%) rotate(360deg);} to{transform:translate(-50%,-50%) rotate(0);} }
 </style>
 </head>
 <body>
@@ -1401,8 +1418,8 @@
       <!-- Subtle bloom behind (supplements logo's built-in glow) -->
       <div style="position:absolute;inset:-50px;background:radial-gradient(ellipse at 50% 50%, rgba(181,53,53,0.18) 0%, transparent 65%);animation:glowPulse 3.5s ease-in-out infinite;pointer-events:none;border-radius:50%;filter:blur(16px);"></div>
       <!-- Slow orbit ring -->
-      <div style="position:absolute;inset:-24px;border:1px solid rgba(181,53,53,0.20);border-radius:50%;animation:rotateSlow 16s linear infinite;pointer-events:none;"></div>
-      <div style="position:absolute;inset:-40px;border:1px dashed rgba(181,53,53,0.10);border-radius:50%;animation:rotateSlow 28s linear reverse infinite;pointer-events:none;"></div>
+      <div class="hero-orbit hero-orbit-1" style="position:absolute;inset:-24px;border:1px solid rgba(181,53,53,0.20);border-radius:50%;animation:rotateSlow 16s linear infinite;pointer-events:none;"></div>
+      <div class="hero-orbit hero-orbit-2" style="position:absolute;inset:-40px;border:1px dashed rgba(181,53,53,0.10);border-radius:50%;animation:rotateSlow 28s linear reverse infinite;pointer-events:none;"></div>
       <!-- Circle logo — already has glow built in, no blend needed -->
       <img src="images/Circle_Logo_Dark_Mode.png" alt="TAB Sound & Score"
            style="width:min(760px,100%);height:auto;display:block;position:relative;z-index:2;" />

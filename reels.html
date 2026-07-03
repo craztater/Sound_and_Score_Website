@@ -314,7 +314,9 @@
     .reel-grid, .reel-grid-3 { grid-template-columns:1fr !important; gap:20px !important; }
     .reel-section { padding:32px 18px; }
     .page-hero { padding:118px 20px 52px; }
-    .reel-tabs-inner { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .reel-tabs { padding:0 12px; }
+    .reel-tabs-inner { display:flex; width:100%; gap:2px; padding:3px; }
+    .rtab { flex:1; padding:9px 4px; font-size:10px; letter-spacing:0.03em; text-align:center; white-space:nowrap; }
 
     /* album block: center cover, stream + share buttons in the stacked column */
     .vgm-cover { margin-left:auto; margin-right:auto; display:block; }
@@ -404,6 +406,10 @@
     font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.24em;
     text-transform:uppercase; color:var(--gold); margin-bottom:18px;
   }
+  .reel-hero-top {
+    display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px;
+  }
+  .reel-hero-top .reel-hero-eyebrow { margin-bottom:0; }
   .reel-hero-title {
     font-family:'Cormorant Garamond',serif; font-weight:300; line-height:1.04;
     font-size:clamp(34px,5vw,50px); color:var(--white); margin-bottom:12px;
@@ -619,7 +625,6 @@
         <p class="reel-card-desc">Original score. Dir. Lucy Brodersen.</p>
         <div class="reel-card-credits">
           <span class="credit-tag">Composer</span>
-          <span class="credit-tag">Atmospheric</span>
         </div>
       </div>
     </div>
@@ -662,7 +667,13 @@
 
   <!-- MAIN REEL — VGM (live audio player) -->
   <div class="reel-hero reveal">
-    <div class="reel-hero-eyebrow" id="vgm-eyebrow">▶ Main Reel · Press Play</div>
+    <div class="reel-hero-top">
+      <div class="reel-hero-eyebrow" id="vgm-eyebrow">▶ Main Reel · Press Play</div>
+      <button class="reel-share" onclick="shareReel(this,'games')" aria-label="Copy link to this reel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        <span class="reel-share-label">Share</span>
+      </button>
+    </div>
     <div class="hero-row" style="display:flex;align-items:center;gap:24px;">
       <button id="vgm-playbtn" class="reel-hero-play" onclick="toggleVgmReel()">
         <svg id="vgm-icon-play" width="24" height="24" viewBox="0 0 18 18" fill="#000" style="position:absolute;">
@@ -678,10 +689,6 @@
         <div class="reel-mtip" id="vgm-mtip"></div>
       </div>
       <div id="vgm-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
-      <button class="reel-share" onclick="shareReel(this,'games')" aria-label="Copy link to this reel">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-        <span class="reel-share-label">Share</span>
-      </button>
     </div>
     <audio id="vgm-audio" src="audio/VGM_Reel.mp3" preload="metadata"></audio>
   </div>
@@ -785,7 +792,13 @@
 
   <!-- MAIN REEL — Brand (live audio player) -->
   <div class="reel-hero reveal">
-    <div class="reel-hero-eyebrow" id="brands-eyebrow">▶ Main Reel · Press Play</div>
+    <div class="reel-hero-top">
+      <div class="reel-hero-eyebrow" id="brands-eyebrow">▶ Main Reel · Press Play</div>
+      <button class="reel-share" onclick="shareReel(this,'brand')" aria-label="Copy link to this reel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        <span class="reel-share-label">Share</span>
+      </button>
+    </div>
     <!-- Waveform player -->
     <div class="hero-row" style="display:flex;align-items:center;gap:24px;">
       <button id="brands-playbtn" class="reel-hero-play" onclick="toggleBrandsReel()">
@@ -802,10 +815,6 @@
         <div class="reel-mtip" id="brands-mtip"></div>
       </div>
       <div id="brands-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
-      <button class="reel-share" onclick="shareReel(this,'brand')" aria-label="Copy link to this reel">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-        <span class="reel-share-label">Share</span>
-      </button>
     </div>
 
     <audio id="brands-audio" src="audio/Brands_Reel.mp3" preload="metadata"></audio>
