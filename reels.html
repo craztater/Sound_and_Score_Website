@@ -414,6 +414,15 @@
     font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.08em; color:var(--white);
     background:rgba(20,20,20,0.94); border:1px solid var(--border); padding:4px 8px; border-radius:4px; z-index:5;
   }
+  .reel-share {
+    display:inline-flex; align-items:center; gap:6px; flex-shrink:0;
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--text-muted); background:transparent; border:1px solid var(--border);
+    padding:6px 11px; border-radius:20px; cursor:pointer; transition:color .15s, border-color .15s;
+  }
+  .reel-share:hover { color:var(--white); border-color:var(--gold); }
+  .reel-share.copied { color:var(--gold); border-color:var(--gold); }
+  .reel-share svg { width:13px; height:13px; }
 
   /* How to submit / contact CTA */
   .submit-section {
@@ -624,6 +633,10 @@
         <div class="reel-mtip" id="vgm-mtip"></div>
       </div>
       <div id="vgm-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
+      <button class="reel-share" onclick="shareReel(this,'games')" aria-label="Copy link to this reel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        <span class="reel-share-label">Share</span>
+      </button>
     </div>
     <audio id="vgm-audio" src="audio/VGM_Reel.mp3" preload="metadata"></audio>
   </div>
@@ -643,6 +656,10 @@
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
         Stream Now
       </a>
+      <button class="reel-share" style="margin-top:12px;" onclick="shareReel(this,'dreamscapes')" aria-label="Copy link to this album">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        <span class="reel-share-label">Share</span>
+      </button>
     </div>
     <div>
       <div class="reel-card-tag" style="margin-bottom:8px;">Original Concept OST · 13 Tracks</div>
@@ -662,6 +679,10 @@
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
         Stream Now
       </a>
+      <button class="reel-share" style="margin-top:12px;" onclick="shareReel(this,'timewarrior')" aria-label="Copy link to this album">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        <span class="reel-share-label">Share</span>
+      </button>
     </div>
     <div>
       <div class="reel-card-tag" style="margin-bottom:8px;">Indie Game · Full OST · 7 Tracks</div>
@@ -681,6 +702,10 @@
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
         Stream Now
       </a>
+      <button class="reel-share" style="margin-top:12px;" onclick="shareReel(this,'nightshift')" aria-label="Copy link to this album">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        <span class="reel-share-label">Share</span>
+      </button>
     </div>
     <div>
       <div class="reel-card-tag" style="margin-bottom:8px;">Indie Game · Full OST · 8 Tracks</div>
@@ -732,6 +757,10 @@
         <div class="reel-mtip" id="brands-mtip"></div>
       </div>
       <div id="brands-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
+      <button class="reel-share" onclick="shareReel(this,'brand')" aria-label="Copy link to this reel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        <span class="reel-share-label">Share</span>
+      </button>
     </div>
 
     <audio id="brands-audio" src="audio/Brands_Reel.mp3" preload="metadata"></audio>
@@ -1506,6 +1535,23 @@
 
   initReelMarkers('brands', 'brands-audio', 'brands-markers', 'brands-mtip', 'brands-eyebrow');
   initReelMarkers('vgm', 'vgm-audio', 'vgm-markers', 'vgm-mtip', 'vgm-eyebrow');
+
+  // Copy a direct deep-link to a specific reel/album
+  function shareReel(btn, hash){
+    const url = location.origin + location.pathname + '#' + hash;
+    function feedback(){
+      const label = btn.querySelector('.reel-share-label');
+      const prev = label ? label.textContent : '';
+      btn.classList.add('copied');
+      if(label) label.textContent = 'Copied';
+      setTimeout(function(){ btn.classList.remove('copied'); if(label) label.textContent = prev; }, 1600);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(feedback).catch(function(){ window.prompt('Copy this link:', url); });
+    } else {
+      window.prompt('Copy this link:', url);
+    }
+  }
 </script>
 </body>
 </html>
