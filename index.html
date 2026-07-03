@@ -2599,35 +2599,17 @@
     document.querySelectorAll('.gateway-card[data-sfx]').forEach(card => {
       const type  = card.getAttribute('data-sfx');
       const hover = new Audio('audio/sfx/sfx_' + type + '_hover.mp3');
-      const click = new Audio('audio/sfx/sfx_' + type + '_click.mp3');
-      hover.volume = 0.221; click.volume = 0.315; /* was 0.35 / 0.5, -4 dB site-wide */
-      hover.preload = 'auto'; click.preload = 'auto';
+      hover.volume = 0.221; /* -4 dB site-wide */
+      hover.preload = 'auto';
 
       card.addEventListener('mouseenter', () => {
         try { hover.currentTime = 0; hover.play().catch(()=>{}); } catch(e){}
       });
 
-      // Play the full click/transition sound, then navigate so it isn't cut off
-      card.addEventListener('click', e => {
-        const href = card.getAttribute('href');
-        if(!href) return;
-        e.preventDefault();
-        let done = false;
-        const go = () => { if(!done){ done = true; window.location.href = href; } };
-
-        // Primary: navigate the instant the sound finishes playing (any length)
-        click.onended = go;
-
-        try {
-          click.currentTime = 0;
-          const p = click.play();
-          if(p && p.catch) p.catch(go); // playback blocked/failed -> just go
-        } catch(err) { go(); }
-
-        // Safety net only: if 'ended' never fires (audio error), don't trap the user.
-        // Uses the sound's real duration when known, otherwise a generous ceiling.
-        const dur = (isFinite(click.duration) && click.duration > 0) ? click.duration : 0;
-        setTimeout(go, dur ? (dur * 1000 + 500) : 5000);
+      // Hand the click/transition sound to the destination page so it plays
+      // during the load, and let the link navigate immediately (no waiting here).
+      card.addEventListener('click', () => {
+        try { sessionStorage.setItem('reelSfx', type); } catch(err){}
       });
     });
   });

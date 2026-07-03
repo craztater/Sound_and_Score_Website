@@ -475,6 +475,21 @@
 </style>
 </head>
 <body>
+<script>
+  /* Play the transition sound handed over from the gateway card on index.html.
+     Fires on arrival so the click feels instant and the sound covers the load. */
+  (function(){
+    try {
+      var sfx = sessionStorage.getItem('reelSfx');
+      if(sfx){
+        sessionStorage.removeItem('reelSfx');
+        var a = new Audio('audio/sfx/sfx_' + sfx + '_click.mp3');
+        a.volume = 0.315; /* -4 dB site-wide */
+        a.play().catch(function(){});
+      }
+    } catch(e){}
+  })();
+</script>
 
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
