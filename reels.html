@@ -308,6 +308,28 @@
     .vgm-album { grid-template-columns:1fr; }
     .vgm-cover { max-width:200px; }
     .vgm-tracklist { grid-template-columns:1fr; }
+
+    /* --- mobile: kill side-scroll, stack every grid, center the column --- */
+    html, body { overflow-x:hidden; max-width:100%; }
+    .reel-grid, .reel-grid-3 { grid-template-columns:1fr !important; gap:20px !important; }
+    .reel-section { padding:32px 18px; }
+    .page-hero { padding:118px 20px 52px; }
+    .reel-tabs-inner { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+    /* album block: center cover, stream + share buttons in the stacked column */
+    .vgm-cover { margin-left:auto; margin-right:auto; display:block; }
+    .vgm-album > div:first-child { text-align:center; }
+    .vgm-album .stream-btn { display:inline-flex; }
+
+    /* film / video cards: center their text once stacked */
+    .reel-card-info { text-align:center; }
+    .reel-card-credits { justify-content:center; }
+
+    /* hero reel row: wrap so the waveform gets its own full-width line
+       instead of being crushed next to play + time + share */
+    .hero-row { flex-wrap:wrap; justify-content:center; gap:12px !important; }
+    .hero-row .wave-wrap { flex:1 1 100%; order:9; }
+    .hero-row [id$="-time"] { min-width:0; }
     .nav-toggle { display: flex; }
     .nav-links {
       position: fixed;
@@ -633,7 +655,7 @@
   <!-- MAIN REEL — VGM (live audio player) -->
   <div class="reel-hero reveal">
     <div class="reel-hero-eyebrow" id="vgm-eyebrow">▶ Main Reel · Press Play</div>
-    <div style="display:flex;align-items:center;gap:24px;">
+    <div class="hero-row" style="display:flex;align-items:center;gap:24px;">
       <button id="vgm-playbtn" class="reel-hero-play" onclick="toggleVgmReel()">
         <svg id="vgm-icon-play" width="24" height="24" viewBox="0 0 18 18" fill="#000" style="position:absolute;">
           <polygon points="4,2 16,9 4,16"/>
@@ -642,7 +664,7 @@
           <rect x="3" y="2" width="4" height="14"/><rect x="11" y="2" width="4" height="14"/>
         </svg>
       </button>
-      <div style="flex:1;position:relative;cursor:none;" onclick="seekVgmReel(event,this)">
+      <div class="wave-wrap" style="flex:1;position:relative;cursor:none;" onclick="seekVgmReel(event,this)">
         <canvas id="vgm-waveform" style="display:block;width:100%;height:64px;"></canvas>
         <div class="reel-markers" id="vgm-markers"></div>
         <div class="reel-mtip" id="vgm-mtip"></div>
@@ -757,7 +779,7 @@
   <div class="reel-hero reveal">
     <div class="reel-hero-eyebrow" id="brands-eyebrow">▶ Main Reel · Press Play</div>
     <!-- Waveform player -->
-    <div style="display:flex;align-items:center;gap:24px;">
+    <div class="hero-row" style="display:flex;align-items:center;gap:24px;">
       <button id="brands-playbtn" class="reel-hero-play" onclick="toggleBrandsReel()">
         <svg id="brands-icon-play" width="24" height="24" viewBox="0 0 18 18" fill="#000" style="position:absolute;">
           <polygon points="4,2 16,9 4,16"/>
@@ -766,7 +788,7 @@
           <rect x="3" y="2" width="4" height="14"/><rect x="11" y="2" width="4" height="14"/>
         </svg>
       </button>
-      <div style="flex:1;position:relative;cursor:none;" onclick="seekBrandsReel(event,this)">
+      <div class="wave-wrap" style="flex:1;position:relative;cursor:none;" onclick="seekBrandsReel(event,this)">
         <canvas id="brands-waveform" style="display:block;width:100%;height:64px;"></canvas>
         <div class="reel-markers" id="brands-markers"></div>
         <div class="reel-mtip" id="brands-mtip"></div>
