@@ -3012,5 +3012,17 @@
 })();
 </script>
 
+<script>
+  /* Site-wide playback gain: -4 dB (x0.631) applied to every hosted audio/video element.
+     Catches the before/after mixing players and any other static media. */
+  (function(){
+    function applyGain(){
+      document.querySelectorAll('audio, video').forEach(function(el){ el.volume = 0.631; });
+    }
+    if(document.readyState !== 'loading') applyGain();
+    else document.addEventListener('DOMContentLoaded', applyGain);
+  })();
+</script>
+
 </body>
 </html>
