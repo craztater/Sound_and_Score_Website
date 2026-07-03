@@ -608,7 +608,7 @@
 
   <!-- MAIN REEL — VGM (live audio player) -->
   <div class="reel-hero reveal">
-    <div class="reel-hero-eyebrow">▶ Main Reel · Press Play</div>
+    <div class="reel-hero-eyebrow" id="vgm-eyebrow">▶ Main Reel · Press Play</div>
     <div style="display:flex;align-items:center;gap:24px;">
       <button id="vgm-playbtn" class="reel-hero-play" onclick="toggleVgmReel()">
         <svg id="vgm-icon-play" width="24" height="24" viewBox="0 0 18 18" fill="#000" style="position:absolute;">
@@ -715,7 +715,7 @@
 
   <!-- MAIN REEL — Brand (live audio player) -->
   <div class="reel-hero reveal">
-    <div class="reel-hero-eyebrow">▶ Main Reel · Press Play</div>
+    <div class="reel-hero-eyebrow" id="brands-eyebrow">▶ Main Reel · Press Play</div>
     <!-- Waveform player -->
     <div style="display:flex;align-items:center;gap:24px;">
       <button id="brands-playbtn" class="reel-hero-play" onclick="toggleBrandsReel()">
@@ -1419,47 +1419,55 @@
   document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
 
   /* ── Genre markers on the two hero reels ──
-     t = seconds into the reel, g = genre label.
-     EDIT THESE: confirm each t matches your current reel audio, and fix any genre. */
+     t = seconds into the reel, g = genre/style label. Edit freely. */
   const REEL_MARKERS = {
     brands: [
-      { t:0,   g:'Cinematic' },
-      { t:18,  g:'Action / Electronic' },
-      { t:41,  g:'Elegant Orchestral' },
-      { t:54,  g:'Corporate Electronic' },
-      { t:79,  g:'Indie Pop' },
-      { t:100, g:'Ambient / Cinematic' }
+      { t:0,   g:'Gang-Vocal Trip-Hop' },
+      { t:18,  g:'Cinematic Electronic Pop' },
+      { t:41,  g:'Upbeat Minimal Dance · Sax' },
+      { t:54,  g:'Orchestral Motivation · Choir' },
+      { t:66,  g:'Driving Uplifting Orchestral' },
+      { t:79,  g:'Whimsical Soaring' },
+      { t:100, g:'Whimsical Spooky Mystery' }
     ],
     vgm: [
-      { t:0,   g:'Cozy / Playful' },
-      { t:8,   g:'Adventure Orchestral' },
-      { t:18,  g:'World / Cinematic' },
-      { t:30,  g:'Pirate / Swashbuckle' },
+      { t:0,   g:'Cute Shop Theme' },
+      { t:8,   g:'Nighttime Exploration' },
+      { t:18,  g:'Desert / World' },
+      { t:30,  g:'Epic Pirate Battle' },
       { t:42,  g:'Romantic' },
-      { t:52,  g:'Ambient / Calm' },
-      { t:62,  g:'Lo-fi Ambient' },
-      { t:73,  g:'Electronic Suspense' },
-      { t:84,  g:'Synthwave / Noir' },
-      { t:95,  g:'Epic Cinematic' },
-      { t:107, g:'Electronic Battle' },
-      { t:116, g:'Latin / Flamenco' }
+      { t:52,  g:'Ambient Calm' },
+      { t:62,  g:'Ambient Creepy' },
+      { t:73,  g:'Electronic Time Trial' },
+      { t:84,  g:'Synthwave' },
+      { t:95,  g:'Pokémon-Style Battle' },
+      { t:107, g:'Dubstep · Geometry Dash' },
+      { t:116, g:'Epic Orchestral · Choir' }
     ]
   };
 
-  function initReelMarkers(key, audioId, markersId, tipId){
+  function initReelMarkers(key, audioId, markersId, tipId, eyebrowId){
     const audio   = document.getElementById(audioId);
     const markers = document.getElementById(markersId);
     const tip     = document.getElementById(tipId);
     if(!audio || !markers || !tip) return;
     const wrap = markers.parentNode;
+    const eyebrow = eyebrowId ? document.getElementById(eyebrowId) : null;
+    const eyebrowDefault = eyebrow ? eyebrow.textContent : '';
     const data = REEL_MARKERS[key] || [];
+
+    function sectionAt(t){
+      let cur = data[0];
+      for(let i=0;i<data.length;i++){ if(data[i].t <= t) cur = data[i]; else break; }
+      return cur;
+    }
 
     function render(){
       const dur = audio.duration;
       if(!dur || !isFinite(dur)) return;
       markers.innerHTML = '';
       data.forEach(function(m){
-        if(m.t <= 0 || m.t > dur) return;   // skip the 0s edge line; still used on hover
+        if(m.t <= 0 || m.t > dur) return;   // skip 0s edge line; still used on hover
         const line = document.createElement('i');
         line.style.left = (m.t / dur * 100) + '%';
         markers.appendChild(line);
@@ -1468,23 +1476,32 @@
     if(audio.readyState >= 1) render();
     audio.addEventListener('loadedmetadata', render);
 
+    // Hover: genre of the section under the cursor
     wrap.addEventListener('mousemove', function(e){
       const dur = audio.duration;
       if(!dur || !data.length){ tip.style.opacity = '0'; return; }
       const rect = wrap.getBoundingClientRect();
       const x = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-      const t = x * dur;
-      let cur = data[0];
-      for(let i=0;i<data.length;i++){ if(data[i].t <= t) cur = data[i]; else break; }
-      tip.textContent = cur.g;
+      tip.textContent = sectionAt(x * dur).g;
       tip.style.left = (x * 100) + '%';
       tip.style.opacity = '1';
     });
     wrap.addEventListener('mouseleave', function(){ tip.style.opacity = '0'; });
+
+    // Live: current section's genre in the eyebrow while playing
+    if(eyebrow){
+      audio.addEventListener('timeupdate', function(){
+        if(audio.paused) return;
+        eyebrow.textContent = '\u25B6 ' + sectionAt(audio.currentTime).g;
+      });
+      const reset = function(){ eyebrow.textContent = eyebrowDefault; };
+      audio.addEventListener('pause', reset);
+      audio.addEventListener('ended', reset);
+    }
   }
 
-  initReelMarkers('brands', 'brands-audio', 'brands-markers', 'brands-mtip');
-  initReelMarkers('vgm', 'vgm-audio', 'vgm-markers', 'vgm-mtip');
+  initReelMarkers('brands', 'brands-audio', 'brands-markers', 'brands-mtip', 'brands-eyebrow');
+  initReelMarkers('vgm', 'vgm-audio', 'vgm-markers', 'vgm-mtip', 'vgm-eyebrow');
 </script>
 </body>
 </html>
