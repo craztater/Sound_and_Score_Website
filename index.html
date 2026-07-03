@@ -2600,7 +2600,7 @@
       const type  = card.getAttribute('data-sfx');
       const hover = new Audio('audio/sfx/sfx_' + type + '_hover.mp3');
       const click = new Audio('audio/sfx/sfx_' + type + '_click.mp3');
-      hover.volume = 0.35; click.volume = 0.5;
+      hover.volume = 0.221; click.volume = 0.315; /* was 0.35 / 0.5, -4 dB site-wide */
       hover.preload = 'auto'; click.preload = 'auto';
 
       card.addEventListener('mouseenter', () => {

@@ -999,6 +999,7 @@
       if(!container) return;
       album.tracks.forEach((t,i)=>{
         const audio=new Audio(album.path+t.file);
+        audio.volume=0.631; /* -4 dB site-wide */
         audio.preload='metadata';
         const trackId=listId+'_t'+i;
         const row=document.createElement('div');
@@ -1062,6 +1063,7 @@
   // Brands Reel — waveform player (matches index.html pattern)
   (function(){
     const audio  = document.getElementById('brands-audio');
+    audio.volume = 0.631; /* -4 dB site-wide */
     const canvas = document.getElementById('brands-waveform');
     const btnPlay  = document.getElementById('brands-icon-play');
     const btnPause = document.getElementById('brands-icon-pause');
@@ -1195,6 +1197,7 @@
   // VGM Reel — waveform player (clone of brands)
   (function(){
     const audio  = document.getElementById('vgm-audio');
+    audio.volume = 0.631; /* -4 dB site-wide */
     const canvas = document.getElementById('vgm-waveform');
     const btnPlay  = document.getElementById('vgm-icon-play');
     const btnPause = document.getElementById('vgm-icon-pause');
@@ -1323,6 +1326,7 @@
     player.className = 'film-player';
     if (type === 'video') {
       const v = document.createElement('video');
+      v.volume = 0.631; /* -4 dB site-wide */
       v.src = src;
       v.controls = true;
       v.autoplay = true;
