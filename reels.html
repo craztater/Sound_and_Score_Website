@@ -446,6 +446,15 @@
   .reel-share.copied { color:var(--gold); border-color:var(--gold); }
   .reel-share svg { width:13px; height:13px; }
 
+  /* Highlight flash when a shared deep-link lands on a target */
+  .reel-flash { animation: reelFlash 2s ease-in-out; border-radius:10px; }
+  @keyframes reelFlash {
+    0%   { box-shadow:0 0 0 0 rgba(181,53,53,0); }
+    18%  { box-shadow:0 0 0 3px var(--gold), 0 0 34px rgba(181,53,53,0.45); }
+    72%  { box-shadow:0 0 0 3px var(--gold), 0 0 34px rgba(181,53,53,0.45); }
+    100% { box-shadow:0 0 0 0 rgba(181,53,53,0); }
+  }
+
   /* How to submit / contact CTA */
   .submit-section {
     margin-top:80px; padding:64px 56px; border:1px solid var(--gold-dim);
@@ -595,7 +604,6 @@
         <p class="reel-card-desc">Original score. Dir. Rene Liera.</p>
         <div class="reel-card-credits">
           <span class="credit-tag">Composer</span>
-          <span class="credit-tag">Cinematic Electronic</span>
         </div>
       </div>
     </div>
@@ -1452,8 +1460,24 @@
     const el = document.getElementById(elId);
     if(!el) return;
     setTimeout(function(){
-      const y = el.getBoundingClientRect().top + window.pageYOffset - 90;
+      const headerOffset = 90;
+      const rect = el.getBoundingClientRect();
+      let y;
+      if(rect.height >= window.innerHeight - headerOffset){
+        // taller than the screen: align its top just below the header
+        y = rect.top + window.pageYOffset - headerOffset;
+      } else {
+        // center it in the viewport, well clear of the fixed header
+        y = rect.top + window.pageYOffset - (window.innerHeight - rect.height) / 2;
+      }
+      if(y < 0) y = 0;
       window.scrollTo({ top: y, behavior: 'smooth' });
+
+      // Quick highlight so the eye lands on the right place
+      el.classList.remove('reel-flash');
+      void el.offsetWidth; // force reflow so the animation can retrigger
+      el.classList.add('reel-flash');
+      setTimeout(function(){ el.classList.remove('reel-flash'); }, 2000);
     }, 120);
   }
 
