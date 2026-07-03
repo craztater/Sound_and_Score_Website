@@ -520,9 +520,9 @@
 <!-- CATEGORY TABS -->
 <div class="reel-tabs">
   <div class="reel-tabs-inner">
-    <button class="rtab active" onclick="switchReel(this,'brand')">Brand & Commercial</button>
-    <button class="rtab" onclick="switchReel(this,'film')">Film & Score</button>
-    <button class="rtab" onclick="switchReel(this,'games')">Video Games</button>
+    <button class="rtab active" onclick="switchReel(this,'brand')" data-sfx="brand">Brand & Commercial</button>
+    <button class="rtab" onclick="switchReel(this,'film')" data-sfx="film">Film & Score</button>
+    <button class="rtab" onclick="switchReel(this,'games')" data-sfx="games">Video Games</button>
   </div>
 </div>
 
@@ -1567,6 +1567,22 @@
       window.prompt('Copy this link:', url);
     }
   }
+
+  // Same hover/click SFX as the gateway cards, on the reel tabs.
+  // Click plays in place (tabs switch view, they don't load a new page).
+  document.querySelectorAll('.rtab[data-sfx]').forEach(function(tab){
+    const type  = tab.getAttribute('data-sfx');
+    const hover = new Audio('audio/sfx/sfx_' + type + '_hover.mp3');
+    const click = new Audio('audio/sfx/sfx_' + type + '_click.mp3');
+    hover.volume = 0.221; click.volume = 0.315; /* -4 dB site-wide */
+    hover.preload = 'auto'; click.preload = 'auto';
+    tab.addEventListener('mouseenter', function(){
+      try { hover.currentTime = 0; hover.play().catch(function(){}); } catch(e){}
+    });
+    tab.addEventListener('click', function(){
+      try { click.currentTime = 0; click.play().catch(function(){}); } catch(e){}
+    });
+  });
 </script>
 </body>
 </html>
