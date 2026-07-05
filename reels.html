@@ -1500,10 +1500,19 @@
     }
   }
 
-  // On load: open the section (and album) named in the URL hash, and scroll to it
-  setTimeout(function(){ routeHash(window.location.hash, true); }, 60);
+  // Read the deep-link target from ?s= (survives link previews) or #hash as a fallback
+  function currentDeepLinkKey(){
+    try {
+      const q = new URLSearchParams(window.location.search).get('s');
+      if(q) return q;
+    } catch(e){}
+    return window.location.hash;
+  }
 
-  // Also respond if the hash changes while the page is open
+  // On load: open the section (and album) named in the URL, and scroll to it
+  setTimeout(function(){ routeHash(currentDeepLinkKey(), true); }, 60);
+
+  // Respond if the hash changes while the page is open (in-page tab clicks)
   window.addEventListener('hashchange', function(){
     routeHash(window.location.hash, true);
   });
@@ -1607,7 +1616,7 @@
 
   // Copy a direct deep-link to a specific reel/album
   function shareReel(btn, hash){
-    const url = location.origin + location.pathname + '#' + hash;
+    const url = location.origin + location.pathname + '?s=' + hash;
     function feedback(){
       const label = btn.querySelector('.reel-share-label');
       const prev = label ? label.textContent : '';
