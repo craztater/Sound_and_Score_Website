@@ -535,6 +535,19 @@
   .ba-row-play svg { width: 14px; height: 14px; fill: var(--text-muted); transition: fill 0.2s; }
   .ba-row-podcast { opacity: 0.85; }
 
+  .ba-hint {
+    text-align:center;
+    font-family:'DM Mono',monospace; font-size:13px; letter-spacing:0.06em;
+    color:var(--gold); margin:0 0 26px;
+    animation:baHintFlash 1.9s ease-in-out infinite;
+  }
+  @keyframes baHintFlash { 0%,100% { opacity:0.35; } 50% { opacity:1; } }
+  .hintpulse { animation:baPillPulse 1.9s ease-in-out infinite; }
+  @keyframes baPillPulse {
+    0%,100% { box-shadow:0 0 0 0 transparent; }
+    50%     { box-shadow:0 0 12px 2px rgba(255,255,255,0.85); }
+  }
+
     /* Composition section */
   .comp-section { background: transparent; }
   .comp-header {
@@ -1510,19 +1523,19 @@
     <div>
       <h2 class="section-title">Hear the<br><em>Difference</em></h2>
     </div>
-    <p class="mixing-intro">Toggle between raw and finished. Same session, same arrangement—just what proper engineering does to a record.</p>
   </div>
 
+    <p class="ba-hint">Tap Before / After on any track to hear the difference</p>
     <div class="ba-list">
   <div class="ba-row reveal " data-idxa="0" data-namea="Dakota" data-nameb="Cant Stand" data-idxb="1">
     <div class="ba-row-genre">Indie / Bedroom</div>
     <div class="ba-row-tracks">
       <button class="ba-track-btn active" onclick="selectTrack(this,0,1,'a')" data-track="a">Example 1</button>
-      <button class="ba-track-btn" onclick="selectTrack(this,0,1,'b')" data-track="b">Example 2</button>
+      <button class="ba-track-btn hintpulse" onclick="selectTrack(this,0,1,'b')" data-track="b">Example 2</button>
     </div>
     <div class="ba-row-toggle">
-      <button class="ba-pill before active" onclick="setRowMode(this,'before',0,1)">Before</button>
-      <button class="ba-pill after" onclick="setRowMode(this,'after',0,1)">After</button>
+      <button class="ba-pill before active hintpulse" onclick="setRowMode(this,'before',0,1)">Before</button>
+      <button class="ba-pill after hintpulse" onclick="setRowMode(this,'after',0,1)">After</button>
     </div>
     <div class="ba-row-progress">
       <div class="ba-progress-track" onclick="scrubRow(event,0)">
@@ -1553,27 +1566,6 @@
       <span class="ba-row-time" id="rowtime-2">0:00</span>
     </div>
     <button class="ba-row-play" id="rowplay-2" onclick="toggleRowPlay(2,3)">
-      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </button>
-  </div>
-  <div class="ba-row reveal reveal-delay-2" data-idxa="4" data-namea="Topps" data-nameb="Inheritance" data-idxb="5">
-    <div class="ba-row-genre">Hip-Hop / Trap</div>
-    <div class="ba-row-tracks">
-      <button class="ba-track-btn active" onclick="selectTrack(this,4,5,'a')" data-track="a">Example 1</button>
-      <button class="ba-track-btn" onclick="selectTrack(this,4,5,'b')" data-track="b">Example 2</button>
-    </div>
-    <div class="ba-row-toggle">
-      <button class="ba-pill before active" onclick="setRowMode(this,'before',4,5)">Before</button>
-      <button class="ba-pill after" onclick="setRowMode(this,'after',4,5)">After</button>
-    </div>
-    <div class="ba-row-progress">
-      <div class="ba-progress-track" onclick="scrubRow(event,4)">
-        <canvas class="ba-waveform" id="rowwave-4"></canvas>
-        <div class="ba-progress-fill" id="rowprog-4"></div>
-      </div>
-      <span class="ba-row-time" id="rowtime-4">0:00</span>
-    </div>
-    <button class="ba-row-play" id="rowplay-4" onclick="toggleRowPlay(4,5)">
       <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </button>
   </div>
@@ -1637,6 +1629,27 @@
       <span class="ba-row-time" id="rowtime-10">0:00</span>
     </div>
     <button class="ba-row-play" id="rowplay-10" onclick="toggleRowPlay(10,11)">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+  <div class="ba-row reveal reveal-delay-1" data-idxa="4" data-namea="Topps" data-nameb="Inheritance" data-idxb="5">
+    <div class="ba-row-genre">Hip-Hop / Trap</div>
+    <div class="ba-row-tracks">
+      <button class="ba-track-btn active" onclick="selectTrack(this,4,5,'a')" data-track="a">Example 1</button>
+      <button class="ba-track-btn" onclick="selectTrack(this,4,5,'b')" data-track="b">Example 2</button>
+    </div>
+    <div class="ba-row-toggle">
+      <button class="ba-pill before active" onclick="setRowMode(this,'before',4,5)">Before</button>
+      <button class="ba-pill after" onclick="setRowMode(this,'after',4,5)">After</button>
+    </div>
+    <div class="ba-row-progress">
+      <div class="ba-progress-track" onclick="scrubRow(event,4)">
+        <canvas class="ba-waveform" id="rowwave-4"></canvas>
+        <div class="ba-progress-fill" id="rowprog-4"></div>
+      </div>
+      <span class="ba-row-time" id="rowtime-4">0:00</span>
+    </div>
+    <button class="ba-row-play" id="rowplay-4" onclick="toggleRowPlay(4,5)">
       <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </button>
   </div>
@@ -3027,6 +3040,29 @@
     }
     if(document.readyState !== 'loading') applyGain();
     else document.addEventListener('DOMContentLoaded', applyGain);
+  })();
+</script>
+
+<script>
+  /* Stop the before/after how-to flash the moment the client interacts with it */
+  (function(){
+    // Before/After cue: stops once they use the toggle or play
+    function stopBA(){
+      document.querySelectorAll('.ba-pill.hintpulse').forEach(function(el){ el.classList.remove('hintpulse'); });
+      var h = document.querySelector('.ba-hint');
+      if(h){ h.style.animation = 'none'; h.style.opacity = '0.75'; }
+      document.removeEventListener('click', onBA, true);
+    }
+    function onBA(e){ if(e.target.closest('.ba-pill, .ba-row-play')) stopBA(); }
+    document.addEventListener('click', onBA, true);
+
+    // Example cue: stops once they click any Example button
+    function stopEx(){
+      document.querySelectorAll('.ba-track-btn.hintpulse').forEach(function(el){ el.classList.remove('hintpulse'); });
+      document.removeEventListener('click', onEx, true);
+    }
+    function onEx(e){ if(e.target.closest('.ba-track-btn')) stopEx(); }
+    document.addEventListener('click', onEx, true);
   })();
 </script>
 
