@@ -408,9 +408,9 @@
   }
   .ba-row {
     display: grid;
-    grid-template-columns: 200px 140px 140px 1fr 48px;
+    grid-template-columns: 175px 140px 155px 1fr 48px;
     align-items: center;
-    gap: 24px;
+    gap: 20px;
     padding: 20px 0;
     border-bottom: 1px solid var(--border);
     transition: background 0.2s;
@@ -536,7 +536,7 @@
   .ba-row-podcast { opacity: 0.85; }
 
   .ba-hint {
-    text-align:center;
+    text-align:left;
     font-family:'DM Mono',monospace; font-size:13px; letter-spacing:0.06em;
     color:var(--gold); margin:0 0 26px;
     animation:baHintFlash 1.9s ease-in-out infinite;
@@ -545,7 +545,13 @@
   .hintpulse { animation:baPillPulse 1.9s ease-in-out infinite; }
   @keyframes baPillPulse {
     0%,100% { box-shadow:0 0 0 0 transparent; }
-    50%     { box-shadow:0 0 12px 2px rgba(255,255,255,0.85); }
+    50%     { box-shadow:0 0 8px 0 rgba(255,255,255,0.85); }
+  }
+  /* Tighter glow for the smaller Example button so it hugs the edge */
+  .ba-track-btn.hintpulse { animation:baPillPulseSm 1.9s ease-in-out infinite; }
+  @keyframes baPillPulseSm {
+    0%,100% { box-shadow:0 0 0 0 transparent; }
+    50%     { box-shadow:0 0 4px 0 rgba(255,255,255,0.95); }
   }
 
     /* Composition section */
@@ -1533,9 +1539,9 @@
       <button class="ba-track-btn active" onclick="selectTrack(this,0,1,'a')" data-track="a">Example 1</button>
       <button class="ba-track-btn hintpulse" onclick="selectTrack(this,0,1,'b')" data-track="b">Example 2</button>
     </div>
-    <div class="ba-row-toggle">
-      <button class="ba-pill before active hintpulse" onclick="setRowMode(this,'before',0,1)">Before</button>
-      <button class="ba-pill after hintpulse" onclick="setRowMode(this,'after',0,1)">After</button>
+    <div class="ba-row-toggle hintpulse">
+      <button class="ba-pill before active" onclick="setRowMode(this,'before',0,1)">Before</button>
+      <button class="ba-pill after" onclick="setRowMode(this,'after',0,1)">After</button>
     </div>
     <div class="ba-row-progress">
       <div class="ba-progress-track" onclick="scrubRow(event,0)">
@@ -1689,12 +1695,12 @@
   <!-- Gateway cards: each links to its reel -->
   <div class="comp-gateway" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;">
 
-    <a href="reels.html#games" class="gateway-card" data-sfx="games">
-      <div class="gateway-cat">Video Games</div>
-      <div class="gateway-title">Game Soundtracks</div>
-      <p class="gateway-desc">Three full original OSTs — orchestral adventure, late-night synthwave, and a surreal concept score.</p>
-      <div class="gateway-tags"><span class="comp-tag">Orchestral</span><span class="comp-tag">Electronic</span><span class="comp-tag">Atmospheric</span></div>
-      <div class="gateway-go">View the VGM Reel →</div>
+    <a href="reels.html#brand" class="gateway-card" data-sfx="brand">
+      <div class="gateway-cat">Brand &amp; Commercial</div>
+      <div class="gateway-title">Brand &amp; Sync</div>
+      <p class="gateway-desc">Music with weight for brands and commercials — orchestral, electronic, emotional. Rescores and originals.</p>
+      <div class="gateway-tags"><span class="comp-tag">High Energy</span><span class="comp-tag">Techy</span><span class="comp-tag">Bold</span></div>
+      <div class="gateway-go">View the Brand Reel →</div>
     </a>
 
     <a href="reels.html#film" class="gateway-card" data-sfx="film">
@@ -1705,12 +1711,12 @@
       <div class="gateway-go">View the Film Reel →</div>
     </a>
 
-    <a href="reels.html#brand" class="gateway-card" data-sfx="brand">
-      <div class="gateway-cat">Brand &amp; Commercial</div>
-      <div class="gateway-title">Brand &amp; Sync</div>
-      <p class="gateway-desc">Music with weight for brands and commercials — orchestral, electronic, emotional. Rescores and originals.</p>
-      <div class="gateway-tags"><span class="comp-tag">High Energy</span><span class="comp-tag">Techy</span><span class="comp-tag">Bold</span></div>
-      <div class="gateway-go">View the Brand Reel →</div>
+    <a href="reels.html#games" class="gateway-card" data-sfx="games">
+      <div class="gateway-cat">Video Games</div>
+      <div class="gateway-title">Game Soundtracks</div>
+      <p class="gateway-desc">Three full original OSTs — orchestral adventure, late-night synthwave, and a surreal concept score.</p>
+      <div class="gateway-tags"><span class="comp-tag">Orchestral</span><span class="comp-tag">Electronic</span><span class="comp-tag">Atmospheric</span></div>
+      <div class="gateway-go">View the VGM Reel →</div>
     </a>
 
   </div>
@@ -2100,7 +2106,7 @@
     <!-- LEFT: Photo -->
     <div class="reveal reveal-delay-1" style="position:relative;">
       <div style="aspect-ratio:4/5;overflow:hidden;position:relative;border:1px solid var(--border);">
-        <img id="aboutPhoto" src="images/about-photo.jpg" alt="Taylor A. Bailey"
+        <img id="aboutPhoto" src="images/about-photo.jpg" alt="Taylor A. Bailey" loading="lazy"
              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;" />
       </div>
       <!-- Credential badge -->
@@ -2928,7 +2934,22 @@
         for(let i = 0; i <= 12; i++) drawWaveform(i, (rowState[i]||{}).progress||0);
       });
     }, 300);
-    for(let i = 0; i <= 12; i++) loadWaveform(i, 'before');
+    // Lazy-load each row's real waveform only when it scrolls near the viewport,
+    // so the page doesn't download ~13 full audio files on initial load.
+    if('IntersectionObserver' in window){
+      const wobs = new IntersectionObserver((entries, obs) => {
+        entries.forEach(en => {
+          if(en.isIntersecting){
+            const idx = parseInt(en.target.dataset.idxa);
+            if(!isNaN(idx)) loadWaveform(idx, 'before');
+            obs.unobserve(en.target);
+          }
+        });
+      }, { rootMargin: '250px' });
+      document.querySelectorAll('.ba-row[data-idxa]').forEach(r => wobs.observe(r));
+    } else {
+      for(let i = 0; i <= 12; i++) loadWaveform(i, 'before');
+    }
   });
   // ── END WAVEFORM RENDERER ──────────────────────────────────────
 
@@ -2965,32 +2986,32 @@
      Put audio files in an /audio/ folder next to index.html
      Example: src="audio/hiphop-before.mp3"
      ═══════════════════════════════════════════════════════ -->
-<audio id="audio-0-before" src="audio/Mixing/DAKOTA_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-0-after" src="audio/Mixing/DAKOTA_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-1-before" src="audio/Mixing/CANT_STAND_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-1-after" src="audio/Mixing/CANT_STAND_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-2-before" src="audio/Mixing/OBSESSED_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-2-after" src="audio/Mixing/OBSESSED_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-3-before" src="audio/Mixing/GET_GONE_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-3-after" src="audio/Mixing/GET_GONE_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-4-before" src="audio/Mixing/TOPPS_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-4-after" src="audio/Mixing/TOPPS_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-5-before" src="audio/Mixing/INHERITANCE_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-5-after" src="audio/Mixing/INHERITANCE_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-6-before" src="audio/Mixing/WELCOME_HOME_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-6-after" src="audio/Mixing/WELCOME_HOME_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-7-before" src="audio/Mixing/DUKKA_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-7-after" src="audio/Mixing/DUKKA_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-8-before" src="audio/Mixing/RIDE_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-8-after" src="audio/Mixing/RIDE_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-9-before" src="audio/Mixing/ALL_FOR_U_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-9-after" src="audio/Mixing/ALL_FOR_U_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-10-before" src="audio/Mixing/DEGLOVED_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-10-after" src="audio/Mixing/DEGLOVED_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-11-before" src="audio/Mixing/SUMIMASEN_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-11-after" src="audio/Mixing/SUMIMASEN_AFTER.mp3" preload="metadata"></audio>
-<audio id="audio-12-before" src="audio/Mixing/EARTH_BEFORE.mp3" preload="metadata"></audio>
-<audio id="audio-12-after" src="audio/Mixing/EARTH_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-0-before" src="audio/Mixing/DAKOTA_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-0-after" src="audio/Mixing/DAKOTA_AFTER.mp3" preload="none"></audio>
+<audio id="audio-1-before" src="audio/Mixing/CANT_STAND_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-1-after" src="audio/Mixing/CANT_STAND_AFTER.mp3" preload="none"></audio>
+<audio id="audio-2-before" src="audio/Mixing/OBSESSED_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-2-after" src="audio/Mixing/OBSESSED_AFTER.mp3" preload="none"></audio>
+<audio id="audio-3-before" src="audio/Mixing/GET_GONE_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-3-after" src="audio/Mixing/GET_GONE_AFTER.mp3" preload="none"></audio>
+<audio id="audio-4-before" src="audio/Mixing/TOPPS_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-4-after" src="audio/Mixing/TOPPS_AFTER.mp3" preload="none"></audio>
+<audio id="audio-5-before" src="audio/Mixing/INHERITANCE_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-5-after" src="audio/Mixing/INHERITANCE_AFTER.mp3" preload="none"></audio>
+<audio id="audio-6-before" src="audio/Mixing/WELCOME_HOME_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-6-after" src="audio/Mixing/WELCOME_HOME_AFTER.mp3" preload="none"></audio>
+<audio id="audio-7-before" src="audio/Mixing/DUKKA_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-7-after" src="audio/Mixing/DUKKA_AFTER.mp3" preload="none"></audio>
+<audio id="audio-8-before" src="audio/Mixing/RIDE_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-8-after" src="audio/Mixing/RIDE_AFTER.mp3" preload="none"></audio>
+<audio id="audio-9-before" src="audio/Mixing/ALL_FOR_U_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-9-after" src="audio/Mixing/ALL_FOR_U_AFTER.mp3" preload="none"></audio>
+<audio id="audio-10-before" src="audio/Mixing/DEGLOVED_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-10-after" src="audio/Mixing/DEGLOVED_AFTER.mp3" preload="none"></audio>
+<audio id="audio-11-before" src="audio/Mixing/SUMIMASEN_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-11-after" src="audio/Mixing/SUMIMASEN_AFTER.mp3" preload="none"></audio>
+<audio id="audio-12-before" src="audio/Mixing/EARTH_BEFORE.mp3" preload="none"></audio>
+<audio id="audio-12-after" src="audio/Mixing/EARTH_AFTER.mp3" preload="none"></audio>
 <script>
 /* Booking form — background submit via Web3Forms */
 (function(){
@@ -3048,7 +3069,7 @@
   (function(){
     // Before/After cue: stops once they use the toggle or play
     function stopBA(){
-      document.querySelectorAll('.ba-pill.hintpulse').forEach(function(el){ el.classList.remove('hintpulse'); });
+      document.querySelectorAll('.ba-row-toggle.hintpulse').forEach(function(el){ el.classList.remove('hintpulse'); });
       var h = document.querySelector('.ba-hint');
       if(h){ h.style.animation = 'none'; h.style.opacity = '0.75'; }
       document.removeEventListener('click', onBA, true);
