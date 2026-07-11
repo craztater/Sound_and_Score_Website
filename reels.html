@@ -1018,6 +1018,20 @@
     window.__reelStoppers = window.__reelStoppers || [];
     window.stopAllReelsExcept = function(exceptId){
       window.__reelStoppers.forEach(s => { if(s.id !== exceptId) s.stop(); });
+      // also halt a playing film trailer video (unless the video itself is the source)
+      if(exceptId !== '__film__' && window.__activeFilmVideo){ try{ window.__activeFilmVideo.pause(); }catch(e){} }
+    };
+
+    // Seek helper: applies the position even if the audio's duration isn't loaded yet
+    window.__seekAudioTo = function(a, frac, afterSeek){
+      if(!a) return;
+      frac = Math.max(0, Math.min(1, frac));
+      var apply = function(){
+        if(isFinite(a.duration) && a.duration > 0){ try{ a.currentTime = frac * a.duration; }catch(e){} }
+        if(afterSeek) afterSeek();
+      };
+      if(isFinite(a.duration) && a.duration > 0){ apply(); }
+      else { a.addEventListener('loadedmetadata', apply, {once:true}); try{ a.load(); }catch(e){} }
     };
 
     function fmt(s){ if(isNaN(s)||!isFinite(s)) return '0:00'; const m=Math.floor(s/60),sec=Math.floor(s%60); return m+':'+(sec<10?'0':'')+sec; }
@@ -1116,10 +1130,10 @@
         });
         canvas.addEventListener('click',e=>{
           e.stopPropagation();
-          if(!audio.duration) return;
           const rect=canvas.getBoundingClientRect();
-          audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
-          if(audio.paused) activate();
+          const frac=(e.clientX-rect.left)/rect.width;
+          const wasPaused=audio.paused;
+          window.__seekAudioTo(audio, frac, function(){ if(wasPaused) activate(); });
         });
       });
     });
@@ -1258,17 +1272,18 @@
     };
 
     window.seekBrandsReel = function(e, bar) {
-      if(!audio.duration) return;
       const rect = bar.getBoundingClientRect();
-      audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
-      if(audio.paused) {
-        if(window.stopAllReelsExcept) window.stopAllReelsExcept('brands');
-        audio.play();
-        btnPlay.style.display  = 'none';
-        btnPause.style.display = '';
-        window.__lastHeroToggle = window.toggleBrandsReel;
-        if(!peaks) loadWaveform();
-      }
+      const frac = (e.clientX - rect.left) / rect.width;
+      window.__seekAudioTo(audio, frac, function(){
+        if(audio.paused) {
+          if(window.stopAllReelsExcept) window.stopAllReelsExcept('brands');
+          audio.play();
+          btnPlay.style.display  = 'none';
+          btnPause.style.display = '';
+          window.__lastHeroToggle = window.toggleBrandsReel;
+          if(!peaks) loadWaveform();
+        }
+      });
     };
 
     // Initial draw
@@ -1373,16 +1388,17 @@
     };
 
     window.seekVgmReel = function(e, bar) {
-      if(!audio.duration) return;
       const rect = bar.getBoundingClientRect();
-      audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
-      if(audio.paused) {
-        if(window.stopAllReelsExcept) window.stopAllReelsExcept('vgmreel');
-        audio.play();
-        btnPlay.style.display = 'none'; btnPause.style.display = '';
-        window.__lastHeroToggle = window.toggleVgmReel;
-        if(!peaks) loadWaveform();
-      }
+      const frac = (e.clientX - rect.left) / rect.width;
+      window.__seekAudioTo(audio, frac, function(){
+        if(audio.paused) {
+          if(window.stopAllReelsExcept) window.stopAllReelsExcept('vgmreel');
+          audio.play();
+          btnPlay.style.display = 'none'; btnPause.style.display = '';
+          window.__lastHeroToggle = window.toggleVgmReel;
+          if(!peaks) loadWaveform();
+        }
+      });
     };
 
     draw(0);
@@ -1414,6 +1430,12 @@
       v.autoplay = true;
       v.playsInline = true;
       v.preload = 'metadata';
+      // stop reels when this trailer plays, and register it so reels can stop it back
+      v.addEventListener('play', function(){
+        if(window.__activeFilmVideo && window.__activeFilmVideo !== v){ try{ window.__activeFilmVideo.pause(); }catch(e){} }
+        window.__activeFilmVideo = v;
+        if(window.stopAllReelsExcept) window.stopAllReelsExcept('__film__');
+      });
       player.appendChild(v);
     } else {
       const iframe = document.createElement('iframe');
