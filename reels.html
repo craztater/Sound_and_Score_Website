@@ -1458,6 +1458,8 @@
 
   // Tab switching
   function activateReel(id, doScroll) {
+    // stop any playing reel, album track, or trailer when changing tabs
+    if(window.stopAllReelsExcept) window.stopAllReelsExcept('__none__');
     if(id === 'vgm') id = 'games';            // alias
     const valid = ['brand','film','games'];
     if(!valid.includes(id)) id = 'brand';
