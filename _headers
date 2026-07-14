@@ -1,0 +1,10 @@
+# Always serve fresh HTML so a new deploy reaches every visitor immediately.
+# Media and other assets keep Cloudflare's default revalidating cache.
+/
+  Cache-Control: no-store
+
+/index.html
+  Cache-Control: no-store
+
+/reels.html
+  Cache-Control: no-store
