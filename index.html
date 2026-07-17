@@ -1547,6 +1547,27 @@
     <p class="ba-focus">Specializing in <strong>indie, pop, rock/alt, and EDM</strong>. Also comfortable in hip-hop and hybrid work.</p>
     <p class="ba-hint">Tap Before / After on any track to hear the difference</p>
     <div class="ba-list">
+  <div class="ba-row reveal reveal-delay-1" data-idxa="8" data-namea="Ride" data-nameb="All For U" data-idxb="9">
+    <div class="ba-row-genre">EDM<span class="ba-spec">Specialty</span></div>
+    <div class="ba-row-tracks">
+      <button class="ba-track-btn active" onclick="selectTrack(this,8,9,'a')" data-track="a">Example 1</button>
+      <button class="ba-track-btn" onclick="selectTrack(this,8,9,'b')" data-track="b">Example 2</button>
+    </div>
+    <div class="ba-row-toggle">
+      <button class="ba-pill before active" onclick="setRowMode(this,'before',8,9)">Before</button>
+      <button class="ba-pill after" onclick="setRowMode(this,'after',8,9)">After</button>
+    </div>
+    <div class="ba-row-progress">
+      <div class="ba-progress-track" onclick="scrubRow(event,8)">
+        <canvas class="ba-waveform" id="rowwave-8"></canvas>
+        <div class="ba-progress-fill" id="rowprog-8"></div>
+      </div>
+      <span class="ba-row-time" id="rowtime-8">0:00</span>
+    </div>
+    <button class="ba-row-play" id="rowplay-8" onclick="toggleRowPlay(8,9)">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
   <div class="ba-row reveal " data-idxa="0" data-namea="Dakota" data-nameb="Cant Stand" data-idxb="1">
     <div class="ba-row-genre">Indie / Bedroom<span class="ba-spec">Specialty</span></div>
     <div class="ba-row-tracks">
@@ -1607,27 +1628,6 @@
       <span class="ba-row-time" id="rowtime-6">0:00</span>
     </div>
     <button class="ba-row-play" id="rowplay-6" onclick="toggleRowPlay(6,7)">
-      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </button>
-  </div>
-  <div class="ba-row reveal reveal-delay-1" data-idxa="8" data-namea="Ride" data-nameb="All For U" data-idxb="9">
-    <div class="ba-row-genre">EDM<span class="ba-spec">Specialty</span></div>
-    <div class="ba-row-tracks">
-      <button class="ba-track-btn active" onclick="selectTrack(this,8,9,'a')" data-track="a">Example 1</button>
-      <button class="ba-track-btn" onclick="selectTrack(this,8,9,'b')" data-track="b">Example 2</button>
-    </div>
-    <div class="ba-row-toggle">
-      <button class="ba-pill before active" onclick="setRowMode(this,'before',8,9)">Before</button>
-      <button class="ba-pill after" onclick="setRowMode(this,'after',8,9)">After</button>
-    </div>
-    <div class="ba-row-progress">
-      <div class="ba-progress-track" onclick="scrubRow(event,8)">
-        <canvas class="ba-waveform" id="rowwave-8"></canvas>
-        <div class="ba-progress-fill" id="rowprog-8"></div>
-      </div>
-      <span class="ba-row-time" id="rowtime-8">0:00</span>
-    </div>
-    <button class="ba-row-play" id="rowplay-8" onclick="toggleRowPlay(8,9)">
       <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </button>
   </div>
@@ -2716,19 +2716,28 @@
     if(wasPlaying) startRowPlay(newIdx, idxA);
   }
 
-  // Apply a position (0..1) to an audio element, waiting for metadata if needed
-  function seekRowAudio(a, frac, done) {
+  // Apply a position to an audio element, waiting for metadata if needed.
+  // opts: {time: seconds} for same-song A/B, or {frac: 0..1} for waveform clicks.
+  function seekRowAudio(a, opts, done) {
     if(!a) { if(done) done(); return; }
-    frac = Math.max(0, Math.min(0.999, frac));
+    let finished = false;
+    const finish = () => { if(finished) return; finished = true; if(done) done(); };
     const apply = () => {
       if(isFinite(a.duration) && a.duration > 0) {
-        try { a.currentTime = frac * a.duration; } catch(e){}
+        let t = (opts.time != null) ? opts.time : (opts.frac || 0) * a.duration;
+        t = Math.max(0, Math.min(t, a.duration - 0.05));
+        try { a.currentTime = t; } catch(e){}
       }
-      if(done) done();
+      finish();
     };
     if(isFinite(a.duration) && a.duration > 0) { apply(); return; }
-    a.addEventListener('loadedmetadata', apply, {once:true});
+    // Listen on several events: loadedmetadata may have already fired for a file
+    // whose duration resolves late (common with VBR MP3s).
+    ['loadedmetadata','durationchange','canplay','loadeddata'].forEach(ev =>
+      a.addEventListener(ev, apply, {once:true}));
     if(a.readyState === 0) { try { a.load(); } catch(e){} }
+    // Safety net: never leave playback dead if duration never resolves.
+    setTimeout(finish, 2500);
   }
 
   function setRowMode(btn, mode, idxA, idxB) {
@@ -2749,9 +2758,13 @@
     });
     if(!oldAudio) oldAudio = document.getElementById('audio-' + activeIdx + '-' + rowState[activeIdx].mode);
 
-    let frac = (rowState[activeIdx].progress || 0) / 100;
-    if(oldAudio && isFinite(oldAudio.duration) && oldAudio.duration > 0 && oldAudio.currentTime > 0) {
-      frac = oldAudio.currentTime / oldAudio.duration;
+    // Before/after are the same song on the same timeline, so match the exact
+    // SECONDS. A percentage drifts whenever the two exports differ in length.
+    let seekTime = 0;
+    if(oldAudio && oldAudio.currentTime > 0) {
+      seekTime = oldAudio.currentTime;
+    } else if(oldAudio && rowState[activeIdx].progress > 0 && isFinite(oldAudio.duration) && oldAudio.duration > 0) {
+      seekTime = (rowState[activeIdx].progress / 100) * oldAudio.duration;
     }
     // Pause both versions so neither can keep playing underneath
     ['before','after'].forEach(m => {
@@ -2761,24 +2774,24 @@
     clearInterval(rowState[activeIdx].interval);
     rowState[activeIdx].playing = false;
     rowState[activeIdx].mode = mode;
-    rowState[activeIdx].progress = frac * 100;
     loadWaveform(activeIdx, mode);
 
     // Seek the new version to the same spot BEFORE starting playback, so it can
     // never play from 0 while waiting for metadata to load.
     const newAudio = document.getElementById('audio-' + activeIdx + '-' + mode);
-    seekRowAudio(newAudio, frac, () => {
+    seekRowAudio(newAudio, {time: seekTime}, () => {
+      // Recompute progress against the new file's own length
+      if(newAudio && isFinite(newAudio.duration) && newAudio.duration > 0) {
+        rowState[activeIdx].progress = (newAudio.currentTime / newAudio.duration) * 100;
+      }
+      drawWaveform(idxA, rowState[activeIdx].progress);
+      const prog = document.getElementById('rowprog-' + idxA);
+      if(prog) prog.style.width = rowState[activeIdx].progress + '%';
       if(wasPlaying) {
         rowState[activeIdx].playing = false;
         startRowPlay(activeIdx, idxA);
       }
     });
-
-    if(!wasPlaying) {
-      drawWaveform(idxA, rowState[activeIdx].progress);
-      const prog = document.getElementById('rowprog-' + idxA);
-      if(prog) prog.style.width = rowState[activeIdx].progress + '%';
-    }
   }
 
   function toggleRowPlay(idxA, idxB) {
@@ -2950,7 +2963,7 @@
     const prog = document.getElementById('rowprog-' + displayIdxA);
     if(prog) prog.style.width = (frac * 100) + '%';
 
-    seekRowAudio(audio, frac, () => {
+    seekRowAudio(audio, {frac: frac}, () => {
       if(!state.playing) startRowPlay(activeIdx, displayIdxA);
     });
   }
