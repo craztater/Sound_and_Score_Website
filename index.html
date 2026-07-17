@@ -535,6 +535,19 @@
   .ba-row-play svg { width: 14px; height: 14px; fill: var(--text-muted); transition: fill 0.2s; }
   .ba-row-podcast { opacity: 0.85; }
 
+  .ba-focus {
+    text-align:left;
+    font-family:'Outfit',sans-serif; font-weight:300;
+    font-size:16px; color:var(--text-muted);
+    margin:0 0 10px; letter-spacing:0.01em;
+  }
+  .ba-focus strong { color:var(--white); font-weight:400; }
+  .ba-spec {
+    display:block; margin-top:5px;
+    font-family:'DM Mono',monospace; font-size:9px; font-weight:400;
+    letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); opacity:0.85;
+  }
   .ba-hint {
     text-align:left;
     font-family:'DM Mono',monospace; font-size:13px; letter-spacing:0.06em;
@@ -1531,10 +1544,11 @@
     </div>
   </div>
 
+    <p class="ba-focus">Specializing in <strong>indie, pop, rock/alt, and EDM</strong>. Also comfortable in hip-hop and hybrid work.</p>
     <p class="ba-hint">Tap Before / After on any track to hear the difference</p>
     <div class="ba-list">
   <div class="ba-row reveal " data-idxa="0" data-namea="Dakota" data-nameb="Cant Stand" data-idxb="1">
-    <div class="ba-row-genre">Indie / Bedroom</div>
+    <div class="ba-row-genre">Indie / Bedroom<span class="ba-spec">Specialty</span></div>
     <div class="ba-row-tracks">
       <button class="ba-track-btn active" onclick="selectTrack(this,0,1,'a')" data-track="a">Example 1</button>
       <button class="ba-track-btn hintpulse" onclick="selectTrack(this,0,1,'b')" data-track="b">Example 2</button>
@@ -1555,7 +1569,7 @@
     </button>
   </div>
   <div class="ba-row reveal reveal-delay-1" data-idxa="2" data-namea="Obsessed" data-nameb="Get Gone" data-idxb="3">
-    <div class="ba-row-genre">Pop</div>
+    <div class="ba-row-genre">Pop<span class="ba-spec">Specialty</span></div>
     <div class="ba-row-tracks">
       <button class="ba-track-btn active" onclick="selectTrack(this,2,3,'a')" data-track="a">Example 1</button>
       <button class="ba-track-btn" onclick="selectTrack(this,2,3,'b')" data-track="b">Example 2</button>
@@ -1576,7 +1590,7 @@
     </button>
   </div>
   <div class="ba-row reveal " data-idxa="6" data-namea="Welcome Home" data-nameb="Dukka" data-idxb="7">
-    <div class="ba-row-genre">Rock / Alt</div>
+    <div class="ba-row-genre">Rock / Alt<span class="ba-spec">Specialty</span></div>
     <div class="ba-row-tracks">
       <button class="ba-track-btn active" onclick="selectTrack(this,6,7,'a')" data-track="a">Example 1</button>
       <button class="ba-track-btn" onclick="selectTrack(this,6,7,'b')" data-track="b">Example 2</button>
@@ -1597,7 +1611,7 @@
     </button>
   </div>
   <div class="ba-row reveal reveal-delay-1" data-idxa="8" data-namea="Ride" data-nameb="All For U" data-idxb="9">
-    <div class="ba-row-genre">EDM</div>
+    <div class="ba-row-genre">EDM<span class="ba-spec">Specialty</span></div>
     <div class="ba-row-tracks">
       <button class="ba-track-btn active" onclick="selectTrack(this,8,9,'a')" data-track="a">Example 1</button>
       <button class="ba-track-btn" onclick="selectTrack(this,8,9,'b')" data-track="b">Example 2</button>
@@ -1895,7 +1909,7 @@
 <!-- BOOKING SECTION -->
 <section class="booking-section" id="booking">
   <p class="section-tag reveal">04 — Work With Me</p>
-  <h2 class="section-title reveal">Let's Make<br><em>Something</em></h2>
+  <h2 class="section-title reveal">Let's<br><em>Do It!</em></h2>
   <div class="booking-grid">
     <div class="booking-info reveal">
       <h3>How to Prepare Your Files</h3>
@@ -1908,7 +1922,7 @@
         </div>
         <div class="booking-guideline">
           <span class="guideline-num">—</span>
-          <span class="guideline-text" style="font-size:16px;"><strong style="color:var(--text);">No master bus processing</strong> — no limiter or heavy compression on the stereo out</span>
+          <span class="guideline-text" style="font-size:16px;"><strong style="color:var(--text);">No master bus processing</strong> (no limiter or heavy compression on the stereo out)</span>
         </div>
         <div class="booking-guideline">
           <span class="guideline-num">—</span>
@@ -1924,7 +1938,7 @@
         </div>
       </div>
       <div style="margin-top:8px;padding:20px 24px;border:1px solid var(--border);background:var(--surface);">
-        <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">The form on the right will ask for your reference track links, vibe, and project notes. If you're booking a mix, BPM and key fields will also appear. Fill in what you know — it doesn't need to be perfect.</p>
+        <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">The form asks for reference tracks, vibe, and project notes. Booking a mix adds BPM and key. Fill in what you know, it doesn't need to be perfect.</p>
       </div>
     </div>
 
@@ -2702,6 +2716,21 @@
     if(wasPlaying) startRowPlay(newIdx, idxA);
   }
 
+  // Apply a position (0..1) to an audio element, waiting for metadata if needed
+  function seekRowAudio(a, frac, done) {
+    if(!a) { if(done) done(); return; }
+    frac = Math.max(0, Math.min(0.999, frac));
+    const apply = () => {
+      if(isFinite(a.duration) && a.duration > 0) {
+        try { a.currentTime = frac * a.duration; } catch(e){}
+      }
+      if(done) done();
+    };
+    if(isFinite(a.duration) && a.duration > 0) { apply(); return; }
+    a.addEventListener('loadedmetadata', apply, {once:true});
+    if(a.readyState === 0) { try { a.load(); } catch(e){} }
+  }
+
   function setRowMode(btn, mode, idxA, idxB) {
     const row = btn.closest('.ba-row');
     row.querySelectorAll('.ba-pill').forEach(b => b.classList.remove('active'));
@@ -2709,50 +2738,34 @@
     const activeIdx = parseInt(row.dataset.activeIdx || idxA);
     if(!rowState[activeIdx]) rowState[activeIdx] = {mode:'before', playing:false, progress:0};
     const wasPlaying = rowState[activeIdx].playing;
-    const savedProgress = rowState[activeIdx].progress;
 
-    // Pause old audio without resetting state
+    // Read the exact position off the version that's loaded right now,
+    // falling back to the stored percentage if its duration isn't known.
     const oldAudio = document.getElementById('audio-' + activeIdx + '-' + rowState[activeIdx].mode);
-    if(oldAudio) { oldAudio.pause(); clearInterval(rowState[activeIdx].interval); }
+    let frac = (rowState[activeIdx].progress || 0) / 100;
+    if(oldAudio && isFinite(oldAudio.duration) && oldAudio.duration > 0) {
+      frac = oldAudio.currentTime / oldAudio.duration;
+    }
+    if(oldAudio) { oldAudio.pause(); oldAudio.ontimeupdate = null; clearInterval(rowState[activeIdx].interval); }
     rowState[activeIdx].playing = false;
-
     rowState[activeIdx].mode = mode;
-    // Keep progress — do NOT reset to 0
+    rowState[activeIdx].progress = frac * 100;
     loadWaveform(activeIdx, mode);
 
-    if(wasPlaying) {
-      const newAudio = document.getElementById('audio-' + activeIdx + '-' + mode);
-      if(newAudio && newAudio.src && newAudio.src !== window.location.href) {
-        // Start playback, then seek to saved position
+    // Seek the new version to the same spot BEFORE starting playback, so it can
+    // never play from 0 while waiting for metadata to load.
+    const newAudio = document.getElementById('audio-' + activeIdx + '-' + mode);
+    seekRowAudio(newAudio, frac, () => {
+      if(wasPlaying) {
         rowState[activeIdx].playing = false;
         startRowPlay(activeIdx, idxA);
-        if(savedProgress > 0) {
-          const doSeek = () => {
-            if(newAudio.duration) {
-              newAudio.currentTime = (savedProgress / 100) * newAudio.duration;
-            }
-          };
-          if(newAudio.duration) {
-            // Duration already known — seek immediately
-            setTimeout(doSeek, 30);
-          } else {
-            // Wait for metadata
-            newAudio.addEventListener('loadedmetadata', () => setTimeout(doSeek, 30), {once:true});
-            // Also retry on first timeupdate in case loadedmetadata already fired
-            const retrySeek = () => {
-              if(newAudio.duration && newAudio.currentTime < 1) doSeek();
-              newAudio.removeEventListener('timeupdate', retrySeek);
-            };
-            newAudio.addEventListener('timeupdate', retrySeek);
-          }
-        }
-      } else {
-        startRowPlay(activeIdx, idxA);
       }
-    } else {
-      drawWaveform(idxA, savedProgress);
+    });
+
+    if(!wasPlaying) {
+      drawWaveform(idxA, rowState[activeIdx].progress);
       const prog = document.getElementById('rowprog-' + idxA);
-      if(prog) prog.style.width = savedProgress + '%';
+      if(prog) prog.style.width = rowState[activeIdx].progress + '%';
     }
   }
 
@@ -2912,28 +2925,16 @@
 
     const state = rowState[activeIdx] || (rowState[activeIdx] = {mode:'before', playing:false, progress:0});
 
-    // Seek
+    // Seek first, then start playback once the position has actually landed
     state.progress = frac * 100;
     const audio = document.getElementById('audio-' + activeIdx + '-' + (state.mode||'before'));
-    if(audio){
-      if(isFinite(audio.duration) && audio.duration){
-        audio.currentTime = frac * audio.duration;
-      } else {
-        audio.addEventListener('loadedmetadata', function onm(){
-          if(isFinite(audio.duration) && audio.duration) audio.currentTime = frac * audio.duration;
-          audio.removeEventListener('loadedmetadata', onm);
-        }, {once:true});
-        try { audio.load(); } catch(e){}
-      }
-    }
     drawWaveform(displayIdxA, frac * 100);
     const prog = document.getElementById('rowprog-' + displayIdxA);
     if(prog) prog.style.width = (frac * 100) + '%';
 
-    // Start playback if not already playing
-    if(!state.playing) {
-      startRowPlay(activeIdx, displayIdxA);
-    }
+    seekRowAudio(audio, frac, () => {
+      if(!state.playing) startRowPlay(activeIdx, displayIdxA);
+    });
   }
 
   window.addEventListener('DOMContentLoaded', () => {
