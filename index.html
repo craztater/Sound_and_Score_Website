@@ -1551,9 +1551,9 @@
     <div class="ba-row-genre">EDM<span class="ba-spec">Specialty</span></div>
     <div class="ba-row-tracks">
       <button class="ba-track-btn active" onclick="selectTrack(this,8,9,'a')" data-track="a">Example 1</button>
-      <button class="ba-track-btn" onclick="selectTrack(this,8,9,'b')" data-track="b">Example 2</button>
+      <button class="ba-track-btn hintpulse" onclick="selectTrack(this,8,9,'b')" data-track="b">Example 2</button>
     </div>
-    <div class="ba-row-toggle">
+    <div class="ba-row-toggle hintpulse">
       <button class="ba-pill before active" onclick="setRowMode(this,'before',8,9)">Before</button>
       <button class="ba-pill after" onclick="setRowMode(this,'after',8,9)">After</button>
     </div>
@@ -1572,9 +1572,9 @@
     <div class="ba-row-genre">Indie / Bedroom<span class="ba-spec">Specialty</span></div>
     <div class="ba-row-tracks">
       <button class="ba-track-btn active" onclick="selectTrack(this,0,1,'a')" data-track="a">Example 1</button>
-      <button class="ba-track-btn hintpulse" onclick="selectTrack(this,0,1,'b')" data-track="b">Example 2</button>
+      <button class="ba-track-btn" onclick="selectTrack(this,0,1,'b')" data-track="b">Example 2</button>
     </div>
-    <div class="ba-row-toggle hintpulse">
+    <div class="ba-row-toggle">
       <button class="ba-pill before active" onclick="setRowMode(this,'before',0,1)">Before</button>
       <button class="ba-pill after" onclick="setRowMode(this,'after',0,1)">After</button>
     </div>
@@ -2716,28 +2716,31 @@
     if(wasPlaying) startRowPlay(newIdx, idxA);
   }
 
-  // Apply a position to an audio element, waiting for metadata if needed.
+  // Apply a position to an audio element.
   // opts: {time: seconds} for same-song A/B, or {frac: 0..1} for waveform clicks.
+  // Polls until the browser actually reports a duration instead of trusting a
+  // single event to fire. Metadata requests get queued behind other downloads,
+  // so any fixed delay is a race we lose on whichever row loads last.
   function seekRowAudio(a, opts, done) {
     if(!a) { if(done) done(); return; }
     let finished = false;
     const finish = () => { if(finished) return; finished = true; if(done) done(); };
-    const apply = () => {
+    let tries = 0;
+    const tryApply = () => {
+      if(finished) return;
       if(isFinite(a.duration) && a.duration > 0) {
         let t = (opts.time != null) ? opts.time : (opts.frac || 0) * a.duration;
         t = Math.max(0, Math.min(t, a.duration - 0.05));
         try { a.currentTime = t; } catch(e){}
+        finish();
+        return;
       }
-      finish();
+      if(tries === 0 && a.readyState === 0) { try { a.load(); } catch(e){} }
+      tries++;
+      if(tries < 120) setTimeout(tryApply, 50);  // keep trying for ~6s
+      else finish();                              // never leave the button dead
     };
-    if(isFinite(a.duration) && a.duration > 0) { apply(); return; }
-    // Listen on several events: loadedmetadata may have already fired for a file
-    // whose duration resolves late (common with VBR MP3s).
-    ['loadedmetadata','durationchange','canplay','loadeddata'].forEach(ev =>
-      a.addEventListener(ev, apply, {once:true}));
-    if(a.readyState === 0) { try { a.load(); } catch(e){} }
-    // Safety net: never leave playback dead if duration never resolves.
-    setTimeout(finish, 2500);
+    tryApply();
   }
 
   function setRowMode(btn, mode, idxA, idxB) {
@@ -2774,10 +2777,11 @@
     clearInterval(rowState[activeIdx].interval);
     rowState[activeIdx].playing = false;
     rowState[activeIdx].mode = mode;
-    loadWaveform(activeIdx, mode);
 
     // Seek the new version to the same spot BEFORE starting playback, so it can
-    // never play from 0 while waiting for metadata to load.
+    // never play from 0 while waiting for metadata to load. The waveform fetch is
+    // deferred until after, because it re-downloads the whole file and would
+    // otherwise queue ahead of this element's metadata request.
     const newAudio = document.getElementById('audio-' + activeIdx + '-' + mode);
     seekRowAudio(newAudio, {time: seekTime}, () => {
       // Recompute progress against the new file's own length
@@ -2791,6 +2795,7 @@
         rowState[activeIdx].playing = false;
         startRowPlay(activeIdx, idxA);
       }
+      loadWaveform(activeIdx, mode);
     });
   }
 
