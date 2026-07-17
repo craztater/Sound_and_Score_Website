@@ -1673,7 +1673,7 @@
       <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </button>
   </div>
-  <div class="ba-row ba-row-podcast reveal">
+  <div class="ba-row ba-row-podcast reveal" data-idxa="12" data-idxb="12">
     <div class="ba-row-genre">Podcast &amp; Voiceover <span class="ba-row-badge">New</span></div>
     <div class="ba-row-tracks" style="visibility:hidden;">
       <button class="ba-track-btn active">—</button>
@@ -2739,14 +2739,26 @@
     if(!rowState[activeIdx]) rowState[activeIdx] = {mode:'before', playing:false, progress:0};
     const wasPlaying = rowState[activeIdx].playing;
 
-    // Read the exact position off the version that's loaded right now,
-    // falling back to the stored percentage if its duration isn't known.
-    const oldAudio = document.getElementById('audio-' + activeIdx + '-' + rowState[activeIdx].mode);
+    // Find whichever version of this row is ACTUALLY playing right now, rather
+    // than trusting rowState.mode (which can drift out of sync and then reports
+    // position 0 from a paused element, restarting the track).
+    let oldAudio = null;
+    ['before','after'].forEach(m => {
+      const el = document.getElementById('audio-' + activeIdx + '-' + m);
+      if(el && !el.paused && el.currentTime > 0) oldAudio = el;
+    });
+    if(!oldAudio) oldAudio = document.getElementById('audio-' + activeIdx + '-' + rowState[activeIdx].mode);
+
     let frac = (rowState[activeIdx].progress || 0) / 100;
-    if(oldAudio && isFinite(oldAudio.duration) && oldAudio.duration > 0) {
+    if(oldAudio && isFinite(oldAudio.duration) && oldAudio.duration > 0 && oldAudio.currentTime > 0) {
       frac = oldAudio.currentTime / oldAudio.duration;
     }
-    if(oldAudio) { oldAudio.pause(); oldAudio.ontimeupdate = null; clearInterval(rowState[activeIdx].interval); }
+    // Pause both versions so neither can keep playing underneath
+    ['before','after'].forEach(m => {
+      const el = document.getElementById('audio-' + activeIdx + '-' + m);
+      if(el) { el.pause(); el.ontimeupdate = null; }
+    });
+    clearInterval(rowState[activeIdx].interval);
     rowState[activeIdx].playing = false;
     rowState[activeIdx].mode = mode;
     rowState[activeIdx].progress = frac * 100;
@@ -2859,7 +2871,12 @@
     const barW = 2, gap = 1;
     const totalBars = Math.floor(W / (barW + gap));
     const frac = (progress||0) / 100;
-    const peaks = waveformCache[idx];
+    // Look up this row's waveform for whichever version is selected,
+    // falling back to any cached shape for the row.
+    const dwRow = document.querySelector('.ba-row[data-idxa="' + idx + '"]');
+    const dwIdx = dwRow ? parseInt(dwRow.dataset.activeIdx || idx) : idx;
+    const dwMode = (rowState[dwIdx] && rowState[dwIdx].mode) || 'before';
+    const peaks = waveformCache[dwIdx + '-' + dwMode] || waveformCache[idx + '-before'] || waveformCache[idx];
     for(let i = 0; i < totalBars; i++) {
       const x = i * (barW + gap);
       const played = i / totalBars < frac;
@@ -2887,7 +2904,8 @@
     if(!audio || !audio.src || audio.src === window.location.href) {
       drawWaveform(idx, 0); return;
     }
-    if(waveformCache[idx]) { drawWaveform(idx, 0); return; }
+    const cacheKey = idx + '-' + (mode||'before');
+    if(waveformCache[cacheKey]) { drawWaveform(idx, 0); return; }
     try {
       const resp = await fetch(audio.src);
       const buf = await resp.arrayBuffer();
@@ -2904,7 +2922,7 @@
       }
       const maxP = Math.max.apply(null, peaks);
       if(maxP > 0) for(let i = 0; i < N; i++) peaks[i] /= maxP;
-      waveformCache[idx] = peaks;
+      waveformCache[cacheKey] = peaks;
       drawWaveform(idx, 0);
       await actx.close();
     } catch(e) { drawWaveform(idx, 0); }
