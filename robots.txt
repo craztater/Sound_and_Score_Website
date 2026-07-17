@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tab-sound-and-score.onrender.com/sitemap.xml
+Sitemap: https://tabsoundandscore.com/sitemap.xml
