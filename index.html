@@ -1850,9 +1850,9 @@
     <!-- Card 2: Brand / Sync -->
     <div class="price-card reveal reveal-delay-1">
       <div class="price-name">Brand / Sync</div>
-      <p class="price-desc">Commercial spots, brand identity, and sync licensing.</p>
+      <p class="price-desc">Commercial spots, brand identity, and sync licensing. Bring me your budget and we'll work from there.</p>
       <div class="price-amount"><sup>$</sup>300</div>
-      <div class="price-unit">per track · flat rate</div>
+      <div class="price-unit">per demo · industry standard</div>
       <ul class="price-features">
         <li>Commercial &amp; advertising use</li>
         <li>Brand identity / logo themes</li>
@@ -2008,7 +2008,7 @@
               <option value="podcast">Podcast &amp; Dialogue — $100/episode</option>
               <option value="vgm">Composition — Video Game OST ($100 / 3min track)</option>
               <option value="film">Composition — Film / Score (email for quote)</option>
-              <option value="brand">Composition — Brand / Sync ($300/track)</option>
+              <option value="brand">Composition — Brand / Sync (from $300/demo)</option>
             </select>
           </div>
 
@@ -2090,7 +2090,7 @@
 
           <!-- Film note -->
           <div class="form-block" id="block-film-note" style="display:none;padding:16px 20px;border:1px solid var(--gold-dim);background:var(--gold-glow);margin-bottom:8px;">
-            <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">Film scoring is complex and every project is different. Once you submit, I'll reply to discuss scope, timeline, and a custom quote. Alternatively, email me directly at <a href="mailto:tabsoundandscore@gmail.com" style="color:var(--gold);">tabsoundandscore@gmail.com</a>.</p>
+            <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">Film scoring is complex and every project is different. Once you submit, I'll reply to discuss scope, timeline, and a custom quote. Alternatively, email me directly at <a href="mailto:taylor@tabsoundandscore.com" style="color:var(--gold);">taylor@tabsoundandscore.com</a>.</p>
           </div>
 
           <button type="submit" class="form-submit" id="form-submit-btn" style="display:none;">Send Project Brief →</button>
@@ -2187,7 +2187,7 @@
   <div class="footer-socials">
     <a href="https://www.instagram.com/taylor.bailey.music/" target="_blank" rel="noopener">Instagram</a>
     <a href="https://soundcloud.com/ash3rbmusic" target="_blank" rel="noopener">SoundCloud</a>
-    <a href="mailto:tabsoundandscore@gmail.com" style="opacity:1;">Email</a>
+    <a href="mailto:taylor@tabsoundandscore.com" style="opacity:1;">Email</a>
   </div>
 </footer>
 
@@ -2751,17 +2751,6 @@
       if(el && el.readyState === 0) { try { el.load(); } catch(e){} }
     });
   }
-  function unlockAudio(a) {
-    if(!a || !a.paused || a.dataset.unlocked) return;
-    a.dataset.unlocked = '1';
-    try {
-      a.muted = true;
-      const p = a.play();
-      const done = () => { try { a.pause(); } catch(e){} a.muted = false; };
-      if(p && p.then) p.then(done).catch(() => { a.muted = false; });
-      else done();
-    } catch(e) { a.muted = false; }
-  }
 
   // Apply a position to an audio element.
   // opts: {time: seconds} for same-song A/B, or {frac: 0..1} for waveform clicks.
@@ -3015,14 +3004,19 @@
     const prog = document.getElementById('rowprog-' + displayIdxA);
     if(prog) prog.style.width = (frac * 100) + '%';
 
-    // Claim the browser's autoplay allowance right now, while we're still inside
-    // the click. The seek below is async, and by the time it finishes the gesture
-    // has expired, which is what blocks playback on a first visit.
-    if(!state.playing) unlockAudio(audio);
-
-    seekRowAudio(audio, {frac: frac}, () => {
+    // If the duration is already known, seek first so playback begins exactly
+    // where they clicked. If it isn't (cold visit), start playback immediately
+    // inside the click, because browsers only allow audio to start during a real
+    // user gesture, and let the position land as soon as the duration arrives.
+    const warm = audio && isFinite(audio.duration) && audio.duration > 0;
+    if(warm) {
+      seekRowAudio(audio, {frac: frac}, () => {
+        if(!state.playing) startRowPlay(activeIdx, displayIdxA);
+      });
+    } else {
       if(!state.playing) startRowPlay(activeIdx, displayIdxA);
-    });
+      seekRowAudio(audio, {frac: frac});
+    }
   }
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -3149,7 +3143,7 @@
     } catch(err){
       if(btn){ btn.disabled = false; btn.textContent = orig; }
       if(errorEl){
-        errorEl.textContent = "Couldn't send that — please email tabsoundandscore@gmail.com directly.";
+        errorEl.textContent = "Couldn't send that — please email taylor@tabsoundandscore.com directly.";
         errorEl.style.display = 'block';
       }
     }
