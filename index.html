@@ -498,11 +498,12 @@
   }
   .ba-progress-fill {
     position: absolute;
-    top: 50%;
+    top: 0;
+    bottom: 0;
     left: 0;
-    height: 2px;
-    transform: translateY(-50%);
-    background: rgba(181,53,53,0.6);
+    height: auto;
+    background: transparent;
+    border-right: 2px solid rgba(181,53,53,0.9);
     width: 0%;
     z-index: 2;
     pointer-events: none;
@@ -2720,18 +2721,20 @@
   // never saturate the browser's connection pool and starve the <audio> elements'
   // own metadata requests, which is what breaks playback on a cold first visit.
   const wfQueue = [];
-  let wfBusy = false, wfPaused = false;
+  let wfActive = 0, wfPaused = false;
+  const WF_MAX = 2;   // two at a time: fast, but still leaves connections free
   function enqueueWaveform(idx, mode) {
     wfQueue.push([idx, mode]);
     runWaveformQueue();
   }
-  async function runWaveformQueue() {
-    if(wfBusy || wfPaused || !wfQueue.length) return;
-    wfBusy = true;
-    const job = wfQueue.shift();
-    try { await loadWaveform(job[0], job[1]); } catch(e){}
-    wfBusy = false;
-    setTimeout(runWaveformQueue, 150);
+  function runWaveformQueue() {
+    while(!wfPaused && wfActive < WF_MAX && wfQueue.length) {
+      const job = wfQueue.shift();
+      wfActive++;
+      Promise.resolve(loadWaveform(job[0], job[1]))
+        .catch(() => {})
+        .then(() => { wfActive--; setTimeout(runWaveformQueue, 40); });
+    }
   }
   // Yield the network to the user the moment they touch a player.
   function yieldWaveforms(ms) {
@@ -2764,17 +2767,28 @@
     let tries = 0;
     const tryApply = () => {
       if(finished) return;
-      if(isFinite(a.duration) && a.duration > 0) {
-        let t = (opts.time != null) ? opts.time : (opts.frac || 0) * a.duration;
-        t = Math.max(0, Math.min(t, a.duration - 0.05));
-        try { a.currentTime = t; } catch(e){}
-        finish();
-        return;
+      const dur = a.duration;
+      const durKnown = isFinite(dur) && dur > 0;
+      // An element is seekable before its duration is known. Some mp3s report a
+      // duration of Infinity or NaN indefinitely (VBR files without a proper
+      // header), so requiring a duration means those tracks never get seeked.
+      const seekable = (a.seekable && a.seekable.length > 0) || a.readyState >= 1;
+      let target = null;
+      if(opts.time != null && seekable) {
+        target = Math.max(0, durKnown ? Math.min(opts.time, dur - 0.05) : opts.time);
+      } else if(opts.frac != null && durKnown) {
+        target = Math.max(0, Math.min((opts.frac || 0) * dur, dur - 0.05));
+      }
+      if(target !== null) {
+        try { a.currentTime = target; } catch(e){}
+        // Confirm the browser accepted it. A silently ignored seek is exactly
+        // what makes a track restart from zero.
+        if(Math.abs(a.currentTime - target) < 1 || tries >= 100) { finish(); return; }
       }
       if(tries === 0 && a.readyState === 0) { try { a.load(); } catch(e){} }
       tries++;
-      if(tries < 120) setTimeout(tryApply, 50);  // keep trying for ~6s
-      else finish();                              // never leave the button dead
+      if(tries < 120) setTimeout(tryApply, 50);
+      else finish();
     };
     tryApply();
   }
