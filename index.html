@@ -2716,6 +2716,53 @@
     if(wasPlaying) startRowPlay(newIdx, idxA);
   }
 
+  // Waveform drawing downloads the ENTIRE mp3. Run these one at a time so they
+  // never saturate the browser's connection pool and starve the <audio> elements'
+  // own metadata requests, which is what breaks playback on a cold first visit.
+  const wfQueue = [];
+  let wfBusy = false, wfPaused = false;
+  function enqueueWaveform(idx, mode) {
+    wfQueue.push([idx, mode]);
+    runWaveformQueue();
+  }
+  async function runWaveformQueue() {
+    if(wfBusy || wfPaused || !wfQueue.length) return;
+    wfBusy = true;
+    const job = wfQueue.shift();
+    try { await loadWaveform(job[0], job[1]); } catch(e){}
+    wfBusy = false;
+    setTimeout(runWaveformQueue, 150);
+  }
+  // Yield the network to the user the moment they touch a player.
+  function yieldWaveforms(ms) {
+    wfPaused = true;
+    clearTimeout(window.__wfResume);
+    window.__wfResume = setTimeout(() => { wfPaused = false; runWaveformQueue(); }, ms || 5000);
+  }
+
+  // Give a row's audio a head start, and claim the browser's user-gesture
+  // allowance silently, so the very first click behaves like every later one.
+  function primeRow(row) {
+    if(!row) return;
+    const idx = parseInt(row.dataset.activeIdx || row.dataset.idxa);
+    if(isNaN(idx)) return;
+    ['before','after'].forEach(m => {
+      const el = document.getElementById('audio-' + idx + '-' + m);
+      if(el && el.readyState === 0) { try { el.load(); } catch(e){} }
+    });
+  }
+  function unlockAudio(a) {
+    if(!a || !a.paused || a.dataset.unlocked) return;
+    a.dataset.unlocked = '1';
+    try {
+      a.muted = true;
+      const p = a.play();
+      const done = () => { try { a.pause(); } catch(e){} a.muted = false; };
+      if(p && p.then) p.then(done).catch(() => { a.muted = false; });
+      else done();
+    } catch(e) { a.muted = false; }
+  }
+
   // Apply a position to an audio element.
   // opts: {time: seconds} for same-song A/B, or {frac: 0..1} for waveform clicks.
   // Polls until the browser actually reports a duration instead of trusting a
@@ -2795,7 +2842,7 @@
         rowState[activeIdx].playing = false;
         startRowPlay(activeIdx, idxA);
       }
-      loadWaveform(activeIdx, mode);
+      enqueueWaveform(activeIdx, mode);
     });
   }
 
@@ -2968,6 +3015,11 @@
     const prog = document.getElementById('rowprog-' + displayIdxA);
     if(prog) prog.style.width = (frac * 100) + '%';
 
+    // Claim the browser's autoplay allowance right now, while we're still inside
+    // the click. The seek below is async, and by the time it finishes the gesture
+    // has expired, which is what blocks playback on a first visit.
+    if(!state.playing) unlockAudio(audio);
+
     seekRowAudio(audio, {frac: frac}, () => {
       if(!state.playing) startRowPlay(activeIdx, displayIdxA);
     });
@@ -2988,14 +3040,20 @@
         entries.forEach(en => {
           if(en.isIntersecting){
             const idx = parseInt(en.target.dataset.idxa);
-            if(!isNaN(idx)) loadWaveform(idx, 'before');
+            if(!isNaN(idx)) enqueueWaveform(idx, 'before');
             obs.unobserve(en.target);
           }
         });
       }, { rootMargin: '250px' });
       document.querySelectorAll('.ba-row[data-idxa]').forEach(r => wobs.observe(r));
+
+      // pointerdown fires before click, so this gives the audio a head start and
+      // pushes the waveform downloads out of the way before playback is requested.
+      document.querySelectorAll('.ba-row[data-idxa]').forEach(r => {
+        r.addEventListener('pointerdown', () => { yieldWaveforms(6000); primeRow(r); }, {passive:true});
+      });
     } else {
-      for(let i = 0; i <= 12; i++) loadWaveform(i, 'before');
+      for(let i = 0; i <= 12; i++) enqueueWaveform(i, 'before');
     }
   });
   // ── END WAVEFORM RENDERER ──────────────────────────────────────
