@@ -1085,6 +1085,10 @@
       btn.classList.add('playing'); btn.innerHTML=pauseIcon();
       drawMini(canvas, null, 0);
       audio.play();
+      // Let playback grab the connection first, then analyze for the waveform,
+      // so the fetch never delays the audio the user just asked for.
+      await new Promise(r => setTimeout(r, 500));
+      if(activeAudio !== audio) return;   // user moved on; skip stale work
       const peaks=await loadPeaks(audio);
       activePeaks=peaks;
       drawMini(canvas, peaks, audio.duration?(audio.currentTime/audio.duration*100):0);
@@ -1233,7 +1237,10 @@
     audio.addEventListener('loadedmetadata', () => {
       timeEl.textContent = '0:00 / ' + fmt(audio.duration);
       draw(0);
-      loadWaveform();
+      // Defer waveform analysis until the player is actually ready, so its
+      // fetch never competes with the audio element loading the same file.
+      if(audio.readyState >= 3) setTimeout(loadWaveform, 400);
+      else audio.addEventListener('canplaythrough', () => setTimeout(loadWaveform, 400), {once:true});
     });
 
     audio.addEventListener('timeupdate', () => {
@@ -1356,7 +1363,9 @@
 
     audio.addEventListener('loadedmetadata', () => {
       timeEl.textContent = '0:00 / ' + fmt(audio.duration);
-      draw(0); loadWaveform();
+      draw(0);
+      if(audio.readyState >= 3) setTimeout(loadWaveform, 400);
+      else audio.addEventListener('canplaythrough', () => setTimeout(loadWaveform, 400), {once:true});
     });
     audio.addEventListener('timeupdate', () => {
       progress = audio.duration ? (audio.currentTime / audio.duration * 100) : 0;

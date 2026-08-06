@@ -3055,6 +3055,24 @@
       }, { rootMargin: '250px' });
       document.querySelectorAll('.ba-row[data-idxa]').forEach(r => wobs.observe(r));
 
+      // Give every row's "before" audio a metadata head start shortly after load,
+      // spaced out so they don't all hit the network at once. This means the
+      // <audio> element is ready to play on the very first click, with no refresh.
+      const beforeEls = [];
+      document.querySelectorAll('.ba-row[data-idxa]').forEach(r => {
+        const idx = parseInt(r.dataset.idxa);
+        const el = document.getElementById('audio-' + idx + '-before');
+        if(el) beforeEls.push(el);
+      });
+      let bi = 0;
+      const primeNext = () => {
+        if(bi >= beforeEls.length) return;
+        const el = beforeEls[bi++];
+        if(el && el.readyState === 0) { try { el.load(); } catch(e){} }
+        setTimeout(primeNext, 250);
+      };
+      setTimeout(primeNext, 800);
+
       // pointerdown fires before click, so this gives the audio a head start and
       // pushes the waveform downloads out of the way before playback is requested.
       document.querySelectorAll('.ba-row[data-idxa]').forEach(r => {
