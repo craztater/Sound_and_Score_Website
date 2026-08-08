@@ -2975,17 +2975,6 @@
     const cacheKey = idx + '-' + (mode||'before');
     if(waveformCache[cacheKey]) { drawWaveform(idx, 0); return; }
 
-    // Never run the analysis download while ANY track is playing or was just
-    // touched. This is the fetch that collided with playback on a cold click.
-    // Wait until the page is genuinely idle, then do it.
-    const anyPlaying = () => Array.from(document.querySelectorAll('audio'))
-      .some(a => !a.paused && !a.ended);
-    let waited = 0;
-    while((anyPlaying() || wfPaused) && waited < 60000) {
-      await new Promise(r => setTimeout(r, 500));
-      waited += 500;
-    }
-
     try {
       const resp = await fetch(audio.src);
       const buf = await resp.arrayBuffer();
@@ -3023,26 +3012,26 @@
 
     const state = rowState[activeIdx] || (rowState[activeIdx] = {mode:'before', playing:false, progress:0});
 
-    // Seek first, then start playback once the position has actually landed
+    // Seek to the clicked position, then play from there.
     state.progress = frac * 100;
     const audio = document.getElementById('audio-' + activeIdx + '-' + (state.mode||'before'));
     drawWaveform(displayIdxA, frac * 100);
     const prog = document.getElementById('rowprog-' + displayIdxA);
     if(prog) prog.style.width = (frac * 100) + '%';
 
-    // If the duration is already known, seek first so playback begins exactly
-    // where they clicked. If it isn't (cold visit), start playback immediately
-    // inside the click, because browsers only allow audio to start during a real
-    // user gesture, and let the position land as soon as the duration arrives.
-    const warm = audio && isFinite(audio.duration) && audio.duration > 0;
-    if(warm) {
-      seekRowAudio(audio, {frac: frac}, () => {
-        if(!state.playing) startRowPlay(activeIdx, displayIdxA);
-      });
-    } else {
-      if(!state.playing) startRowPlay(activeIdx, displayIdxA);
-      seekRowAudio(audio, {frac: frac});
+    if(audio) {
+      const doSeek = () => {
+        if(isFinite(audio.duration) && audio.duration > 0) {
+          audio.currentTime = frac * audio.duration;
+        }
+      };
+      if(isFinite(audio.duration) && audio.duration > 0) {
+        doSeek();
+      } else {
+        audio.addEventListener('loadedmetadata', doSeek, {once:true});
+      }
     }
+    if(!state.playing) startRowPlay(activeIdx, displayIdxA);
   }
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -3066,24 +3055,6 @@
         });
       }, { rootMargin: '250px' });
       document.querySelectorAll('.ba-row[data-idxa]').forEach(r => wobs.observe(r));
-
-      // Give every row's "before" audio a metadata head start shortly after load,
-      // spaced out so they don't all hit the network at once. This means the
-      // <audio> element is ready to play on the very first click, with no refresh.
-      const beforeEls = [];
-      document.querySelectorAll('.ba-row[data-idxa]').forEach(r => {
-        const idx = parseInt(r.dataset.idxa);
-        const el = document.getElementById('audio-' + idx + '-before');
-        if(el) beforeEls.push(el);
-      });
-      let bi = 0;
-      const primeNext = () => {
-        if(bi >= beforeEls.length) return;
-        const el = beforeEls[bi++];
-        if(el && el.readyState === 0) { try { el.load(); } catch(e){} }
-        setTimeout(primeNext, 250);
-      };
-      setTimeout(primeNext, 800);
 
       // pointerdown fires before click, so this gives the audio a head start and
       // pushes the waveform downloads out of the way before playback is requested.
@@ -3129,32 +3100,32 @@
      Put audio files in an /audio/ folder next to index.html
      Example: src="audio/hiphop-before.mp3"
      ═══════════════════════════════════════════════════════ -->
-<audio id="audio-0-before" src="audio/Mixing/DAKOTA_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-0-after" src="audio/Mixing/DAKOTA_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-1-before" src="audio/Mixing/CANT_STAND_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-1-after" src="audio/Mixing/CANT_STAND_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-2-before" src="audio/Mixing/OBSESSED_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-2-after" src="audio/Mixing/OBSESSED_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-3-before" src="audio/Mixing/GET_GONE_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-3-after" src="audio/Mixing/GET_GONE_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-4-before" src="audio/Mixing/TOPPS_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-4-after" src="audio/Mixing/TOPPS_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-5-before" src="audio/Mixing/INHERITANCE_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-5-after" src="audio/Mixing/INHERITANCE_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-6-before" src="audio/Mixing/WELCOME_HOME_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-6-after" src="audio/Mixing/WELCOME_HOME_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-7-before" src="audio/Mixing/DUKKA_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-7-after" src="audio/Mixing/DUKKA_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-8-before" src="audio/Mixing/RIDE_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-8-after" src="audio/Mixing/RIDE_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-9-before" src="audio/Mixing/ALL_FOR_U_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-9-after" src="audio/Mixing/ALL_FOR_U_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-10-before" src="audio/Mixing/DEGLOVED_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-10-after" src="audio/Mixing/DEGLOVED_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-11-before" src="audio/Mixing/SUMIMASEN_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-11-after" src="audio/Mixing/SUMIMASEN_AFTER.mp3" preload="auto"></audio>
-<audio id="audio-12-before" src="audio/Mixing/EARTH_BEFORE.mp3" preload="auto"></audio>
-<audio id="audio-12-after" src="audio/Mixing/EARTH_AFTER.mp3" preload="auto"></audio>
+<audio id="audio-0-before" src="audio/Mixing/DAKOTA_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-0-after" src="audio/Mixing/DAKOTA_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-1-before" src="audio/Mixing/CANT_STAND_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-1-after" src="audio/Mixing/CANT_STAND_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-2-before" src="audio/Mixing/OBSESSED_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-2-after" src="audio/Mixing/OBSESSED_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-3-before" src="audio/Mixing/GET_GONE_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-3-after" src="audio/Mixing/GET_GONE_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-4-before" src="audio/Mixing/TOPPS_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-4-after" src="audio/Mixing/TOPPS_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-5-before" src="audio/Mixing/INHERITANCE_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-5-after" src="audio/Mixing/INHERITANCE_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-6-before" src="audio/Mixing/WELCOME_HOME_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-6-after" src="audio/Mixing/WELCOME_HOME_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-7-before" src="audio/Mixing/DUKKA_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-7-after" src="audio/Mixing/DUKKA_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-8-before" src="audio/Mixing/RIDE_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-8-after" src="audio/Mixing/RIDE_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-9-before" src="audio/Mixing/ALL_FOR_U_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-9-after" src="audio/Mixing/ALL_FOR_U_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-10-before" src="audio/Mixing/DEGLOVED_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-10-after" src="audio/Mixing/DEGLOVED_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-11-before" src="audio/Mixing/SUMIMASEN_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-11-after" src="audio/Mixing/SUMIMASEN_AFTER.mp3" preload="metadata"></audio>
+<audio id="audio-12-before" src="audio/Mixing/EARTH_BEFORE.mp3" preload="metadata"></audio>
+<audio id="audio-12-after" src="audio/Mixing/EARTH_AFTER.mp3" preload="metadata"></audio>
 <script>
 /* Booking form — background submit via Web3Forms */
 (function(){

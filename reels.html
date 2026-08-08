@@ -689,7 +689,7 @@
       </div>
       <div id="vgm-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
     </div>
-    <audio id="vgm-audio" src="audio/VGM_Reel.mp3" preload="auto"></audio>
+    <audio id="vgm-audio" src="audio/VGM_Reel.mp3" preload="metadata"></audio>
   </div>
 
   <!-- Divider -->
@@ -816,7 +816,7 @@
       <div id="brands-time" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);letter-spacing:0.08em;flex-shrink:0;min-width:84px;text-align:right;">0:00 / 0:00</div>
     </div>
 
-    <audio id="brands-audio" src="audio/Brands_Reel.mp3" preload="auto"></audio>
+    <audio id="brands-audio" src="audio/Brands_Reel.mp3" preload="metadata"></audio>
   </div>
 
   <!-- Divider between audio reel and video rescores -->
@@ -1052,10 +1052,6 @@
     }
 
     async function loadPeaks(audio){
-      let __wp=0;
-      while(Array.from(document.querySelectorAll('audio')).filter(a=>a!==audio).some(a=>!a.paused&&!a.ended) && __wp<60000){
-        await new Promise(r=>setTimeout(r,500)); __wp+=500;
-      }
       try{
         const resp=await fetch(audio.src), buf=await resp.arrayBuffer();
         const actx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1089,10 +1085,6 @@
       btn.classList.add('playing'); btn.innerHTML=pauseIcon();
       drawMini(canvas, null, 0);
       audio.play();
-      // Let playback grab the connection first, then analyze for the waveform,
-      // so the fetch never delays the audio the user just asked for.
-      await new Promise(r => setTimeout(r, 500));
-      if(activeAudio !== audio) return;   // user moved on; skip stale work
       const peaks=await loadPeaks(audio);
       activePeaks=peaks;
       drawMini(canvas, peaks, audio.duration?(audio.currentTime/audio.duration*100):0);
@@ -1216,12 +1208,6 @@
 
     async function loadWaveform() {
       if(peaks) return;
-      // Don't download for the waveform while audio is playing — that request
-      // collides with playback and breaks the first click on a cold load.
-      let __w=0;
-      while(Array.from(document.querySelectorAll('audio')).some(a=>!a.paused&&!a.ended) && __w<60000){
-        await new Promise(r=>setTimeout(r,500)); __w+=500;
-      }
       try {
         const resp = await fetch(audio.src);
         const buf  = await resp.arrayBuffer();
@@ -1247,10 +1233,7 @@
     audio.addEventListener('loadedmetadata', () => {
       timeEl.textContent = '0:00 / ' + fmt(audio.duration);
       draw(0);
-      // Defer waveform analysis until the player is actually ready, so its
-      // fetch never competes with the audio element loading the same file.
-      if(audio.readyState >= 3) setTimeout(loadWaveform, 400);
-      else audio.addEventListener('canplaythrough', () => setTimeout(loadWaveform, 400), {once:true});
+      loadWaveform();
     });
 
     audio.addEventListener('timeupdate', () => {
@@ -1357,12 +1340,6 @@
 
     async function loadWaveform() {
       if(peaks) return;
-      // Don't download for the waveform while audio is playing — that request
-      // collides with playback and breaks the first click on a cold load.
-      let __w=0;
-      while(Array.from(document.querySelectorAll('audio')).some(a=>!a.paused&&!a.ended) && __w<60000){
-        await new Promise(r=>setTimeout(r,500)); __w+=500;
-      }
       try {
         const resp = await fetch(audio.src);
         const buf  = await resp.arrayBuffer();
@@ -1379,9 +1356,7 @@
 
     audio.addEventListener('loadedmetadata', () => {
       timeEl.textContent = '0:00 / ' + fmt(audio.duration);
-      draw(0);
-      if(audio.readyState >= 3) setTimeout(loadWaveform, 400);
-      else audio.addEventListener('canplaythrough', () => setTimeout(loadWaveform, 400), {once:true});
+      draw(0); loadWaveform();
     });
     audio.addEventListener('timeupdate', () => {
       progress = audio.duration ? (audio.currentTime / audio.duration * 100) : 0;
