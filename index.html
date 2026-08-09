@@ -2854,7 +2854,7 @@
     audio.onended = () => { state.progress=0; drawWaveform(displayIdxA,0); stopRowPlay(activeIdx); };
   }
 
-  function startRowPlay(activeIdx, displayIdxA) {
+  function startRowPlay(activeIdx, displayIdxA, startAt) {
     const state = rowState[activeIdx] || (rowState[activeIdx] = {mode:'before', playing:false, progress:0});
     const audio = curAudio(activeIdx);
     if(!audio || !audio.src || audio.src === window.location.href) { demoRowPlay(activeIdx, displayIdxA); return; }
@@ -2866,7 +2866,22 @@
 
     audio.volume = 0.631; /* -4 dB site-wide */
     attachRowHandlers(audio, activeIdx, displayIdxA);
-    audio.play().catch(()=>{});
+
+    // Apply the requested start position, waiting for the file's duration if the
+    // metadata isn't loaded yet, THEN play. Seeking before play (not after)
+    // is what makes it start where you clicked instead of from zero.
+    const go = () => {
+      if(startAt != null && isFinite(audio.duration) && audio.duration > 0) {
+        try { audio.currentTime = Math.max(0, Math.min(startAt, audio.duration - 0.05)); } catch(e){}
+      }
+      audio.play().catch(()=>{});
+    };
+    if(startAt == null || (isFinite(audio.duration) && audio.duration > 0)) {
+      go();
+    } else {
+      audio.addEventListener('loadedmetadata', go, {once:true});
+      try { audio.load(); } catch(e){}
+    }
   }
 
   function demoRowPlay(activeIdx, displayIdxA) {
@@ -2932,14 +2947,18 @@
       drawWaveform(idxA, state.progress || 0);
       return;
     }
-    // Seek the newly-selected version to the same second, then resume if we were playing.
-    newAudio.volume = 0.631;
-    const applyAndPlay = () => {
-      try { newAudio.currentTime = atTime; } catch(e){}
-      if(wasPlaying){ attachRowHandlers(newAudio, activeIdx, idxA); newAudio.play().catch(()=>{}); }
-    };
-    if(isFinite(newAudio.duration) && newAudio.duration > 0) applyAndPlay();
-    else { newAudio.addEventListener('loadedmetadata', applyAndPlay, {once:true}); try{ newAudio.load(); }catch(e){} }
+    if(wasPlaying) {
+      // Resume the newly-selected version at the exact second we left off.
+      state.playing = false;
+      startRowPlay(activeIdx, idxA, atTime);
+    } else {
+      // Paused: just remember the position on the new element so a later play
+      // (or a play/pause) can pick it up, and redraw.
+      if(isFinite(newAudio.duration) && newAudio.duration > 0) {
+        try { newAudio.currentTime = atTime; } catch(e){}
+      }
+      drawWaveform(idxA, state.progress || 0);
+    }
   }
 
   function scrubRow(e, idxA) {
@@ -2959,12 +2978,30 @@
     const prog = document.getElementById('rowprog-' + displayIdxA);
     if(prog) prog.style.width = (frac * 100) + '%';
 
-    if(audio){
-      const doSeek = () => { if(isFinite(audio.duration) && audio.duration>0){ try{ audio.currentTime = frac * audio.duration; }catch(e){} } };
-      if(isFinite(audio.duration) && audio.duration>0) doSeek();
-      else { audio.addEventListener('loadedmetadata', doSeek, {once:true}); try{ audio.load(); }catch(e){} }
+    if(state.playing && audio) {
+      // Already playing: seek the live element to the clicked spot.
+      if(isFinite(audio.duration) && audio.duration > 0) {
+        try { audio.currentTime = frac * audio.duration; } catch(e){}
+      }
+    } else {
+      // Not playing: start playback AT the clicked position. startRowPlay applies
+      // the seek before calling play(), so it begins exactly where you clicked.
+      const dur = (audio && isFinite(audio.duration) && audio.duration > 0) ? audio.duration : null;
+      const startAt = dur ? frac * dur : null;
+      if(startAt != null) {
+        startRowPlay(activeIdx, displayIdxA, startAt);
+      } else if(audio) {
+        // Duration unknown: load it, then start at the right spot once known.
+        const begin = () => {
+          const t = (isFinite(audio.duration) && audio.duration > 0) ? frac * audio.duration : 0;
+          startRowPlay(activeIdx, displayIdxA, t);
+        };
+        audio.addEventListener('loadedmetadata', begin, {once:true});
+        try { audio.load(); } catch(e){}
+      } else {
+        startRowPlay(activeIdx, displayIdxA);
+      }
     }
-    if(!state.playing) startRowPlay(activeIdx, displayIdxA);
   }
 
   window.addEventListener('DOMContentLoaded', () => {
