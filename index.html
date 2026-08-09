@@ -2760,6 +2760,67 @@
   // Polls until the browser actually reports a duration instead of trusting a
   // single event to fire. Metadata requests get queued behind other downloads,
   // so any fixed delay is a race we lose on whichever row loads last.
+  // ---- Waveform rendering ----
+  const waveformCache = {};
+
+  function drawWaveform(idx, progress) {
+    const c = document.getElementById('rowwave-' + idx);
+    if(!c) return;
+    const ctx = c.getContext('2d');
+    const rect = c.getBoundingClientRect();
+    const W = Math.max(1, Math.floor(rect.width)), H = Math.max(1, Math.floor(rect.height));
+    if(c.width !== W) c.width = W;
+    if(c.height !== H) c.height = H;
+    ctx.clearRect(0, 0, W, H);
+    const barW = 2, gap = 1;
+    const totalBars = Math.floor(W / (barW + gap));
+    const frac = (progress||0) / 100;
+    const dwRow = document.querySelector('.ba-row[data-idxa="' + idx + '"]');
+    const dwIdx = dwRow ? parseInt(dwRow.dataset.activeIdx || idx) : idx;
+    const dwMode = (rowState[dwIdx] && rowState[dwIdx].mode) || 'before';
+    const peaks = waveformCache[dwIdx + '-' + dwMode] || waveformCache[idx + '-before'] || waveformCache[idx];
+    for(let i = 0; i < totalBars; i++) {
+      const x = i * (barW + gap);
+      const played = i / totalBars < frac;
+      let barH;
+      if(peaks) {
+        const si = Math.floor(i / totalBars * peaks.length);
+        barH = Math.max(2, peaks[si] * H);
+      } else {
+        barH = Math.max(2, (0.2 + 0.6 * Math.abs(Math.sin(i * 0.5))) * H);
+      }
+      const y = (H - barH) / 2;
+      ctx.fillStyle = played ? 'rgba(181,53,53,0.9)' : 'rgba(255,255,255,0.28)';
+      ctx.fillRect(x, y, barW, barH);
+    }
+  }
+
+  async function loadWaveform(idx, mode) {
+    const audio = document.getElementById('audio-' + idx + '-' + (mode||'before'));
+    if(!audio || !audio.src || audio.src === window.location.href) { drawWaveform(idx, 0); return; }
+    const cacheKey = idx + '-' + (mode||'before');
+    if(waveformCache[cacheKey]) { drawWaveform(idx, 0); return; }
+    try {
+      const resp = await fetch(audio.src);
+      const buf = await resp.arrayBuffer();
+      const actx = new (window.AudioContext || window.webkitAudioContext)();
+      const decoded = await actx.decodeAudioData(buf);
+      const raw = decoded.getChannelData(0);
+      const N = 200;
+      const peaks = new Float32Array(N);
+      const block = Math.floor(raw.length / N) || 1;
+      for(let i = 0; i < N; i++) {
+        let mx = 0;
+        for(let j = 0; j < block; j++) { const v=Math.abs(raw[i*block+j]||0); if(v>mx) mx=v; }
+        peaks[i] = mx;
+      }
+      const maxP = Math.max.apply(null, peaks);
+      if(maxP > 0) for(let i = 0; i < N; i++) peaks[i] /= maxP;
+      waveformCache[cacheKey] = peaks;
+      drawWaveform(idx, 0);
+      await actx.close();
+    } catch(e) { drawWaveform(idx, 0); }
+  }
   // ---- Single-stream before/after engine ----
   // One <audio> plays at a time. Switching before/after seeks the other file to
   // the SAME second and resumes, for a near-instant swap. Light and reliable.
