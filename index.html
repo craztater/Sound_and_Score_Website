@@ -2760,72 +2760,10 @@
   // Polls until the browser actually reports a duration instead of trusting a
   // single event to fire. Metadata requests get queued behind other downloads,
   // so any fixed delay is a race we lose on whichever row loads last.
-  function seekRowAudio(a, opts, done) {
-    if(!a) { if(done) done(); return; }
-    let finished = false;
-    const finish = () => { if(finished) return; finished = true; if(done) done(); };
-    let tries = 0;
-    const tryApply = () => {
-      if(finished) return;
-      const dur = a.duration;
-      const durKnown = isFinite(dur) && dur > 0;
-      // An element is seekable before its duration is known. Some mp3s report a
-      // duration of Infinity or NaN indefinitely (VBR files without a proper
-      // header), so requiring a duration means those tracks never get seeked.
-      const seekable = (a.seekable && a.seekable.length > 0) || a.readyState >= 1;
-      let target = null;
-      if(opts.time != null && seekable) {
-        target = Math.max(0, durKnown ? Math.min(opts.time, dur - 0.05) : opts.time);
-      } else if(opts.frac != null && durKnown) {
-        target = Math.max(0, Math.min((opts.frac || 0) * dur, dur - 0.05));
-      }
-      if(target !== null) {
-        try { a.currentTime = target; } catch(e){}
-        // Confirm the browser accepted it. A silently ignored seek is exactly
-        // what makes a track restart from zero.
-        if(Math.abs(a.currentTime - target) < 1 || tries >= 100) { finish(); return; }
-      }
-      if(tries === 0 && a.readyState === 0) { try { a.load(); } catch(e){} }
-      tries++;
-      if(tries < 120) setTimeout(tryApply, 50);
-      else finish();
-    };
-    tryApply();
-  }
+  // ---- Single-stream before/after engine ----
+  // One <audio> plays at a time. Switching before/after seeks the other file to
+  // the SAME second and resumes, for a near-instant swap. Light and reliable.
 
-  function setRowMode(btn, mode, idxA, idxB) {
-    const row = btn.closest('.ba-row');
-    row.querySelectorAll('.ba-pill').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const activeIdx = parseInt(row.dataset.activeIdx || idxA);
-    if(!rowState[activeIdx]) rowState[activeIdx] = {mode:'before', playing:false, progress:0};
-    rowState[activeIdx].mode = mode;
-
-    const p = rowPair(activeIdx);
-    if(rowState[activeIdx].playing && pairValid(p)) {
-      // Both streams are already playing in sync — just swap which is audible.
-      // This is instant: no seek, no reload, no gap.
-      p.before.volume = (mode === 'before') ? 0.631 : 0;
-      p.after.volume  = (mode === 'after')  ? 0.631 : 0;
-    }
-    // Not playing: nothing to do; the choice takes effect on next play.
-    enqueueWaveform(activeIdx, mode);
-  }
-
-  function toggleRowPlay(idxA, idxB) {
-    const row = document.getElementById('rowplay-' + idxA).closest('.ba-row');
-    const activeIdx = parseInt(row ? row.dataset.activeIdx || idxA : idxA);
-    if(!rowState[activeIdx]) rowState[activeIdx] = {mode:'before', playing:false, progress:0};
-    if(rowState[activeIdx].playing) {
-      stopRowPlay(activeIdx);
-    } else {
-      // Stop any other playing row
-      if(activeRowIdx !== null && activeRowIdx !== activeIdx) stopRowPlay(activeRowIdx);
-      startRowPlay(activeIdx, idxA);
-    }
-  }
-
-  // Return the before/after pair of <audio> elements for a track index.
   function rowPair(idx) {
     return {
       before: document.getElementById('audio-' + idx + '-before'),
@@ -2835,50 +2773,41 @@
   function pairValid(p) {
     return p.before && p.before.src && p.before.src !== window.location.href;
   }
+  function curAudio(activeIdx) {
+    const st = rowState[activeIdx] || {};
+    return document.getElementById('audio-' + activeIdx + '-' + (st.mode || 'before'));
+  }
 
-  // Start BOTH versions together, locked to one clock. Only the selected mode is
-  // audible; switching modes just flips volume, so A/B is instant and seamless.
-  function startRowPlay(activeIdx, displayIdxA) {
-    const state = rowState[activeIdx] || (rowState[activeIdx] = {mode:'before', playing:false, progress:0});
-    const p = rowPair(activeIdx);
-    if(!pairValid(p)) { demoRowPlay(activeIdx, displayIdxA); return; }
-
-    state.playing = true;
-    activeRowIdx = activeIdx;
-    const playBtn = document.getElementById('rowplay-' + displayIdxA);
-    if(playBtn) {
-      playBtn.classList.add('playing');
-      playBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-    }
-
-    const startAt = (isFinite(p.before.currentTime) ? p.before.currentTime : 0);
-    // Set volumes: audible one at site level, the other silenced (kept playing).
-    p.before.volume = (state.mode === 'before') ? 0.631 : 0;
-    p.after.volume  = (state.mode === 'after')  ? 0.631 : 0;
-
-    // Keep both glued to the same position, then play both.
-    try { p.after.currentTime = startAt; } catch(e){}
-    const playBoth = () => { p.before.play().catch(()=>{}); p.after.play().catch(()=>{}); };
-    playBoth();
-
-    // Drive the UI off the BEFORE element (both share a timeline).
-    p.before.ontimeupdate = () => {
-      if(!p.before.duration) return;
-      state.progress = (p.before.currentTime / p.before.duration) * 100;
+  // Wire the time/progress/end handlers onto whichever element is now audible.
+  function attachRowHandlers(audio, activeIdx, displayIdxA) {
+    const state = rowState[activeIdx];
+    audio.ontimeupdate = () => {
+      if(!audio.duration) return;
+      state.progress = (audio.currentTime / audio.duration) * 100;
       const prog = document.getElementById('rowprog-' + displayIdxA);
       const time = document.getElementById('rowtime-' + displayIdxA);
       if(prog) prog.style.width = state.progress + '%';
       drawWaveform(displayIdxA, state.progress);
-      if(time) { const s=Math.floor(p.before.currentTime); time.textContent=Math.floor(s/60)+':'+(s%60+'').padStart(2,'0'); }
-      // Gently correct any drift between the two streams.
-      if(Math.abs(p.after.currentTime - p.before.currentTime) > 0.25) {
-        try { p.after.currentTime = p.before.currentTime; } catch(e){}
-      }
+      if(time) { const s=Math.floor(audio.currentTime); time.textContent=Math.floor(s/60)+':'+(s%60+'').padStart(2,'0'); }
     };
-    p.before.onended = () => { state.progress=0; drawWaveform(displayIdxA,0); stopRowPlay(activeIdx); };
+    audio.onended = () => { state.progress=0; drawWaveform(displayIdxA,0); stopRowPlay(activeIdx); };
   }
 
-  // Fallback bar animation when a row has no real audio wired up.
+  function startRowPlay(activeIdx, displayIdxA) {
+    const state = rowState[activeIdx] || (rowState[activeIdx] = {mode:'before', playing:false, progress:0});
+    const audio = curAudio(activeIdx);
+    if(!audio || !audio.src || audio.src === window.location.href) { demoRowPlay(activeIdx, displayIdxA); return; }
+
+    state.playing = true;
+    activeRowIdx = activeIdx;
+    const playBtn = document.getElementById('rowplay-' + displayIdxA);
+    if(playBtn){ playBtn.classList.add('playing'); playBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; }
+
+    audio.volume = 0.631; /* -4 dB site-wide */
+    attachRowHandlers(audio, activeIdx, displayIdxA);
+    audio.play().catch(()=>{});
+  }
+
   function demoRowPlay(activeIdx, displayIdxA) {
     const state = rowState[activeIdx];
     state.playing = true; activeRowIdx = activeIdx;
@@ -2907,123 +2836,74 @@
     if(activeRowIdx === activeIdx) activeRowIdx = null;
   }
 
-  // Init row dataset
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.ba-row[data-idxa]').forEach(row => {
-      row.dataset.activeIdx = row.dataset.idxa;
-    });
-  });
-  // ── END ROW PLAYER ────────────────────────────────────────────
-
-  // ── WAVEFORM RENDERER ────────────────────────────────────────
-  const waveformCache = {};
-
-  function drawWaveform(idx, progress) {
-    const canvas = document.getElementById('rowwave-' + idx);
-    if(!canvas) return;
-    const W = canvas.offsetWidth || canvas.parentElement.offsetWidth || 300;
-    const H = 36;
-    if(canvas.width !== W) canvas.width = W;
-    canvas.height = H;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, W, H);
-    const barW = 2, gap = 1;
-    const totalBars = Math.floor(W / (barW + gap));
-    const frac = (progress||0) / 100;
-    // Look up this row's waveform for whichever version is selected,
-    // falling back to any cached shape for the row.
-    const dwRow = document.querySelector('.ba-row[data-idxa="' + idx + '"]');
-    const dwIdx = dwRow ? parseInt(dwRow.dataset.activeIdx || idx) : idx;
-    const dwMode = (rowState[dwIdx] && rowState[dwIdx].mode) || 'before';
-    const peaks = waveformCache[dwIdx + '-' + dwMode] || waveformCache[idx + '-before'] || waveformCache[idx];
-    for(let i = 0; i < totalBars; i++) {
-      const x = i * (barW + gap);
-      const played = i / totalBars < frac;
-      let barH;
-      if(peaks) {
-        const si = Math.floor(i / totalBars * peaks.length);
-        barH = Math.max(2, (peaks[si]||0) * H * 0.80);
-      } else {
-        // Gentle pseudo-random flatline until audio loads
-        const seed = Math.sin(i * 127.1 + idx * 31.7) * 43758.5453;
-        barH = 2 + (seed - Math.floor(seed)) * 5;
-      }
-      const y = (H - barH) / 2;
-      ctx.fillStyle = played ? 'rgba(181,53,53,0.80)' : 'rgba(181,53,53,0.15)';
-      if(ctx.roundRect) {
-        ctx.beginPath(); ctx.roundRect(x, y, barW, barH, 1); ctx.fill();
-      } else {
-        ctx.fillRect(x, y, barW, barH);
-      }
+  function toggleRowPlay(idxA, idxB) {
+    const row = document.getElementById('rowplay-' + idxA).closest('.ba-row');
+    const activeIdx = parseInt(row ? row.dataset.activeIdx || idxA : idxA);
+    if(!rowState[activeIdx]) rowState[activeIdx] = {mode:'before', playing:false, progress:0};
+    if(rowState[activeIdx].playing) {
+      stopRowPlay(activeIdx);
+    } else {
+      if(activeRowIdx !== null && activeRowIdx !== activeIdx) stopRowPlay(activeRowIdx);
+      startRowPlay(activeIdx, idxA);
     }
   }
 
-  async function loadWaveform(idx, mode) {
-    const audio = document.getElementById('audio-' + idx + '-' + (mode||'before'));
-    if(!audio || !audio.src || audio.src === window.location.href) {
-      drawWaveform(idx, 0); return;
-    }
-    const cacheKey = idx + '-' + (mode||'before');
-    if(waveformCache[cacheKey]) { drawWaveform(idx, 0); return; }
+  function setRowMode(btn, mode, idxA, idxB) {
+    const row = btn.closest('.ba-row');
+    row.querySelectorAll('.ba-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const activeIdx = parseInt(row.dataset.activeIdx || idxA);
+    if(!rowState[activeIdx]) rowState[activeIdx] = {mode:'before', playing:false, progress:0};
+    const state = rowState[activeIdx];
+    if(state.mode === mode) return;
 
-    try {
-      const resp = await fetch(audio.src);
-      const buf = await resp.arrayBuffer();
-      const actx = new (window.AudioContext || window.webkitAudioContext)();
-      const decoded = await actx.decodeAudioData(buf);
-      const raw = decoded.getChannelData(0);
-      const N = 200;
-      const peaks = new Float32Array(N);
-      const block = Math.floor(raw.length / N);
-      for(let i = 0; i < N; i++) {
-        let mx = 0;
-        for(let j = 0; j < block; j++) { const v=Math.abs(raw[i*block+j]); if(v>mx) mx=v; }
-        peaks[i] = mx;
-      }
-      const maxP = Math.max.apply(null, peaks);
-      if(maxP > 0) for(let i = 0; i < N; i++) peaks[i] /= maxP;
-      waveformCache[cacheKey] = peaks;
-      drawWaveform(idx, 0);
-      await actx.close();
-    } catch(e) { drawWaveform(idx, 0); }
+    const oldAudio = curAudio(activeIdx);
+    const wasPlaying = state.playing && oldAudio && !oldAudio.paused;
+    const atTime = oldAudio ? oldAudio.currentTime : 0;
+
+    state.mode = mode;
+    const newAudio = curAudio(activeIdx);
+    loadWaveform(activeIdx, mode);
+
+    if(oldAudio){ oldAudio.pause(); oldAudio.ontimeupdate = null; }
+
+    if(!newAudio || !newAudio.src || newAudio.src === window.location.href) {
+      drawWaveform(idxA, state.progress || 0);
+      return;
+    }
+    // Seek the newly-selected version to the same second, then resume if we were playing.
+    newAudio.volume = 0.631;
+    const applyAndPlay = () => {
+      try { newAudio.currentTime = atTime; } catch(e){}
+      if(wasPlaying){ attachRowHandlers(newAudio, activeIdx, idxA); newAudio.play().catch(()=>{}); }
+    };
+    if(isFinite(newAudio.duration) && newAudio.duration > 0) applyAndPlay();
+    else { newAudio.addEventListener('loadedmetadata', applyAndPlay, {once:true}); try{ newAudio.load(); }catch(e){} }
   }
 
   function scrubRow(e, idxA) {
     const track = e.currentTarget;
     const rect = track.getBoundingClientRect();
     const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-
     const row = track.closest('.ba-row');
     const displayIdxA = row ? parseInt(row.dataset.idxa || idxA) : idxA;
-    // Use whichever example is currently selected
     const activeIdx = row ? parseInt(row.dataset.activeIdx || idxA) : idxA;
 
-    // Stop any other playing row first
     if(activeRowIdx !== null && activeRowIdx !== activeIdx) stopRowPlay(activeRowIdx);
-
     const state = rowState[activeIdx] || (rowState[activeIdx] = {mode:'before', playing:false, progress:0});
-
-    // Seek BOTH versions to the clicked spot so the A/B stays locked, then play.
     state.progress = frac * 100;
-    const p = rowPair(activeIdx);
+
+    const audio = curAudio(activeIdx);
     drawWaveform(displayIdxA, frac * 100);
     const prog = document.getElementById('rowprog-' + displayIdxA);
     if(prog) prog.style.width = (frac * 100) + '%';
 
-    const seekBoth = () => {
-      [p.before, p.after].forEach(a => {
-        if(a && isFinite(a.duration) && a.duration > 0) {
-          try { a.currentTime = frac * a.duration; } catch(e){}
-        }
-      });
-    };
-    if(p.before && isFinite(p.before.duration) && p.before.duration > 0) {
-      seekBoth();
-    } else if(p.before) {
-      p.before.addEventListener('loadedmetadata', seekBoth, {once:true});
+    if(audio){
+      const doSeek = () => { if(isFinite(audio.duration) && audio.duration>0){ try{ audio.currentTime = frac * audio.duration; }catch(e){} } };
+      if(isFinite(audio.duration) && audio.duration>0) doSeek();
+      else { audio.addEventListener('loadedmetadata', doSeek, {once:true}); try{ audio.load(); }catch(e){} }
     }
     if(!state.playing) startRowPlay(activeIdx, displayIdxA);
-    else seekBoth();
   }
 
   window.addEventListener('DOMContentLoaded', () => {
